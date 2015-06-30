@@ -9,6 +9,7 @@
 typedef struct{
   char *name;
   U64  nReads;
+  U64  nBases;
   U32  nSym;
   U64  length;
   }

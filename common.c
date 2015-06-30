@@ -308,30 +308,6 @@ char *concatenate(char *a, char *b)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-char *RepString(const char *str, const char *old, const char *new)
-  {
-  size_t sLen = strlen(str) + 1;
-  char *cout = 0, *p = 0, *tmp; 
-
-  if(!(p = (cout = (char *) Malloc(sLen * sizeof(char)))))
-    return 0;
-  while(*str)
-    if((*str & 0xc0) != 0x80 && !strncmp(str, old, strlen(old)))
-      {
-      p   -= (intptr_t) cout;
-      tmp  = strcpy(p = (cout = (char *) Realloc(cout, sLen += strlen(new) - 
-             strlen(old), strlen(new) - strlen(old))) + (intptr_t) p, new);
-      p   += strlen(tmp);
-      str += strlen(old);
-      }
-    else
-      *p++ = *str++;
-  *p = 0;
-  return cout;
-  }
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 uint32_t ArgsNum(uint32_t d, char *a[], uint32_t n, char *s, uint32_t l,
 uint32_t u){
   uint32_t x;
@@ -467,21 +443,15 @@ void PrintArgs(Parameters *P){
   fprintf(stderr, "Window size ........................ %u\n", P->window);
   fprintf(stderr, "Mutations .......................... %u\n", P->mutations);
   fprintf(stderr, "Number of threads .................. %u\n", P->nThreads);
+  fprintf(stderr, "Output positions filename .......... %s\n", P->positions);
   fprintf(stderr, "Contigs:\n");
   fprintf(stderr, "  [+] Filename ..................... %s\n", P->Con.name);
-  fprintf(stderr, "  [+] Number of reads .............. %"PRIu64"\n", 
-  P->Con.nReads);
-  fprintf(stderr, "  [+] Different bases .............. %u\n", P->Con.nSym); 
-  fprintf(stderr, "  [+] Bases length ................. %"PRIu64"\n", 
+  fprintf(stderr, "  [+] File length .................. %"PRIu64"\n", 
   P->Con.length);
   fprintf(stderr, "Reference:\n");
   fprintf(stderr, "  [+] Filename ..................... %s\n", P->Ref.name);
-  fprintf(stderr, "  [+] Number of reads .............. %"PRIu64"\n", 
-  P->Ref.nReads);
-  fprintf(stderr, "  [+] Different bases .............. %u\n", P->Ref.nSym);
-  fprintf(stderr, "  [+] Bases length ................. %"PRIu64"\n", 
+  fprintf(stderr, "  [+] File length .................. %"PRIu64"\n", 
   P->Ref.length);
-  fprintf(stderr, "Output positions filename .......... %s\n", P->positions);
   fprintf(stderr, "\n");
   }
 

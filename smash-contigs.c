@@ -13,6 +13,7 @@
 #include <sys/uio.h>
 #include <sys/mman.h>
 #include "mem.h"
+#include "seq.h"
 #include "time.h"
 #include "defs.h"
 #include "param.h"
@@ -22,7 +23,8 @@
 #include "common.h"
 #include "rmodel.h"
 
-CModel **Models;  // MEMORY SHARED BY THREADING
+//RMODEL  *Model;  // MEMORY MODEL SHARED BY THREADING
+SEQ     *Seq;    // SEQUENCE SHARED BY THREADING
 
 /*
 //////////////////////////////////////////////////////////////////////////////
@@ -144,13 +146,14 @@ void *CompressThread(void *Thr){
   pthread_exit(NULL);
   }
 
-
+*/
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - - - R E F E R E N C E - - - - - - - - - - - - -
 
-void LoadReference(Threads T){
-  FILE     *Reader = Fopen(P->files[T.id], "r");
+void LoadReference(){
+  FILE     *Reader = Fopen(P->Ref.name, "r");
   uint32_t n;
+  uint64_t nBases = 0, nReads = 0, idx = 0;
   PARSER   *PA = CreateParser();
   CBUF     *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
   uint8_t  sym, irSym, *readBuf;
@@ -158,33 +161,43 @@ void LoadReference(Threads T){
   fclose(Reader);
   struct   stat s;
   size_t   size, k;
-  int      fd = open(P->files[T.id], O_RDONLY);
+  long     fd = open(P->Ref.name, O_RDONLY);
 
   fstat (fd, & s);
   size = s.st_size;
   readBuf = (uint8_t *) mmap(0, size, PROT_READ, MAP_PRIVATE, fd, 0);
   for(k = 0 ; k < size ; ++k){
     if(ParseSym(PA, (sym = *readBuf++)) == -1) continue;
+
+        
+
     symBuf->buf[symBuf->idx] = sym = DNASymToNum(sym);
-    for(n = 0 ; n < P->nModels ; ++n){
-      GetPModelIdx(symBuf->buf+symBuf->idx-1, Models[n]);
-      UpdateCModelCounter(Models[n], sym, Models[n]->pModelIdx);
-      if(Models[n]->ir == 1){                         // INVERTED REPEATS
-        irSym = GetPModelIdxIR(symBuf->buf+symBuf->idx, Models[n]);
-        UpdateCModelCounter(Models[n], irSym, Models[n]->pModelIdxIR);
-        }
-      }
+  
+//printf("idx:%"PRIu64"\n", Seq->idx);
+ //   UpdateSeq(Seq, sym);
+
+    
+    //for(n = 0 ; n < P->nModels ; ++n){
+    //  GetPModelIdx(symBuf->buf+symBuf->idx-1, Models[n]);
+    //  UpdateCModelCounter(Models[n], sym, Models[n]->pModelIdx);
+    //  if(Models[n]->ir == 1){                         // INVERTED REPEATS
+    //    irSym = GetPModelIdxIR(symBuf->buf+symBuf->idx, Models[n]);
+    //    UpdateCModelCounter(Models[n], irSym, Models[n]->pModelIdxIR);
+    //    }
+    //  }
+    ++nBases;
     UpdateCBuffer(symBuf);
     }
  
-  for(n = 0 ; n < P->nModels ; ++n)
-    ResetCModelIdx(Models[n]);
+  P->Ref.nBases = nBases;
   RemoveCBuffer(symBuf);
   RemoveParser(PA);
   close(fd);
+
+  printf("%"PRIu64"\n", nBases);
   }
 
-
+/*
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - C O M P R E S S O R - - - - - - - - - - - - - -
 
@@ -228,6 +241,7 @@ void CompressAction(Threads *T, uint32_t ref){
 
 */
 
+
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // - - - - - - - - - - - - - - - - - M A I N - - - - - - - - - - - - - - - - -
@@ -238,7 +252,9 @@ int32_t main(int argc, char *argv[]){
   int32_t     xargc = 0;
   uint32_t    n;
   Threads     *T;
-  
+
+  CreateSeq(Seq, 1000); 
+
   P = (Parameters *) Malloc(1 * sizeof(Parameters));
   if((P->help = ArgsState(DEF_HELP, p, argc, "-h")) == 1 || argc < 2){
     PrintMenu();
@@ -250,21 +266,27 @@ int32_t main(int argc, char *argv[]){
     return EXIT_SUCCESS;
     }
 
-  P->verbose   = ArgsState  (DEF_VERBOSE, p, argc, "-v" );
-  P->force     = ArgsState  (DEF_FORCE,   p, argc, "-F" );
-  P->inversion = ArgsState  (DEF_INVE,    p, argc, "-i" );
-  P->kmer      = ArgsNum    (DEF_KMER,    p, argc, "-k", MIN_KMER, MAX_KMER);
-  P->window    = ArgsNum    (DEF_WIND,    p, argc, "-w", MIN_WIND, MAX_WIND);
-  P->mutations = ArgsNum    (DEF_MUTA,    p, argc, "-m", MIN_MUTA, MAX_MUTA);
-  P->nThreads  = ArgsNum    (DEF_THRE,    p, argc, "-n", MIN_THRE, MAX_THRE);
-  P->positions = ArgsFiles  (p, argc, "-o");
-  P->Con.name  = argv[argc-2];
-  P->Ref.name  = argv[argc-1];
+  P->verbose    = ArgsState  (DEF_VERBOSE, p, argc, "-v" );
+  P->force      = ArgsState  (DEF_FORCE,   p, argc, "-F" );
+  P->inversion  = ArgsState  (DEF_INVE,    p, argc, "-i" );
+  P->kmer       = ArgsNum    (DEF_KMER,    p, argc, "-k", MIN_KMER, MAX_KMER);
+  P->window     = ArgsNum    (DEF_WIND,    p, argc, "-w", MIN_WIND, MAX_WIND);
+  P->mutations  = ArgsNum    (DEF_MUTA,    p, argc, "-m", MIN_MUTA, MAX_MUTA);
+  P->nThreads   = ArgsNum    (DEF_THRE,    p, argc, "-n", MIN_THRE, MAX_THRE);
+  P->positions  = ArgsFiles  (p, argc, "-o");
+  P->Con.name   = argv[argc-2];
+  P->Ref.name   = argv[argc-1];
+  P->Con.length = FopenBytesInFile(P->Con.name); 
+  P->Ref.length = FopenBytesInFile(P->Ref.name); 
 
   // GET NUMBER OF READS AND NUMBER OF SYMBOLS FOR REFERENCE AND TARGET
-
   fprintf(stderr, "\n");
   if(P->verbose) PrintArgs(P);
+
+  fprintf(stderr, "==[ PROCESSING ]====================\n");
+  TIME *Time = CreateClock(clock());
+
+  LoadReference();
 
   if(P->nThreads > P->Con.nReads + 1){
     fprintf(stderr, "Error: the number of threads must not be higher than the "
@@ -272,8 +294,8 @@ int32_t main(int argc, char *argv[]){
     exit(1);
     }
 
-  fprintf(stderr, "==[ PROCESSING ]====================\n");
-  TIME *Time = CreateClock(clock());
+
+
 
     ;//CompressAction(T, n);
   StopTimeNDRM(Time, clock());
@@ -287,6 +309,7 @@ int32_t main(int argc, char *argv[]){
   StopCalcAll(Time, clock());
   fprintf(stderr, "\n");
 
+//  RemoveSeq(Seq);
   RemoveClock(Time);
 
   return EXIT_SUCCESS;

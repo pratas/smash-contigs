@@ -61,7 +61,7 @@ int32_t ParseSym(PARSER *PA, uint8_t sym){
 
   // NUCLEOTIDE PARSE
   if(sym != 'A' && sym != 'C' && sym != 'G' && sym != 'T')
-    return -1;
+    return 4;
 
   return sym;
   }

@@ -14,7 +14,6 @@ uint8_t     PackByte         (uint8_t *);
 uint64_t    SumWriteBits     (uint8_t **, int, uint64_t, FILE *, FILE *);
 void        ShiftBuffer      (uint8_t *, int, uint8_t);
 double      Power            (double, double);
-char        *ReplaceSubStr   (char *, char *, char *);
 uint8_t     DNASymToNum      (uint8_t  );
 uint8_t     NumToDNASym      (uint8_t  );
 uint8_t     GetCompNum       (uint8_t  );
