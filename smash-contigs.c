@@ -163,6 +163,7 @@ void LoadReference(){
   uint64_t nBases = 0, nReads = 0, idx = 0;
   PARSER   *PA = CreateParser();
   CBUF     *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
+  CBUF     *dnaBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
   uint8_t  sym, irSym, *readBuf;
   FileType(PA, Reader);
   fclose(Reader);
@@ -177,11 +178,12 @@ void LoadReference(){
 
     if(ParseSym(PA, (sym = *readBuf++)) == -1) continue;
 
-    symBuf->buf[symBuf->idx] = sym = DNASymToNum(sym);
+    sym = DNASymToNum(sym);
     UpdateSeq(Seq, sym);
 
+    if(sym != 4) symBuf->buf[symBuf->idx] = sym;
 
-    Mod->P->idx = GetIdxR(Seq->buf+Seq->idx, Mod);
+    Mod->P->idx = GetIdxR(symBuf->buf+symBuf->idx, Mod);
     InsertKmerPos(Mod, Mod->P->idx, k);
     CalcProgress(P->Ref.length, k);
 
@@ -266,7 +268,7 @@ int32_t main(int argc, char *argv[]){
   P->force      = ArgsState  (DEF_FORCE,   p, argc, "-F" );
   P->inversion  = ArgsState  (DEF_INVE,    p, argc, "-i" );
   P->kmer       = ArgsNum    (DEF_KMER,    p, argc, "-k", MIN_KMER, MAX_KMER);
-  P->mrepeats   = ArgsNum    (DEF_REPE,    p, argc, "-r", MIN_REPE, MAX_REPE);
+  P->repeats    = ArgsNum    (DEF_REPE,    p, argc, "-r", MIN_REPE, MAX_REPE);
   P->window     = ArgsNum    (DEF_WIND,    p, argc, "-w", MIN_WIND, MAX_WIND);
   P->mutations  = ArgsNum    (DEF_MUTA,    p, argc, "-m", MIN_MUTA, MAX_MUTA);
   P->nThreads   = ArgsNum    (DEF_THRE,    p, argc, "-n", MIN_THRE, MAX_THRE);
@@ -284,8 +286,8 @@ int32_t main(int argc, char *argv[]){
   TIME *Time = CreateClock(clock());
 
   fprintf(stderr, "Building repeats model and sequence ...\n");
-  Seq = CreateSeq(1000); 
-  Mod = CreateRC(500, 1, 0.9, 7, P->kmer, 0.9, P->inversion);
+  Seq = CreateSeq(100000); 
+  Mod = CreateRC(P->repeats, 1, 0.9, 7, P->kmer, 0.9, P->inversion);
   fprintf(stderr, "Done!                \n");
   fprintf(stderr, "Loading reference ...\n");
   LoadReference();

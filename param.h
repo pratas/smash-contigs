@@ -22,6 +22,7 @@ typedef struct{
   U8       inversion;
   U8       level;
   U32      kmer;
+  U32      repeats;
   U32      window;
   U32      mutations;
   U32      nThreads;
