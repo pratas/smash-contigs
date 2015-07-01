@@ -22,9 +22,10 @@ typedef struct{
   U8       inversion;
   U8       level;
   U32      kmer;
+  U32      minimum;
   U32      repeats;
   U32      window;
-  U32      mutations;
+  U32      editions;
   U32      nThreads;
   FILEP    Ref;
   FILEP    Con;

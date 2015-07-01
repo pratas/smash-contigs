@@ -439,17 +439,19 @@ void PrintArgs(Parameters *P){
   fprintf(stderr, "Using inversions ................... %s\n", P->inversion == 
    0 ? "no" : "yes");
   fprintf(stderr, "K-mer size ......................... %u\n", P->kmer);
+  fprintf(stderr, "Minimum block size ................. %u\n", P->minimum);
+  fprintf(stderr, "Repeats number ..................... %u\n", P->repeats);
   fprintf(stderr, "Window size ........................ %u\n", P->window);
-  fprintf(stderr, "Mutations .......................... %u\n", P->mutations);
+  fprintf(stderr, "Allowed editions ................... %u\n", P->editions);
   fprintf(stderr, "Number of threads .................. %u\n", P->nThreads);
   fprintf(stderr, "Output positions filename .......... %s\n", P->positions);
   fprintf(stderr, "Contigs:\n");
-  fprintf(stderr, "  [+] Filename ..................... %s\n", P->Con.name);
-  fprintf(stderr, "  [+] File length .................. %"PRIu64"\n", 
+  fprintf(stderr, "  [+] Name ......................... %s\n", P->Con.name);
+  fprintf(stderr, "  [+] Length ....................... %"PRIu64"\n", 
   P->Con.length);
   fprintf(stderr, "Reference:\n");
-  fprintf(stderr, "  [+] Filename ..................... %s\n", P->Ref.name);
-  fprintf(stderr, "  [+] File length .................. %"PRIu64"\n", 
+  fprintf(stderr, "  [+] Name ......................... %s\n", P->Ref.name);
+  fprintf(stderr, "  [+] Length ....................... %"PRIu64"\n", 
   P->Ref.length);
   fprintf(stderr, "\n");
   }

@@ -163,7 +163,6 @@ void LoadReference(){
   uint64_t nBases = 0, nReads = 0, idx = 0;
   PARSER   *PA = CreateParser();
   CBUF     *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
-  CBUF     *dnaBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
   uint8_t  sym, irSym, *readBuf;
   FileType(PA, Reader);
   fclose(Reader);
@@ -181,14 +180,15 @@ void LoadReference(){
     sym = DNASymToNum(sym);
     UpdateSeq(Seq, sym);
 
-    if(sym != 4) symBuf->buf[symBuf->idx] = sym;
+    if(sym != 4){
+      symBuf->buf[symBuf->idx] = sym;
+      Mod->P->idx = GetIdxR(symBuf->buf+symBuf->idx, Mod);
+      InsertKmerPos(Mod, Mod->P->idx, k);
+      UpdateCBuffer(symBuf);
+      }
 
-    Mod->P->idx = GetIdxR(symBuf->buf+symBuf->idx, Mod);
-    InsertKmerPos(Mod, Mod->P->idx, k);
     CalcProgress(P->Ref.length, k);
-
     ++nBases;
-    UpdateCBuffer(symBuf);
     }
 
   P->Ref.nBases = nBases;
@@ -268,9 +268,10 @@ int32_t main(int argc, char *argv[]){
   P->force      = ArgsState  (DEF_FORCE,   p, argc, "-F" );
   P->inversion  = ArgsState  (DEF_INVE,    p, argc, "-i" );
   P->kmer       = ArgsNum    (DEF_KMER,    p, argc, "-k", MIN_KMER, MAX_KMER);
+  P->minimum    = ArgsNum    (DEF_MINI,    p, argc, "-m", MIN_MINI, MAX_MINI);
   P->repeats    = ArgsNum    (DEF_REPE,    p, argc, "-r", MIN_REPE, MAX_REPE);
   P->window     = ArgsNum    (DEF_WIND,    p, argc, "-w", MIN_WIND, MAX_WIND);
-  P->mutations  = ArgsNum    (DEF_MUTA,    p, argc, "-m", MIN_MUTA, MAX_MUTA);
+  P->editions   = ArgsNum    (DEF_EDIT,    p, argc, "-e", MIN_EDIT, MAX_EDIT);
   P->nThreads   = ArgsNum    (DEF_THRE,    p, argc, "-n", MIN_THRE, MAX_THRE);
   P->positions  = ArgsFiles  (p, argc, "-o");
   P->Con.name   = argv[argc-2];
@@ -285,7 +286,7 @@ int32_t main(int argc, char *argv[]){
   fprintf(stderr, "==[ PROCESSING ]====================\n");
   TIME *Time = CreateClock(clock());
 
-  fprintf(stderr, "Building repeats model and sequence ...\n");
+  fprintf(stderr, "Building repeats and sequence model ...\n");
   Seq = CreateSeq(100000); 
   Mod = CreateRC(P->repeats, 1, 0.9, 7, P->kmer, 0.9, P->inversion);
   fprintf(stderr, "Done!                \n");
