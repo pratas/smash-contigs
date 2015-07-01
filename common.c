@@ -361,7 +361,7 @@ char *ArgsFiles(char *arg[], uint32_t argc, char *str){
     if(!strcmp(str, arg[n]))
       return CloneString(arg[n+1]);
   
-  return concatenate(concatenate(arg[argc-2], arg[argc-1]), ".pos");
+  return concatenate("match", ".pos");
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -407,16 +407,14 @@ int32_t StrToArgv(char *s, char ***v){
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-inline void CalcProgress(uint64_t size, uint64_t i)
-  {
+inline void CalcProgress(uint64_t size, uint64_t i){
   if(i % (size / 100) == 0 && size > 1000)
     fprintf(stderr, "Progress:%3d %%\r", (uint8_t) (i / (size / 100)));
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-uint8_t CmpCheckSum(uint32_t cs, uint32_t checksum)
-  {
+uint8_t CmpCheckSum(uint32_t cs, uint32_t checksum){
   if(checksum != cs)
     { 
     fprintf(stderr, "Error: invalid reference file!\n"
