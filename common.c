@@ -199,6 +199,7 @@ uint8_t NumToDNASym(uint8_t symbol)
     case 3: return 'T';
     case 1: return 'C';
     case 2: return 'G';
+    case 4: return 'N';
     default: fprintf(stderr, "Error: unknown numerical symbols\n"); exit(1);
     }
   }

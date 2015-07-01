@@ -167,16 +167,16 @@ void LoadReference(){
   size = s.st_size;
   readBuf = (uint8_t *) mmap(0, size, PROT_READ, MAP_PRIVATE, fd, 0);
   for(k = 0 ; k < size ; ++k){
+
+//    // COUNT READS
+//    if((sym == '@' || sym == '>') && Seq->buf[Seq->idx] == '\n')
+//      P->Ref.nReads++;
+ 
     if(ParseSym(PA, (sym = *readBuf++)) == -1) continue;
 
-        
-
     symBuf->buf[symBuf->idx] = sym = DNASymToNum(sym);
-  
-//printf("idx:%"PRIu64"\n", Seq->idx);
- //   UpdateSeq(Seq, sym);
+    UpdateSeq(Seq, sym);
 
-    
     //for(n = 0 ; n < P->nModels ; ++n){
     //  GetPModelIdx(symBuf->buf+symBuf->idx-1, Models[n]);
     //  UpdateCModelCounter(Models[n], sym, Models[n]->pModelIdx);
@@ -185,16 +185,19 @@ void LoadReference(){
     //    UpdateCModelCounter(Models[n], irSym, Models[n]->pModelIdxIR);
     //    }
     //  }
+
     ++nBases;
     UpdateCBuffer(symBuf);
     }
- 
+
   P->Ref.nBases = nBases;
+
+  printf("nReads: %"PRIu64"\n", P->Ref.nReads);
+  printf("nBases: %"PRIu64"\n", P->Ref.nBases);
+
   RemoveCBuffer(symBuf);
   RemoveParser(PA);
   close(fd);
-
-  printf("%"PRIu64"\n", nBases);
   }
 
 /*
@@ -253,8 +256,6 @@ int32_t main(int argc, char *argv[]){
   uint32_t    n;
   Threads     *T;
 
-  CreateSeq(Seq, 1000); 
-
   P = (Parameters *) Malloc(1 * sizeof(Parameters));
   if((P->help = ArgsState(DEF_HELP, p, argc, "-h")) == 1 || argc < 2){
     PrintMenu();
@@ -286,15 +287,15 @@ int32_t main(int argc, char *argv[]){
   fprintf(stderr, "==[ PROCESSING ]====================\n");
   TIME *Time = CreateClock(clock());
 
+  Seq = CreateSeq(1000); 
   LoadReference();
+  // WHILE LOADING GET NUMBER OF READS AND NUMBER OF SYMBOLS FOR REFERENCE AND TARGET
 
-  if(P->nThreads > P->Con.nReads + 1){
-    fprintf(stderr, "Error: the number of threads must not be higher than the "
-    "number of reads in the contig file\n");
-    exit(1);
-    }
-
-
+// if(P->nThreads > P->Con.nReads + 1){
+//   fprintf(stderr, "Error: the number of threads must not be higher than the "
+//   "number of reads in the contig file\n");
+//   exit(1);
+//   }
 
 
     ;//CompressAction(T, n);
@@ -309,7 +310,7 @@ int32_t main(int argc, char *argv[]){
   StopCalcAll(Time, clock());
   fprintf(stderr, "\n");
 
-//  RemoveSeq(Seq);
+  RemoveSeq(Seq);
   RemoveClock(Time);
 
   return EXIT_SUCCESS;

@@ -38,8 +38,8 @@ int32_t ParseSym(PARSER *PA, uint8_t sym){
     // IS A FASTA FILE
     case 1:
       switch(sym){
-        case '>':  PA->header = 1; return -1;
-        case '\n': PA->header = 0; return -1;
+        case '>':  PA->header = 1;   return -1;
+        case '\n': PA->header = 0;   return -1;
         default:   if(PA->header==1) return -1;
         }
     break;
