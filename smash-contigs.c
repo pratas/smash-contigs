@@ -135,6 +135,7 @@ void CompressTarget(Threads T){
 
   P->matrix[P->ref][T.id] = nBase == 0 ? 101 : bits / 2 / nBase; // 101 -> nan
   }
+*/
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -142,16 +143,9 @@ void CompressTarget(Threads T){
 
 void *CompressThread(void *Thr){
   Threads *T = (Threads *) Thr;
-  CompressTarget(T[0]);
+//  CompressTarget(T[0]);
   pthread_exit(NULL);
   }
-
-*/
-
-
-//    // COUNT READS
-//    if((sym == '@' || sym == '>') && Seq->buf[Seq->idx] == '\n')
-//      P->Ref.nReads++;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -176,7 +170,6 @@ void LoadReference(){
   for(k = 0 ; k < size ; ++k){
 
     if(ParseSym(PA, (sym = *readBuf++)) == -1) continue;
-
     sym = DNASymToNum(sym);
     UpdateSeq(Seq, sym);
 
@@ -197,49 +190,34 @@ void LoadReference(){
   close(fd);
   }
 
-/*
+
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - C O M P R E S S O R - - - - - - - - - - - - - -
 
-void CompressAction(Threads *T, uint32_t ref){
-  uint32_t n, k;
+void CompressAction(){
+  uint32_t n;
   pthread_t t[P->nThreads];
-  P->ref = ref;
+  Threads  *T = (Threads *) Calloc(P->nThreads, sizeof(Threads));
+  for(n = 0 ; n < P->nThreads ; ++n) T[n].id = n; 
 
-  Models = (CModel **) Malloc(P->nModels * sizeof(CModel *));
-  for(n = 0 ; n < P->nModels ; ++n)
-    Models[n] = CreateCModel(T[ref].model[n].ctx, T[ref].model[n].den, 
-    T[ref].model[n].ir, REFERENCE, P->col, T[ref].model[n].edits, 
-    T[ref].model[n].eDen);
+  fprintf(stderr, "  [+] Building models ...\n");
+  Seq = CreateSeq(100000);
+  Mod = CreateRC(P->repeats, 1, 0.9, 7, P->kmer, 0.9, P->inversion);
+  fprintf(stderr, "      Done!                \n");
 
-  fprintf(stderr, "  [+] Loading reference %u ... ", ref+1);
-  LoadReference(T[ref]);
-  fprintf(stderr, "Done!\n");
-  
-  fprintf(stderr, "      [+] Compressing %u targets ... ", P->nFiles);
-  ref = 0;
-  do{
-    for(n = 0 ; n < P->nThreads ; ++n)
-      pthread_create(&(t[n+1]), NULL, CompressThread, (void *) &(T[ref+n]));
-    for(n = 0 ; n < P->nThreads ; ++n) // DO NOT JOIN FORS!
-      pthread_join(t[n+1], NULL);
-    }
-  while((ref += P->nThreads) < P->nFiles && ref + P->nThreads <= P->nFiles);
+  fprintf(stderr, "  [+] Loading reference ...\n");
+  LoadReference();
+  fprintf(stderr, "      Done!                \n");
 
-  if(ref < P->nFiles){ // EXTRA - OUT OF THE MAIN LOOP
-    for(n = ref, k = 0 ; n < P->nFiles ; ++n)
-      pthread_create(&(t[++k]), NULL, CompressThread, (void *) &(T[n]));
-    for(n = ref, k = 0 ; n < P->nFiles ; ++n) // DO NOT JOIN FORS!
-      pthread_join(t[++k], NULL);
-    }
-  fprintf(stderr, "Done!\n");
+  fprintf(stderr, "  [+] Compressing contigs ... \n");
+  for(n = 0 ; n < P->nThreads ; ++n)
+    pthread_create(&(t[n+1]), NULL, CompressThread, (void *) &(T[n]));
+  for(n = 0 ; n < P->nThreads ; ++n) // DO NOT JOIN FORS!
+    pthread_join(t[n+1], NULL);
+  fprintf(stderr, "      Done!\n");
 
-  for(n = 0 ; n < P->nModels ; ++n)
-    FreeCModel(Models[n]);
-  Free(Models);
+  // TODO: FREE REPEAT MODELS!
   }
-
-*/
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -285,16 +263,7 @@ int32_t main(int argc, char *argv[]){
 
   fprintf(stderr, "==[ PROCESSING ]====================\n");
   TIME *Time = CreateClock(clock());
-
-  fprintf(stderr, "Building repeats and sequence model ...\n");
-  Seq = CreateSeq(100000); 
-  Mod = CreateRC(P->repeats, 1, 0.9, 7, P->kmer, 0.9, P->inversion);
-  fprintf(stderr, "Done!                \n");
-  fprintf(stderr, "Loading reference ...\n");
-  LoadReference();
-  fprintf(stderr, "Done!                \n");
-
-
+  CompressAction();
   StopTimeNDRM(Time, clock());
   fprintf(stderr, "\n");
 

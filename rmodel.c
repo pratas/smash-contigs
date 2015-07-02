@@ -81,7 +81,7 @@ ENTRY *GetHEnt(RCLASS *C, uint64_t key){
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// START EACH REPEAT MODEL, CURRENTLY BY RANDOM STORED POSITION 
+// START EACH REPEAT MODEL
 //
 int32_t StartRM(RCLASS *C, uint32_t m, uint64_t i, uint8_t r){
   uint32_t s;
