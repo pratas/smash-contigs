@@ -26,12 +26,12 @@
 RCLASS  *Mod;  // MEMORY MODEL SHARED BY THREADING
 SEQ     *Seq;  // SEQUENCE SHARED BY THREADING
 
-/*
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - C O M P R E S S I N G - - - - - - - - - - - - - 
 
 void CompressTarget(Threads T){
-  FILE        *Reader  = Fopen(P->files[T.id], "r");
+  FILE        *Reader  = Fopen(P->Con.name, "r");
+/*
   double      *cModelWeight, cModelTotalWeight = 0, bits = 0, instance = 0;
   uint64_t    nBase = 0;
   uint32_t    n, k, idxPos, totModels, cModel;
@@ -131,11 +131,10 @@ void CompressTarget(Threads T){
   Free(readBuf);
   RemoveCBuffer(symBuf);
   RemoveParser(PA);
-  fclose(Reader);
-
-  P->matrix[P->ref][T.id] = nBase == 0 ? 101 : bits / 2 / nBase; // 101 -> nan
-  }
 */
+
+  fclose(Reader);
+  }
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -143,7 +142,7 @@ void CompressTarget(Threads T){
 
 void *CompressThread(void *Thr){
   Threads *T = (Threads *) Thr;
-//  CompressTarget(T[0]);
+  CompressTarget(T[0]);
   pthread_exit(NULL);
   }
 
