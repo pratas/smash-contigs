@@ -31,35 +31,12 @@ SEQ     *Seq;  // SEQUENCE SHARED BY THREADING
 
 void CompressTarget(Threads T){
   FILE        *Reader  = Fopen(P->Con.name, "r");
-/*
-  double      *cModelWeight, cModelTotalWeight = 0, bits = 0, instance = 0;
-  uint64_t    nBase = 0;
-  uint32_t    n, k, idxPos, totModels, cModel;
+  uint64_t    nBase = 0, idxPos = 0;
+  uint32_t    n, k;
   PARSER      *PA = CreateParser();
   CBUF        *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
   uint8_t     *readBuf = (uint8_t *) Calloc(BUFFER_SIZE, sizeof(uint8_t));
   uint8_t     sym, *pos;
-  PModel      **pModel, *MX;
-  CModel      **Shadow;
-  FloatPModel *PT;
-
-  totModels = P->nModels; // EXTRA MODELS DERIVED FROM EDITS
-  for(n = 0 ; n < P->nModels ; ++n) 
-    if(T.model[n].edits != 0)
-      totModels += 1;
-
-  Shadow = (CModel **) Calloc(P->nModels, sizeof(CModel *));
-  for(n = 0 ; n < P->nModels ; ++n)
-    Shadow[n] = CreateShadowModel(Models[n]); 
-  pModel        = (PModel  **) Calloc(totModels, sizeof(PModel *));
-  for(n = 0 ; n < totModels ; ++n)
-    pModel[n]   = CreatePModel(ALPHABET_SIZE);
-  MX            = CreatePModel(ALPHABET_SIZE);
-  PT            = CreateFloatPModel(ALPHABET_SIZE);
-  cModelWeight  = (double   *) Calloc(totModels, sizeof(double));
-
-  for(n = 0 ; n < totModels ; ++n)
-    cModelWeight[n] = 1.0 / totModels;
 
   FileType(PA, Reader);
 
@@ -68,71 +45,16 @@ void CompressTarget(Threads T){
     for(idxPos = 0 ; idxPos < k ; ++idxPos){
       if(ParseSym(PA, (sym = readBuf[idxPos])) == -1) continue;
       symBuf->buf[symBuf->idx] = sym = DNASymToNum(sym);
-
-      memset((void *)PT->freqs, 0, ALPHABET_SIZE * sizeof(double));
-
       n = 0;
       pos = &symBuf->buf[symBuf->idx-1];
-      for(cModel = 0 ; cModel < P->nModels ; ++cModel){
-        GetPModelIdx(pos, Shadow[cModel]);
-        ComputePModel(Models[cModel], pModel[n], Shadow[cModel]->pModelIdx,
-        Shadow[cModel]->alphaDen);
-        ComputeWeightedFreqs(cModelWeight[n], pModel[n], PT);
-        if(Shadow[cModel]->edits != 0){
-          ++n;
-          Shadow[cModel]->SUBS.seq->buf[Shadow[cModel]->SUBS.seq->idx] = sym;
-          Shadow[cModel]->SUBS.idx = GetPModelIdxCorr(Shadow[cModel]->SUBS.
-          seq->buf+Shadow[cModel]->SUBS.seq->idx-1, Shadow[cModel], Shadow
-          [cModel]->SUBS.idx);
-          ComputePModel(Models[cModel], pModel[n], Shadow[cModel]->SUBS.idx, 
-          Shadow[cModel]->SUBS.eDen);
-          ComputeWeightedFreqs(cModelWeight[n], pModel[n], PT);
-          }
-        ++n;
-        }
-
-      MX->sum  = (MX->freqs[0] = 1 + (unsigned) (PT->freqs[0] * MX_PMODEL));
-      MX->sum += (MX->freqs[1] = 1 + (unsigned) (PT->freqs[1] * MX_PMODEL));
-      MX->sum += (MX->freqs[2] = 1 + (unsigned) (PT->freqs[2] * MX_PMODEL));
-      MX->sum += (MX->freqs[3] = 1 + (unsigned) (PT->freqs[3] * MX_PMODEL));
-      bits += (instance = PModelSymbolLog(MX, sym));
-      nBase++;
-
-      cModelTotalWeight = 0;
-      for(n = 0 ; n < totModels ; ++n){
-        cModelWeight[n] = Power(cModelWeight[n], P->gamma) * (double) 
-        pModel[n]->freqs[sym] / pModel[n]->sum;
-        cModelTotalWeight += cModelWeight[n];
-        }
-
-      for(n = 0 ; n < totModels ; ++n)
-        cModelWeight[n] /= cModelTotalWeight; // RENORMALIZE THE WEIGHTS
-
-      n = 0;
-      for(cModel = 0 ; cModel < P->nModels ; ++cModel){
-        if(Shadow[cModel]->edits != 0){
-          CorrectCModelSUBS(Shadow[cModel], pModel[++n], sym);
-          }
-        ++n;
-        }
 
       UpdateCBuffer(symBuf);
+      nBase++;
       }
 
-  Free(cModelWeight);
-  for(n = 0 ; n < totModels ; ++n)
-    RemovePModel(pModel[n]);
-  Free(pModel);
-  RemovePModel(MX);
-  RemoveFPModel(PT);
-  for(n = 0 ; n < P->nModels ; ++n)
-    FreeShadow(Shadow[n]);
-  Free(Shadow);
   Free(readBuf);
   RemoveCBuffer(symBuf);
   RemoveParser(PA);
-*/
-
   fclose(Reader);
   }
 
