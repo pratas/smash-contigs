@@ -48,6 +48,19 @@ void CompressTarget(Threads T){
       n = 0;
       pos = &symBuf->buf[symBuf->idx-1];
 
+/*
+      // TODO: NEED SHADOWS?
+
+      StopRM(C);
+      StartMultipleRMs(C, cache+SCACHE-1);
+      InsertKmerPos(C, C->P->idx, pos++);                    // pos = (i<<2)+n
+      RenormWeights(C, F);
+      ComputeMixture(C, F, MX, buf);
+      ArithEncodeSymbol(sym, (int *)(MX->freqs), (int) MX->sum, OUT);
+      UpdateWeights(C, F, buf, sym);
+      ShiftRBuf(cache, SCACHE, sym);  // STORE THE LAST SCACHE BASES & SHIFT 1
+*/
+
       UpdateCBuffer(symBuf);
       nBase++;
       }
