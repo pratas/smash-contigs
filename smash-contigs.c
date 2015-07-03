@@ -35,8 +35,7 @@ void CompressTarget(Threads T){
   uint32_t    n, k;
   PARSER      *PA = CreateParser();
   CBUF        *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
-  uint8_t     *readBuf = (uint8_t *) Calloc(BUFFER_SIZE, sizeof(uint8_t));
-  uint8_t     sym, *pos;
+  uint8_t     *readBuf = (uint8_t *) Calloc(BUFFER_SIZE, sizeof(uint8_t)), sym;
 
   FileType(PA, Reader);
 
@@ -46,19 +45,18 @@ void CompressTarget(Threads T){
       if(ParseSym(PA, (sym = readBuf[idxPos])) == -1) continue;
       symBuf->buf[symBuf->idx] = sym = DNASymToNum(sym);
       n = 0;
-      pos = &symBuf->buf[symBuf->idx-1];
-
-/*
+     
       // TODO: NEED SHADOWS?
 
-      StopRM(C);
-      StartMultipleRMs(C, cache+SCACHE-1);
-      InsertKmerPos(C, C->P->idx, pos++);                    // pos = (i<<2)+n
-      RenormWeights(C, F);
-      ComputeMixture(C, F, MX, buf);
-      ArithEncodeSymbol(sym, (int *)(MX->freqs), (int) MX->sum, OUT);
+      StopRM(Mod);
+      StartMultipleRMs(Mod, symBuf->buf+symBuf->idx-1);
+
+      printf("%u : %u\n", Mod->nRM, Mod->mRM);
+
+/*
+      //RenormWeights(Mod, F);
+      ComputeMixture(Mod, F, MX, buf);
       UpdateWeights(C, F, buf, sym);
-      ShiftRBuf(cache, SCACHE, sym);  // STORE THE LAST SCACHE BASES & SHIFT 1
 */
 
       UpdateCBuffer(symBuf);
@@ -109,7 +107,7 @@ void LoadReference(){
 
     if(sym != 4){
       symBuf->buf[symBuf->idx] = sym;
-      Mod->P->idx = GetIdxR(symBuf->buf+symBuf->idx, Mod);
+      Mod->P->idx = GetIdxR(symBuf->buf+symBuf->idx-1, Mod);
       InsertKmerPos(Mod, Mod->P->idx, k);
       UpdateCBuffer(symBuf);
       }
