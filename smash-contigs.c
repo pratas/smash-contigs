@@ -48,16 +48,9 @@ void CompressTarget(Threads T){
       symBuf->buf[symBuf->idx] = sym = DNASymToNum(sym);
       n = 0;
      
-      // TODO: NEED SHADOWS?
       StopRM(Mod);
       StartMultipleRMs(Mod, Hash, symBuf->buf+symBuf->idx-1);
       printf("%u : %u\n", Mod->nRM, Mod->mRM);
-
-/*
-      //RenormWeights(Mod, F);
-      ComputeMixture(Mod, F, MX, buf);
-      UpdateWeights(C, F, buf, sym);
-*/
 
       UpdateCBuffer(symBuf);
       nBase++;

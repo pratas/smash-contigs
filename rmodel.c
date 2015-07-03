@@ -162,15 +162,16 @@ void UpdateRM(RMODEL *R, uint8_t *b, uint8_t s){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // COMPUTE REPEAT MODEL PROBABILITIES
 //
-/*
 void ComputeRMProbs(RCLASS *C, RMODEL *R, uint8_t *b){
   uint8_t n, s;
+/*
   s = (R->rev == 1) ? GetCompNum(b[R->pos]) : b[R->pos];
   R->probs[s] = (R->nHits+C->P->alpha) / (R->nTries+2*C->P->alpha);
   for(n = 0 ; n < NSYM ; ++n)
     if(n != s) R->probs[n] = (1-R->probs[s])/3;
-  }
 */
+  }
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // STOP USELESS REPEAT MODELS
 //
