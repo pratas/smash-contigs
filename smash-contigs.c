@@ -23,8 +23,10 @@
 #include "common.h"
 #include "rmodel.h"
 
+HASH    *Hash; // HASH MEMORY SHARED BY THREADING
 RCLASS  *Mod;  // MEMORY MODEL SHARED BY THREADING
 SEQ     *Seq;  // SEQUENCE SHARED BY THREADING
+
 
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - C O M P R E S S I N G - - - - - - - - - - - - - 
@@ -47,10 +49,8 @@ void CompressTarget(Threads T){
       n = 0;
      
       // TODO: NEED SHADOWS?
-
       StopRM(Mod);
-      StartMultipleRMs(Mod, symBuf->buf+symBuf->idx-1);
-
+      StartMultipleRMs(Mod, Hash, symBuf->buf+symBuf->idx-1);
       printf("%u : %u\n", Mod->nRM, Mod->mRM);
 
 /*
@@ -107,8 +107,8 @@ void LoadReference(){
 
     if(sym != 4){
       symBuf->buf[symBuf->idx] = sym;
-      Mod->P->idx = GetIdxR(symBuf->buf+symBuf->idx-1, Mod);
-      InsertKmerPos(Mod, Mod->P->idx, k);
+      Mod->idx = GetIdxR(symBuf->buf+symBuf->idx-1, Mod);
+      InsertKmerPos(Hash, Mod->idx, k);
       UpdateCBuffer(symBuf);
       }
 
@@ -133,8 +133,9 @@ void CompressAction(){
   for(n = 0 ; n < P->nThreads ; ++n) T[n].id = n; 
 
   fprintf(stderr, "  [+] Building models ...\n");
-  Seq = CreateSeq(100000);
-  Mod = CreateRC(P->repeats, 1, 0.9, 7, P->kmer, 0.9, P->inversion);
+  Seq  = CreateSeq(100000);
+  Mod  = CreateRC(P->repeats, P->kmer, P->inversion, 777); //XXX: 777 ->size
+  Hash = CreateHash();
   fprintf(stderr, "      Done!                \n");
 
   fprintf(stderr, "  [+] Loading reference ...\n");
