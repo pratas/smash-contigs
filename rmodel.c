@@ -47,6 +47,12 @@ RCLASS *CreateRC(uint32_t max, uint32_t k, uint8_t ir, uint64_t size){
   RCLASS *C = (RCLASS *) Calloc(1,   sizeof(RCLASS));
   C->RM     = (RMODEL *) Calloc(max, sizeof(RMODEL));
   C->mRM    = max;
+  C->rev    = ir;
+  C->idx    = 0;
+  C->idxRev = 0;
+  C->kmer   = k;
+  C->mult   = CalcMult(k);
+  C->size   = size;
 
   for(n = 0 ; n < max ; ++n){
     C->RM[n].pos    = 0;
@@ -55,12 +61,6 @@ RCLASS *CreateRC(uint32_t max, uint32_t k, uint8_t ir, uint64_t size){
     C->RM[n].rev    = ir;
     }
 
-  C->rev    = ir;
-  C->idx    = 0;
-  C->idxRev = 0;
-  C->kmer   = k;
-  C->mult   = CalcMult(k);
-  C->size   = size;
   return C;
   }
 
