@@ -9,50 +9,33 @@
 #include "rmodel.h"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// SILVERS HASH
-//
-static uint64_t XHASH(uint64_t x){
-  return (x * 786433 + 196613) % 68719476735;
-  }
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // CALCULATION OF CONTEXT MULTIPLICATOR FOR INDEX FUNCTION USAGE
 //
-uint64_t CalcMult(uint32_t k){
+uint64_t CalcMult(uint32_t c){
   uint32_t n;
-  uint64_t x[k], p = 1;
-  for(n = 0 ; n < k ; ++n){
+  uint64_t x[c], p = 1;
+  for(n = 0 ; n < c ; ++n){
     x[n] = p;
     p <<= 2;
     }
-  return x[k-1];
-  }
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// CREATES THE HASH STRUCTURE 
-//
-HASH *CreateHash(void){
-  HASH *H = (HASH *) Calloc(1, sizeof(HASH));
-  H->ent  = (ENTRY   **) Calloc(HSIZE, sizeof(ENTRY  *));
-  H->size = (uint16_t *) Calloc(HSIZE, sizeof(uint16_t));
-  return H;
+  return x[c-1];
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // CREATES THE RCLASS BASIC STRUCTURE 
 //
-RCLASS *CreateRC(uint32_t max, uint32_t k, uint8_t ir, uint64_t size){
+RCLASS *CreateRClass(uint32_t max, uint32_t k, uint8_t ir){
   uint32_t n;
 
-  RCLASS *C = (RCLASS *) Calloc(1,   sizeof(RCLASS));
-  C->RM     = (RMODEL *) Calloc(max, sizeof(RMODEL));
+  RCLASS *C = (RCLASS *)  Calloc(1,   sizeof(RCLASS));
+  C->RM     = (RMODEL *)  Calloc(max, sizeof(RMODEL));
+  C->active = (uint8_t *) Calloc(max, sizeof(uint8_t));
   C->mRM    = max;
   C->rev    = ir;
   C->idx    = 0;
   C->idxRev = 0;
   C->kmer   = k;
   C->mult   = CalcMult(k);
-  C->size   = size;
   for(n = 0 ; n < max ; ++n){
     C->RM[n].pos    = 0;
     C->RM[n].nHits  = 0;
@@ -78,20 +61,6 @@ uint64_t GetIdxR(uint8_t *p, RCLASS *C){
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// GET REPEAT MODEL HASH ENTRY
-//
-ENTRY *GetHEnt(HASH *H, uint64_t key){
-  uint32_t n, h = (uint32_t) (key % HSIZE);
-  uint64_t b = (uint64_t) key & 0xfffffff0000;
-
-  for(n = 0 ; n < H->size[h] ; ++n)
-    if(((uint64_t) H->ent[h][n].key | b) == key)
-      return &H->ent[h][n];
-
-  return NULL;
-  }
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // START EACH REPEAT MODEL
 //
 int32_t StartRM(RCLASS *C, HASH *H, uint32_t m, uint64_t i, uint8_t r){
@@ -110,37 +79,13 @@ int32_t StartRM(RCLASS *C, HASH *H, uint32_t m, uint64_t i, uint8_t r){
     C->RM[m].pos = E->pos[0]-C->kmer-1;
     }
 
-  C->RM[m].nHits  = 0;
-  C->RM[m].nTries = 0;
-  C->RM[m].rev    = r;
+  C->RM[m].nHits   = 0;
+  C->RM[m].nTries  = 0;
+  C->RM[m].rev     = r;
+  C->RM[m].winSize = C->kmer;
+  C->RM[m].win     = (uint8_t *) Calloc(C->kmer+1, sizeof(uint8_t));
 
   return 1;
-  }
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// INSERT KMER POSITION INTO HASH TABLE 
-//
-void InsertKmerPos(HASH *H, uint64_t key, uint32_t pos){
-  uint32_t n, h = (uint32_t) key % HSIZE;
-  uint64_t b = key & 0xfffffff0000;
-
-  for(n = 0 ; n < H->size[h] ; ++n)
-    if(((uint64_t) H->ent[h][n].key | b) == key){
-      H->ent[h][n].pos = (PPR *) Realloc(H->ent[h][n].pos, 
-      (H->ent[h][n].nPos + 1) * sizeof(PPR));
-      H->ent[h][n].pos[H->ent[h][n].nPos++] = pos;           
-      return;
-      }
-
-  // CREATE A NEW ENTRY
-  H->ent[h] = (ENTRY *) Realloc(H->ent[h], (H->size[h]+1) * sizeof(ENTRY));
-
-  // CREATE A NEW POSITION
-  H->ent[h][H->size[h]].pos    = (PPR *) Malloc(sizeof(PPR));
-  H->ent[h][H->size[h]].pos[0] = pos;
-  H->ent[h][H->size[h]].nPos   = 1;
-  H->ent[h][H->size[h]].key    = (uint16_t) (key & 0xffff);
-  H->size[h]++;
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -166,7 +111,7 @@ void UpdateRM(RMODEL *R, uint8_t *b, uint8_t s){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // STOP USELESS REPEAT MODELS
 //
-void StopRM(RCLASS *C){
+void StopRM(RCLASS *C, uint64_t iBase, FILE *Writter){
   uint32_t n;
 
 /*
@@ -178,12 +123,10 @@ void StopRM(RCLASS *C){
 
 
   for(n = 0 ; n < C->nRM ; ++n){
-    
-
     }
 
 
-  for(;;){ 
+  for(;;){
     for(n = 0 ; n < C->nRM ; ++n){
     //  if((C->RM[n].acting = C->P->beta * C->RM[n].acting + C->RM[n].lastHit) >
     //  C->P->limit * 1.0 || C->RM[n].pos == 0)
@@ -196,6 +139,49 @@ void StopRM(RCLASS *C){
       }
     return;
     }
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// RESET RMODEL
+// 
+void ResetRM(RMODEL *R){
+  memset(R->win, 0, R->winSize);
+  R->pos    = 0;
+  R->size   = 0;
+  R->nHits  = 0;
+  R->nTries = 0;
+  R->rev    = 0;
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// REMOVE RM
+//
+void RemoveRM(RMODEL *R){
+  Free(R->win);
+  Free(R);
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// REMOVE ALL RM
+//
+void RemoveAllRM(RCLASS *C){
+  uint32_t n;
+  for(n = 0 ; n < C->nRM ; ++n){
+    Free(&C->RM[n]);
+    }
+  Free(C->RM);
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// FORCE STOP REPEAT MODELS DURING END OF READ
+//
+void ResetAllRM(RCLASS *C, uint64_t iBase, FILE *Writter){
+  uint32_t n;
+  for(n = 0 ; n < C->nRM ; ++n){
+    fprintf(Writter, "%"PRIu64"\t%"PRIu64"\n", iBase, 0);
+    ResetRM(&C->RM[n]);
+    }
+  C->nRM = 0;
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

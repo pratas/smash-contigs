@@ -31,6 +31,9 @@ SEQ     *Seq;  // SEQUENCE SHARED BY THREADING
 // - - - - - - - - - - - - - - C O M P R E S S I N G - - - - - - - - - - - - - 
 void CompressTarget(Threads T){
   FILE        *Reader  = Fopen(P->Con.name, "r");
+  char        name[MAX_FILENAME];
+  sprintf(name, ".t%u", T.id+1);
+  FILE        *Writter = Fopen(concatenate(P->Con.name, name), "w");
   uint64_t    nBase = 0, idxPos = 0;
   uint32_t    n, k;
   PARSER      *PA = CreateParser();
@@ -43,12 +46,13 @@ void CompressTarget(Threads T){
   while((k = fread(readBuf, 1, BUFFER_SIZE, Reader)))
     for(idxPos = 0 ; idxPos < k ; ++idxPos){
       
-      if(ParseSym(PA, (sym = readBuf[idxPos])) == -1)
+      if(ParseSym(PA, (sym = readBuf[idxPos])) == -1){
+        if(Mod->nRM > 0) 
+          ResetAllRM(Mod, nBase, Writter);
         continue;
-      
-      sym = DNASymToNum(sym);
+        }
 
-      if(sym == 4){
+      if((sym = DNASymToNum(sym)) == 4){
         nBase++;
         continue;
         }
@@ -57,10 +61,10 @@ void CompressTarget(Threads T){
 
       if(PA->nRead % (T.id + 1) == 0){
      
-        StopRM(Mod /*, */);
+        StopRM(Mod, nBase, Writter);
         StartMultipleRMs(Mod, Hash, symBuf->buf+symBuf->idx-1);
 
-      //  printf("%u : %u\n", Mod->nRM, Mod->mRM);
+        //  printf("%u : %u\n", Mod->nRM, Mod->mRM);
         }
 
       UpdateCBuffer(symBuf);
@@ -70,6 +74,7 @@ void CompressTarget(Threads T){
   Free(readBuf);
   RemoveCBuffer(symBuf);
   RemoveParser(PA);
+  fclose(Writter);
   fclose(Reader);
   }
 
@@ -132,7 +137,7 @@ void CompressAction(){
 
   fprintf(stderr, "  [+] Building models ...\n");
   Seq  = CreateSeq(100000);
-  Mod  = CreateRC(P->repeats, P->kmer, P->inversion, 777); //XXX: 777 ->size
+  Mod  = CreateRClass(P->repeats, P->kmer, P->inversion);
   Hash = CreateHash();
   fprintf(stderr, "      Done!                \n");
 
