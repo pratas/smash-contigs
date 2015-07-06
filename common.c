@@ -228,7 +228,7 @@ uint8_t GetCompNum(uint8_t symbol)
     case 1: return 2;
     case 2: return 1;
     case 3: return 0;
-    default:  fprintf(stderr, "symbol\n");
+    default:  fprintf(stderr, "Symbol 'N' found in inverted computation\n");
     return symbol;
     }
   }

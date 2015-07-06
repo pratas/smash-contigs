@@ -13,6 +13,7 @@ typedef struct{
   uint8_t  header;
   uint8_t  line;
   uint8_t  dna;
+  uint64_t nRead;
   }
 PARSER;
 

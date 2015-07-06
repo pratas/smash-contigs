@@ -42,14 +42,26 @@ void CompressTarget(Threads T){
   nBase = 0;
   while((k = fread(readBuf, 1, BUFFER_SIZE, Reader)))
     for(idxPos = 0 ; idxPos < k ; ++idxPos){
-      if(ParseSym(PA, (sym = readBuf[idxPos])) == -1) continue;
-      symBuf->buf[symBuf->idx] = sym = DNASymToNum(sym);
-      n = 0;
-     
-      StopRM(Mod /*, */);
-      StartMultipleRMs(Mod, Hash, symBuf->buf+symBuf->idx-1);
+      
+      if(ParseSym(PA, (sym = readBuf[idxPos])) == -1)
+        continue;
+      
+      sym = DNASymToNum(sym);
 
-      printf("%u : %u\n", Mod->nRM, Mod->mRM);
+      if(sym == 4){
+        nBase++;
+        continue;
+        }
+      
+      symBuf->buf[symBuf->idx] = sym;
+
+      if(PA->nRead % (T.id + 1) == 0){
+     
+        StopRM(Mod /*, */);
+        StartMultipleRMs(Mod, Hash, symBuf->buf+symBuf->idx-1);
+
+      //  printf("%u : %u\n", Mod->nRM, Mod->mRM);
+        }
 
       UpdateCBuffer(symBuf);
       nBase++;

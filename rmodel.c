@@ -101,8 +101,9 @@ int32_t StartRM(RCLASS *C, HASH *H, uint32_t m, uint64_t i, uint8_t r){
   if((E = GetHEnt(H, i)) == NULL) 
     return 0;
 
-  if(r == 0) 
+  if(r == 0){ 
     C->RM[m].pos = E->pos[0];
+    }
   else{
     if(E->pos[0] <= C->kmer + 1) 
       return 0;
@@ -146,7 +147,7 @@ void InsertKmerPos(HASH *H, uint64_t key, uint32_t pos){
 // UPDATE REPEAT MODEL
 //
 void UpdateRM(RMODEL *R, uint8_t *b, uint8_t s){
-  R->lastHit = 1;
+  //R->lastHit = 1;
   if(R->rev == 0){
     if(b[R->pos++] == s){
       R->nHits++;
