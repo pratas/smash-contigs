@@ -27,10 +27,8 @@ HASH    *Hash; // HASH MEMORY SHARED BY THREADING
 RCLASS  *Mod;  // MEMORY MODEL SHARED BY THREADING
 SEQ     *Seq;  // SEQUENCE SHARED BY THREADING
 
-
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - C O M P R E S S I N G - - - - - - - - - - - - - 
-
 void CompressTarget(Threads T){
   FILE        *Reader  = Fopen(P->Con.name, "r");
   uint64_t    nBase = 0, idxPos = 0;
@@ -48,8 +46,9 @@ void CompressTarget(Threads T){
       symBuf->buf[symBuf->idx] = sym = DNASymToNum(sym);
       n = 0;
      
-      StopRM(Mod);
+      StopRM(Mod /*, */);
       StartMultipleRMs(Mod, Hash, symBuf->buf+symBuf->idx-1);
+
       printf("%u : %u\n", Mod->nRM, Mod->mRM);
 
       UpdateCBuffer(symBuf);
@@ -62,20 +61,16 @@ void CompressTarget(Threads T){
   fclose(Reader);
   }
 
-
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - F   T H R E A D I N G - - - - - - - - - - - - - - -
-
 void *CompressThread(void *Thr){
   Threads *T = (Threads *) Thr;
   CompressTarget(T[0]);
   pthread_exit(NULL);
   }
 
-
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - - - R E F E R E N C E - - - - - - - - - - - - -
-
 void LoadReference(){
   FILE     *Reader = Fopen(P->Ref.name, "r");
   uint32_t n;
@@ -115,10 +110,8 @@ void LoadReference(){
   close(fd);
   }
 
-
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - C O M P R E S S O R - - - - - - - - - - - - - -
-
 void CompressAction(){
   uint32_t n;
   pthread_t t[P->nThreads];
@@ -145,12 +138,10 @@ void CompressAction(){
   // TODO: FREE REPEAT MODELS!
   }
 
-
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // - - - - - - - - - - - - - - - - - M A I N - - - - - - - - - - - - - - - - -
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 int32_t main(int argc, char *argv[]){
   char        **p = *&argv, **xargv, *xpl = NULL;
   int32_t     xargc = 0;
@@ -168,22 +159,21 @@ int32_t main(int argc, char *argv[]){
     return EXIT_SUCCESS;
     }
 
-  P->verbose    = ArgsState  (DEF_VERBOSE, p, argc, "-v" );
-  P->force      = ArgsState  (DEF_FORCE,   p, argc, "-F" );
-  P->inversion  = ArgsState  (DEF_INVE,    p, argc, "-i" );
-  P->kmer       = ArgsNum    (DEF_KMER,    p, argc, "-k", MIN_KMER, MAX_KMER);
-  P->minimum    = ArgsNum    (DEF_MINI,    p, argc, "-m", MIN_MINI, MAX_MINI);
-  P->repeats    = ArgsNum    (DEF_REPE,    p, argc, "-r", MIN_REPE, MAX_REPE);
-  P->window     = ArgsNum    (DEF_WIND,    p, argc, "-w", MIN_WIND, MAX_WIND);
-  P->editions   = ArgsNum    (DEF_EDIT,    p, argc, "-e", MIN_EDIT, MAX_EDIT);
-  P->nThreads   = ArgsNum    (DEF_THRE,    p, argc, "-n", MIN_THRE, MAX_THRE);
-  P->positions  = ArgsFiles  (p, argc, "-o");
+  P->verbose    = ArgsState (DEF_VERBOSE, p, argc, "-v" );
+  P->force      = ArgsState (DEF_FORCE,   p, argc, "-F" );
+  P->inversion  = ArgsState (DEF_INVE,    p, argc, "-i" );
+  P->kmer       = ArgsNum   (DEF_KMER,    p, argc, "-k", MIN_KMER, MAX_KMER);
+  P->minimum    = ArgsNum   (DEF_MINI,    p, argc, "-m", MIN_MINI, MAX_MINI);
+  P->repeats    = ArgsNum   (DEF_REPE,    p, argc, "-r", MIN_REPE, MAX_REPE);
+  P->window     = ArgsNum   (DEF_WIND,    p, argc, "-w", MIN_WIND, MAX_WIND);
+  P->editions   = ArgsNum   (DEF_EDIT,    p, argc, "-e", MIN_EDIT, MAX_EDIT);
+  P->nThreads   = ArgsNum   (DEF_THRE,    p, argc, "-n", MIN_THRE, MAX_THRE);
+  P->positions  = ArgsFiles (p, argc, "-o");
   P->Con.name   = argv[argc-2];
   P->Ref.name   = argv[argc-1];
   P->Con.length = FopenBytesInFile(P->Con.name); 
   P->Ref.length = FopenBytesInFile(P->Ref.name); 
 
-  // GET NUMBER OF READS AND NUMBER OF SYMBOLS FOR REFERENCE AND TARGET
   fprintf(stderr, "\n");
   if(P->verbose) PrintArgs(P);
 

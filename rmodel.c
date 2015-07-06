@@ -53,7 +53,6 @@ RCLASS *CreateRC(uint32_t max, uint32_t k, uint8_t ir, uint64_t size){
   C->kmer   = k;
   C->mult   = CalcMult(k);
   C->size   = size;
-
   for(n = 0 ; n < max ; ++n){
     C->RM[n].pos    = 0;
     C->RM[n].nHits  = 0;
@@ -99,10 +98,14 @@ int32_t StartRM(RCLASS *C, HASH *H, uint32_t m, uint64_t i, uint8_t r){
   uint32_t s;
   ENTRY *E;
 
-  if((E = GetHEnt(H, i)) == NULL) return 0;
-  if(r == 0) C->RM[m].pos = E->pos[0];
+  if((E = GetHEnt(H, i)) == NULL) 
+    return 0;
+
+  if(r == 0) 
+    C->RM[m].pos = E->pos[0];
   else{
-    if(E->pos[0] <= C->kmer+1) return 0;
+    if(E->pos[0] <= C->kmer + 1) 
+      return 0;
     C->RM[m].pos = E->pos[0]-C->kmer-1;
     }
 
@@ -147,13 +150,13 @@ void UpdateRM(RMODEL *R, uint8_t *b, uint8_t s){
   if(R->rev == 0){
     if(b[R->pos++] == s){
       R->nHits++;
-      R->lastHit = 0;
+      // R->lastHit = 0;
       }
     }
   else{
     if(GetCompNum(b[R->pos--]) == s){
       R->nHits++;
-      R->lastHit = 0;
+      // R->lastHit = 0;
       }
     }
   R->nTries++;
@@ -171,6 +174,13 @@ void StopRM(RCLASS *C){
   for(n = 0 ; n < NSYM ; ++n)
     if(n != s) R->probs[n] = (1-R->probs[s])/3;
 */
+
+
+  for(n = 0 ; n < C->nRM ; ++n){
+    
+
+    }
+
 
   for(;;){ 
     for(n = 0 ; n < C->nRM ; ++n){

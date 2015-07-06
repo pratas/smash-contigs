@@ -31,11 +31,12 @@ HASH;
 // PERFORMANCE SO MUCH AS IN CONTEXT MODELS.
 //
 typedef struct{
-  uint32_t pos;      // POSITION OF THE FIRST PREDICTED K-MER
+  uint32_t pos;      // POSITION OF THE FIRST PREDICTED K-MER 
+  uint32_t size;     // CURRENT SIZE OF THE RMODEL
   uint32_t nHits;    // NUMBER OF TIMES THIS MODEL WAS CORRECT
   uint32_t nTries;   // NUMBER OF TIMES THIS MODEL WAS USED
-  uint32_t lastHit;  // XXX: FOR WHATDFK ?
-  uint8_t  rev;      // INVERTED REPETAT MODEL. IF REV='Y' THEN IS TRUE
+  uint8_t  *act;     // MODEL ACTING ACCORDING TO THE WINDOW SIZE
+  uint8_t  rev;      // INVERTED REPEAT MODEL. IF REV=1 THEN IS ON
   }
 RMODEL;
 
