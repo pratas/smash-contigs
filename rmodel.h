@@ -37,8 +37,10 @@ RCLASS;
 
 uint64_t    CalcMult          (uint32_t);
 RCLASS      *CreateRClass     (uint32_t, uint32_t, uint8_t);
+void        RemoveRClass      (RCLASS *);
 uint64_t    GetIdxRevR        (uint8_t *, RCLASS *);
 uint64_t    GetIdxR           (uint8_t *, RCLASS *);
+
 int32_t     StartRM           (RCLASS *, HASH *, uint32_t, uint64_t, uint8_t);
 void        UpdateRM          (RMODEL *, uint8_t *, uint8_t);
 void        ResetRM           (RMODEL *);

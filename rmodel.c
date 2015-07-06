@@ -30,6 +30,7 @@ RCLASS *CreateRClass(uint32_t max, uint32_t k, uint8_t ir){
   RCLASS *C = (RCLASS *)  Calloc(1,   sizeof(RCLASS));
   C->RM     = (RMODEL *)  Calloc(max, sizeof(RMODEL));
   C->active = (uint8_t *) Calloc(max, sizeof(uint8_t));
+  C->nRM    = 0;
   C->mRM    = max;
   C->rev    = ir;
   C->idx    = 0;
@@ -37,13 +38,29 @@ RCLASS *CreateRClass(uint32_t max, uint32_t k, uint8_t ir){
   C->kmer   = k;
   C->mult   = CalcMult(k);
   for(n = 0 ; n < max ; ++n){
-    C->RM[n].pos    = 0;
-    C->RM[n].nHits  = 0;
-    C->RM[n].nTries = 0;
-    C->RM[n].rev    = ir;
+    C->RM[n].pos     = 0;
+    C->RM[n].nHits   = 0;
+    C->RM[n].nTries  = 0;
+    C->RM[n].winSize = C->kmer;
+    C->RM[n].win     = (uint8_t *) Calloc(C->kmer + 1, sizeof(uint8_t *));
+    C->RM[n].rev     = ir;
     }
 
   return C;
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// REMOVE PERMANENTLY RCLASS 
+//
+void RemoveRClass(RCLASS *C){
+  uint32_t n;
+
+  for(n = 0 ; n < C->mRM ; ++n){
+    Free(C->RM[n].win);
+    }
+  Free(C->RM);
+  Free(C->active);
+  Free(C);
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
