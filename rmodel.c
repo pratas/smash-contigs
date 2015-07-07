@@ -153,8 +153,9 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
   for(n = 0 ; n < C->mRM ; ++n){
     if(C->active[n] == 1){
       
+      if(C->RM[n].win[0] == 1)
+        C->RM[n].nFails--;
       ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
-      C->RM[n].win[C->RM[n].winSize] = 0;
 
       if(C->RM[n].rev == 0){
         if(b[C->RM[n].pos++] != sym){
@@ -163,7 +164,7 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
           }
         }
       else{
-        if(GetCompNum(b[C->RM[n].pos--]) != sym){
+        if(GetCompNum(b[C->RM[n].pos--]) != sym){  // POSITION IS LOOKING TO 'N's ALSO!!! FIXME
           C->RM[n].nFails++;
           C->RM[n].win[C->RM[n].winSize] = 1;
           }
