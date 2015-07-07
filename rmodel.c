@@ -80,32 +80,39 @@ uint64_t GetIdxR(uint8_t *p, RCLASS *C){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // START EACH REPEAT MODEL
 //
-int32_t StartRM(RCLASS *C, HASH *H, uint32_t m, uint64_t i, uint8_t r){
-  uint32_t n, s;
+int32_t StartRM(RCLASS *C, HASH *H, uint32_t m, uint64_t i, uint8_t ir){
+  uint32_t n, k;
   ENTRY *E;
 
   if((E = GetHEnt(H, i)) == NULL)
     return 0;
-  
-  for(n = 0 ; n < C->mRM ; ++n){
-    if(C->active[n] == 0){
 
-      if(r == 0){ 
-        C->RM[n].pos = E->pos[0];
-        }
-      else{
-        if(E->pos[0] <= C->kmer + 1) 
-          return 0;
-        C->RM[n].pos = E->pos[0]-C->kmer-1;
-        }
-
-      C->RM[n].nHits   = 0;
-      C->RM[n].nTries  = 0;
-      C->RM[n].rev     = r;
-      memset(C->RM[n].win, 0, C->RM[n].winSize);
-
-      break;
+  while(C->nRM < C->mRM && n < E->nPos)
+    {
+    for(k = 0 ; k < C->mRM ; ++k)
+      if(C->active[k] == 0)
+        break;   // GET REPEAT ID
+ 
+    if(ir == 0)
+      {
+      C->RM[k].pos = E->pos[n];
       }
+    else
+      {
+      if(E->pos[n] <= C->kmer + 1) 
+        return 0;
+      C->RM[k].pos = E->pos[n] - C->kmer - 1;
+      }
+
+    C->RM[n].nHits   = 0;
+    C->RM[n].nTries  = 0;
+    C->RM[n].rev     = ir;
+    memset(C->RM[n].win, 0, C->RM[n].winSize);
+
+    C->active[k] = 1;
+    C->nRM++;
+
+    ++n;
     }
 
   return 1;
