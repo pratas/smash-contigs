@@ -40,14 +40,10 @@ RCLASS      *CreateRClass     (uint32_t, uint32_t, uint8_t);
 void        RemoveRClass      (RCLASS *);
 uint64_t    GetIdxRevR        (uint8_t *, RCLASS *);
 uint64_t    GetIdxR           (uint8_t *, RCLASS *);
-
-int32_t     StartRM           (RCLASS *, HASH *, uint32_t, uint64_t, uint8_t);
-void        UpdateRM          (RMODEL *, uint8_t *, uint8_t);
-void        ResetRM           (RMODEL *);
-void        RemoveRM          (RMODEL *);
-void        RemoveAllRM       (RCLASS *);
-void        StopRM            (RCLASS *, uint64_t, FILE *);
-void        ResetAllRM        (RCLASS *, uint64_t, FILE *);
+int32_t     StartRMs          (RCLASS *, HASH *, uint64_t, uint8_t);
+void        UpdateRMs         (RMODEL *, uint8_t *, uint8_t);
+void        StopRMs           (RCLASS *, uint64_t, FILE *);
+void        ResetAllRMs       (RCLASS *, uint64_t, FILE *);
 void        StartMultipleRMs  (RCLASS *, HASH *, uint8_t *);
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

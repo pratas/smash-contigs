@@ -48,7 +48,7 @@ void CompressTarget(Threads T){
       
       if(ParseSym(PA, (sym = readBuf[idxPos])) == -1){
         if(Mod->nRM > 0) 
-          ResetAllRM(Mod, nBase, Writter);
+          ResetAllRMs(Mod, nBase, Writter);
         continue;
         }
 
@@ -60,11 +60,13 @@ void CompressTarget(Threads T){
       symBuf->buf[symBuf->idx] = sym;
 
       if(PA->nRead % (T.id + 1) == 0){
+
+        // TODO: ADD PROTECTION TO THE BEGGINNING...
      
-        StopRM(Mod, nBase, Writter);
+        StopRMs(Mod, nBase, Writter);
         StartMultipleRMs(Mod, Hash, symBuf->buf+symBuf->idx-1);
 
-        //  printf("%u : %u\n", Mod->nRM, Mod->mRM);
+        printf("%u : %u\n", Mod->nRM, Mod->mRM);
         }
 
       UpdateCBuffer(symBuf);
@@ -146,11 +148,12 @@ void CompressAction(){
   fprintf(stderr, "      Done!                \n");
 
   fprintf(stderr, "  [+] Compressing contigs ... \n");
+  fprintf(stderr, "      (this may take a while) ");
   for(n = 0 ; n < P->nThreads ; ++n)
     pthread_create(&(t[n+1]), NULL, CompressThread, (void *) &(T[n]));
   for(n = 0 ; n < P->nThreads ; ++n) // DO NOT JOIN FORS!
     pthread_join(t[n+1], NULL);
-  fprintf(stderr, "      Done!\n");
+  fprintf(stderr, "\r      Done!                   \n");
 
   // TODO: FREE REPEAT MODELS!
   }
@@ -197,6 +200,8 @@ int32_t main(int argc, char *argv[]){
   fprintf(stderr, "==[ PROCESSING ]====================\n");
   TIME *Time = CreateClock(clock());
   CompressAction();
+  // JoinThreads();
+  // CreateMap();
   StopTimeNDRM(Time, clock());
   fprintf(stderr, "\n");
 
