@@ -147,21 +147,30 @@ int32_t StartRMs(RCLASS *C, HASH *H, uint64_t idx, uint8_t ir){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // UPDATE REPEAT MODEL
 //
-void UpdateRMs(RMODEL *R, uint8_t *b, uint8_t s){
-  //R->lastHit = 1;
-  if(R->rev == 0){
-    if(b[R->pos++] != s){
-      R->nFails++;
-      // R->lastHit = 0;
-      }
-    }
-  else{
-    if(GetCompNum(b[R->pos--]) != s){
-      R->nFails++;
-      // R->lastHit = 0;
-      }
-    }
+void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
+  uint32_t n;
 
+  for(n = 0 ; n < C->mRM ; ++n){
+    if(C->active[n] == 1){
+      
+      ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
+      C->RM[n].win[C->RM[n].winSize] = 0;
+
+      if(C->RM[n].rev == 0){
+        if(b[C->RM[n].pos++] != sym){
+          C->RM[n].nFails++;
+          C->RM[n].win[C->RM[n].winSize] = 1;
+          }
+        }
+      else{
+        if(GetCompNum(b[C->RM[n].pos--]) != sym){
+          C->RM[n].nFails++;
+          C->RM[n].win[C->RM[n].winSize] = 1;
+          }
+        }
+
+      }
+    }
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -174,6 +183,15 @@ void StopRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->active[id] == 1){
 
+        // TODO: UPDATE FAILS
+ 
+/* 
+        C->RM[id].win[C->RM[id].winSize] = sym;
+        for(n = 0 ; n < C->winSize ; ++n)
+          if(C->RM[id].win[n] == 1)
+            ;
+*/
+
         if(C->RM[id].nFails > C->maxFails){
 
           if(100 > C->minSize)
@@ -181,6 +199,8 @@ void StopRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
 
           C->active[id] == 0;
           }
+
+        // TODO: SHIFT BUFFER
 
         }
       }

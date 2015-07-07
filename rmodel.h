@@ -42,7 +42,7 @@ void       RemoveRClass     (RCLASS *);
 uint64_t   GetIdxRevRM      (uint8_t *, RCLASS *);
 uint64_t   GetIdxRM         (uint8_t *, RCLASS *);
 int32_t    StartRMs         (RCLASS *, HASH *, uint64_t, uint8_t);
-void       UpdateRMs        (RMODEL *, uint8_t *, uint8_t);
+void       UpdateRMs        (RCLASS *, uint8_t *, uint8_t);
 void       StopRMs          (RCLASS *, uint64_t, FILE *);
 void       ResetAllRMs      (RCLASS *, uint64_t, FILE *);
 void       StartMultipleRMs (RCLASS *, HASH *, uint8_t *);
