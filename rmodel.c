@@ -81,26 +81,32 @@ uint64_t GetIdxR(uint8_t *p, RCLASS *C){
 // START EACH REPEAT MODEL
 //
 int32_t StartRM(RCLASS *C, HASH *H, uint32_t m, uint64_t i, uint8_t r){
-  uint32_t s;
+  uint32_t n, s;
   ENTRY *E;
 
-  if((E = GetHEnt(H, i)) == NULL) 
+  if((E = GetHEnt(H, i)) == NULL)
     return 0;
+  
+  for(n = 0 ; n < C->mRM ; ++n){
+    if(C->active[n] == 0){
 
-  if(r == 0){ 
-    C->RM[m].pos = E->pos[0];
-    }
-  else{
-    if(E->pos[0] <= C->kmer + 1) 
-      return 0;
-    C->RM[m].pos = E->pos[0]-C->kmer-1;
-    }
+      if(r == 0){ 
+        C->RM[n].pos = E->pos[0];
+        }
+      else{
+        if(E->pos[0] <= C->kmer + 1) 
+          return 0;
+        C->RM[n].pos = E->pos[0]-C->kmer-1;
+        }
 
-  C->RM[m].nHits   = 0;
-  C->RM[m].nTries  = 0;
-  C->RM[m].rev     = r;
-  C->RM[m].winSize = C->kmer;
-  C->RM[m].win     = (uint8_t *) Calloc(C->kmer+1, sizeof(uint8_t));
+      C->RM[n].nHits   = 0;
+      C->RM[n].nTries  = 0;
+      C->RM[n].rev     = r;
+      memset(C->RM[n].win, 0, C->RM[n].winSize);
+
+      break;
+      }
+    }
 
   return 1;
   }
@@ -205,6 +211,7 @@ void ResetAllRM(RCLASS *C, uint64_t iBase, FILE *Writter){
 // START NEW REPEAT MODELS IF THERE IS STILL SPACE
 //                         
 void StartMultipleRMs(RCLASS *C, HASH *H, uint8_t *b){
+
   if(C->nRM < C->mRM && StartRM(C, H, C->nRM, GetIdxR(b, C), 0))
     C->nRM++;
 
