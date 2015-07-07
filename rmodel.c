@@ -24,23 +24,23 @@ uint64_t CalcMult(uint32_t c){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // CREATES THE RCLASS BASIC STRUCTURE 
 //
-RCLASS *CreateRClass(uint32_t max, uint32_t k, uint8_t ir){
+RCLASS *CreateRClass(uint32_t max, uint32_t editions, uint32_t k, uint8_t ir){
   uint32_t n;
 
-  RCLASS *C = (RCLASS *)  Calloc(1,   sizeof(RCLASS));
-  C->RM     = (RMODEL *)  Calloc(max, sizeof(RMODEL));
-  C->active = (uint8_t *) Calloc(max, sizeof(uint8_t));
-  C->nRM    = 0;
-  C->mRM    = max;
-  C->rev    = ir;
-  C->idx    = 0;
-  C->idxRev = 0;
-  C->kmer   = k;
-  C->mult   = CalcMult(k);
+  RCLASS *C   = (RCLASS *)  Calloc(1,   sizeof(RCLASS));
+  C->RM       = (RMODEL *)  Calloc(max, sizeof(RMODEL));
+  C->active   = (uint8_t *) Calloc(max, sizeof(uint8_t));
+  C->nRM      = 0;
+  C->mRM      = max;
+  C->rev      = ir;
+  C->idx      = 0;
+  C->idxRev   = 0;
+  C->kmer     = k;
+  C->mult     = CalcMult(k);
+  C->maxFails = editions;
   for(n = 0 ; n < max ; ++n){
     C->RM[n].pos     = 0;
-    C->RM[n].nHits   = 0;
-    C->RM[n].nTries  = 0;
+    C->RM[n].nFails  = 0;
     C->RM[n].winSize = k;
     C->RM[n].win     = (uint8_t *) Calloc(k + 1, sizeof(uint8_t));
     }
@@ -130,8 +130,7 @@ int32_t StartRMs(RCLASS *C, HASH *H, uint64_t idx, uint8_t ir){
       }
 
     // RESET TO DEFAULTS
-    C->RM[k].nHits   = 0;
-    C->RM[k].nTries  = 0;
+    C->RM[k].nFails  = 0;
     C->RM[k].rev     = ir;
     memset(C->RM[k].win, 0, C->RM[k].winSize); 
 
@@ -149,18 +148,18 @@ int32_t StartRMs(RCLASS *C, HASH *H, uint64_t idx, uint8_t ir){
 void UpdateRMs(RMODEL *R, uint8_t *b, uint8_t s){
   //R->lastHit = 1;
   if(R->rev == 0){
-    if(b[R->pos++] == s){
-      R->nHits++;
+    if(b[R->pos++] != s){
+      R->nFails++;
       // R->lastHit = 0;
       }
     }
   else{
-    if(GetCompNum(b[R->pos--]) == s){
-      R->nHits++;
+    if(GetCompNum(b[R->pos--]) != s){
+      R->nFails++;
       // R->lastHit = 0;
       }
     }
-  R->nTries++;
+
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -170,13 +169,16 @@ void StopRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
   uint32_t id, n;
 
   if(C->nRM > 0){
-  
-    id = GetFirstActiveRM(C);
+    for(id = 0 ; id < C->mRM ; ++id){
+      if(C->active[id] == 1){
 
+        if(C->RM[id].nFails > C->maxFails){
+          C->active[id] == 0;
+          }
 
-
+        }
+      }
     }
-
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -66,7 +66,7 @@ void CompressTarget(Threads T){
         StopRMs(Mod, nBase, Writter);
         StartMultipleRMs(Mod, Hash, symBuf->buf+symBuf->idx-1);
 
-        printf("%u : %u\n", Mod->nRM, Mod->mRM);
+        //printf("%u : %u\n", Mod->nRM, Mod->mRM);
         }
 
       UpdateCBuffer(symBuf);
@@ -139,7 +139,7 @@ void CompressAction(){
 
   fprintf(stderr, "  [+] Building models ...\n");
   Seq  = CreateSeq(100000);
-  Mod  = CreateRClass(P->repeats, P->kmer, P->inversion);
+  Mod  = CreateRClass(P->repeats, P->editions, P->kmer, P->inversion);
   Hash = CreateHash();
   fprintf(stderr, "      Done!                \n");
 
@@ -185,7 +185,6 @@ int32_t main(int argc, char *argv[]){
   P->kmer       = ArgsNum   (DEF_KMER,    p, argc, "-k", MIN_KMER, MAX_KMER);
   P->minimum    = ArgsNum   (DEF_MINI,    p, argc, "-m", MIN_MINI, MAX_MINI);
   P->repeats    = ArgsNum   (DEF_REPE,    p, argc, "-r", MIN_REPE, MAX_REPE);
-  P->window     = ArgsNum   (DEF_WIND,    p, argc, "-w", MIN_WIND, MAX_WIND);
   P->editions   = ArgsNum   (DEF_EDIT,    p, argc, "-e", MIN_EDIT, MAX_EDIT);
   P->nThreads   = ArgsNum   (DEF_THRE,    p, argc, "-n", MIN_THRE, MAX_THRE);
   P->positions  = ArgsFiles (p, argc, "-o");
