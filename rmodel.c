@@ -77,6 +77,32 @@ uint64_t GetIdxR(uint8_t *p, RCLASS *C){
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// GET NON ACTIVE RMODEL ID
+//
+static int32_t GetFirstNonActiveRM(RCLASS *C){
+  uint32_t k;
+  for(k = 0 ; k < C->mRM ; ++k)
+    if(C->active[k] == 0)
+      return k;
+
+  fprintf(stderr, "  [x] Error: impossible non active RM!\n");
+  exit(1);
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// GET ACTIVE RMODEL ID
+//
+static int32_t GetFirstActiveRM(RCLASS *C){
+  uint32_t k;
+  for(k = 0 ; k < C->mRM ; ++k)
+    if(C->active[k] == 1)
+      return k;
+
+  fprintf(stderr, "  [x] Error: impossible active RM!\n");
+  exit(1);
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // START EACH REPEAT MODEL
 //
 int32_t StartRMs(RCLASS *C, HASH *H, uint64_t idx, uint8_t ir){
@@ -86,25 +112,19 @@ int32_t StartRMs(RCLASS *C, HASH *H, uint64_t idx, uint8_t ir){
   if((E = GetHEnt(H, idx)) == NULL)
     return 0; // NEVER SEEN IN THE HASH TABLE, SO LETS QUIT
 
-  while(C->nRM < C->mRM && n < E->nPos)
-    {
-    for(k = 0 ; k < C->mRM ; ++k)
-      if(C->active[k] == 0)
-        break;   // GET NON ACTIVE REPEAT ID
+  while(C->nRM < C->mRM && n < E->nPos){
+
+    k = GetFirstNonActiveRM(C);
  
-    if(ir == 0)
-      {
+    if(ir == 0){
       C->RM[k].pos = E->pos[n];
       }
-    else
-      {
-/*
-      if(E->pos[n] <= C->kmer + 1) // IN THE BEGINNIG [THIS MIGHT BE REMOVED]
-        {
+    else{
+
+/*    if(E->pos[n] <= C->kmer + 1){
         ++n;
         continue;
-        }
-*/
+        }     */
 
       C->RM[k].pos = E->pos[n] - C->kmer - 1;
       }
@@ -117,7 +137,6 @@ int32_t StartRMs(RCLASS *C, HASH *H, uint64_t idx, uint8_t ir){
 
     C->active[k] = 1;  // SET IT ACTIVE
     C->nRM++;          // INCREASE NUMBER OF REPEATS
-
     ++n;
     }
 
@@ -148,26 +167,16 @@ void UpdateRMs(RMODEL *R, uint8_t *b, uint8_t s){
 // STOP USELESS REPEAT MODELS
 //
 void StopRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
-  uint32_t n;
+  uint32_t id, n;
 
-  for(n = 0 ; n < C->mRM ; ++n){
-    if(C->active[n] == 1)
-       break;
+  if(C->nRM > 0){
+  
+    id = GetFirstActiveRM(C);
+
 
 
     }
 
-  for(;;){
-    for(n = 0 ; n < C->nRM ; ++n){
-    //    {
-    //    if(n != C->nRM-1)
-    //      C->RM[n] = C->RM[C->nRM-1];
-    //    C->nRM--;
-        return;
-    //    }
-      }
-    return;
-    }
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
