@@ -25,26 +25,27 @@ typedef struct{
   uint32_t nRM;      // CURRENT NUMBER OF REPEAT MODELS
   uint32_t mRM;      // MAXIMUM NUMBER OF REPEAT MODELS
   uint32_t kmer;     // CONTEXT TEMPLATE SIZE FOR REPEAT MODEL
+  uint32_t minSize;  // MINIMUM BLOCK SIZE
+  uint32_t maxFails; // MAXIMUM NUMBER OF FAILS ALLOWED 
   uint64_t mult;     // INDEX MULTIPLIER
   uint64_t idx;      // CURRENT CONTEXT INDEX
   uint64_t idxRev;   // CURRENT INVERTED REPEAT INDEX
   uint8_t  rev;      // INVERTED REPETAT MODEL. IF REV='Y' THEN IS TRUE
-  uint32_t maxFails; // MAXIMUM NUMBER OF FAILS ALLOWED 
   }
 RCLASS;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-uint64_t    CalcMult          (uint32_t);
-RCLASS      *CreateRClass     (uint32_t, uint32_t, uint32_t, uint8_t);
-void        RemoveRClass      (RCLASS *);
-uint64_t    GetIdxRevR        (uint8_t *, RCLASS *);
-uint64_t    GetIdxR           (uint8_t *, RCLASS *);
-int32_t     StartRMs          (RCLASS *, HASH *, uint64_t, uint8_t);
-void        UpdateRMs         (RMODEL *, uint8_t *, uint8_t);
-void        StopRMs           (RCLASS *, uint64_t, FILE *);
-void        ResetAllRMs       (RCLASS *, uint64_t, FILE *);
-void        StartMultipleRMs  (RCLASS *, HASH *, uint8_t *);
+uint64_t   CalcMult         (uint32_t);
+RCLASS     *CreateRClass    (uint32_t, uint32_t, uint32_t, uint32_t, uint8_t);
+void       RemoveRClass     (RCLASS *);
+uint64_t   GetIdxRevR       (uint8_t *, RCLASS *);
+uint64_t   GetIdxR          (uint8_t *, RCLASS *);
+int32_t    StartRMs         (RCLASS *, HASH *, uint64_t, uint8_t);
+void       UpdateRMs        (RMODEL *, uint8_t *, uint8_t);
+void       StopRMs          (RCLASS *, uint64_t, FILE *);
+void       ResetAllRMs      (RCLASS *, uint64_t, FILE *);
+void       StartMultipleRMs (RCLASS *, HASH *, uint8_t *);
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

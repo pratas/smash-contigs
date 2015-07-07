@@ -24,7 +24,8 @@ uint64_t CalcMult(uint32_t c){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // CREATES THE RCLASS BASIC STRUCTURE 
 //
-RCLASS *CreateRClass(uint32_t max, uint32_t editions, uint32_t k, uint8_t ir){
+RCLASS *CreateRClass(uint32_t max, uint32_t editions, uint32_t min, uint32_t k, 
+uint8_t ir){
   uint32_t n;
 
   RCLASS *C   = (RCLASS *)  Calloc(1,   sizeof(RCLASS));
@@ -38,6 +39,7 @@ RCLASS *CreateRClass(uint32_t max, uint32_t editions, uint32_t k, uint8_t ir){
   C->kmer     = k;
   C->mult     = CalcMult(k);
   C->maxFails = editions;
+  C->minSize  = min;
   for(n = 0 ; n < max ; ++n){
     C->RM[n].pos     = 0;
     C->RM[n].nFails  = 0;
@@ -173,6 +175,10 @@ void StopRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
       if(C->active[id] == 1){
 
         if(C->RM[id].nFails > C->maxFails){
+
+          if(100 > C->minSize)
+            ; //WRITE POS TO FILE
+
           C->active[id] == 0;
           }
 

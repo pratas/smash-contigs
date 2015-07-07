@@ -139,7 +139,8 @@ void CompressAction(){
 
   fprintf(stderr, "  [+] Building models ...\n");
   Seq  = CreateSeq(100000);
-  Mod  = CreateRClass(P->repeats, P->editions, P->kmer, P->inversion);
+  Mod  = CreateRClass(P->repeats, P->editions, P->minimum, P->kmer, 
+         P->inversion);
   Hash = CreateHash();
   fprintf(stderr, "      Done!                \n");
 
