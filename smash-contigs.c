@@ -24,7 +24,6 @@
 #include "rmodel.h"
 
 HASH    *Hash; // HASH MEMORY SHARED BY THREADING
-RCLASS  *Mod;  // MEMORY MODEL SHARED BY THREADING
 SEQ     *Seq;  // SEQUENCE SHARED BY THREADING
 
 //////////////////////////////////////////////////////////////////////////////
@@ -39,6 +38,8 @@ void CompressTarget(Threads T){
   PARSER      *PA = CreateParser();
   CBUF        *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
   uint8_t     *readBuf = (uint8_t *) Calloc(BUFFER_SIZE, sizeof(uint8_t)), sym;
+  RCLASS      *Mod = CreateRClass(P->repeats, P->editions, P->minimum, P->kmer,
+              P->inversion);
 
   FileType(PA, Reader);
 
@@ -102,6 +103,8 @@ void LoadReference(){
   struct   stat s;
   size_t   size, k;
   long     fd = open(P->Ref.name, O_RDONLY);
+  RCLASS   *Mod = CreateRClass(P->repeats, P->editions, P->minimum, P->kmer,
+           P->inversion);
 
   fstat (fd, & s);
   size = s.st_size;
@@ -114,7 +117,7 @@ void LoadReference(){
 
     if(sym != 4){
       symBuf->buf[symBuf->idx] = sym;
-      Mod->idx = GetIdxR(symBuf->buf+symBuf->idx-1, Mod);
+      Mod->idx = GetIdxRM(symBuf->buf+symBuf->idx-1, Mod);
       InsertKmerPos(Hash, Mod->idx, k);
       UpdateCBuffer(symBuf);
       }
@@ -125,6 +128,7 @@ void LoadReference(){
 
   P->Ref.nBases = nBases;
   RemoveCBuffer(symBuf);
+  RemoveRClass(Mod);
   RemoveParser(PA);
   close(fd);
   }
@@ -139,8 +143,6 @@ void CompressAction(){
 
   fprintf(stderr, "  [+] Building models ...\n");
   Seq  = CreateSeq(100000);
-  Mod  = CreateRClass(P->repeats, P->editions, P->minimum, P->kmer, 
-         P->inversion);
   Hash = CreateHash();
   fprintf(stderr, "      Done!                \n");
 
@@ -155,8 +157,6 @@ void CompressAction(){
   for(n = 0 ; n < P->nThreads ; ++n) // DO NOT JOIN FORS!
     pthread_join(t[n+1], NULL);
   fprintf(stderr, "\r      Done!                   \n");
-
-  // TODO: FREE REPEAT MODELS!
   }
 
 //////////////////////////////////////////////////////////////////////////////

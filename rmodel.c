@@ -67,14 +67,14 @@ void RemoveRClass(RCLASS *C){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // REVERSE COMPLEMENT INDEX BASED ON PAST SYMBOLS FOR REPEATS
 //
-uint64_t GetIdxRevR(uint8_t *p, RCLASS *C){
+uint64_t GetIdxRevRM(uint8_t *p, RCLASS *C){
   return (C->idxRev = (C->idxRev>>2)+GetCompNum(*p)*C->mult);
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // INDEX CALC BASED ON PAST SYMBOLS FOR REPEATS
 //
-uint64_t GetIdxR(uint8_t *p, RCLASS *C){
+uint64_t GetIdxRM(uint8_t *p, RCLASS *C){
   return (C->idx = ((C->idx-*(p-C->kmer)*C->mult)<<2)+*p);
   }
 
@@ -206,10 +206,10 @@ void ResetAllRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
 void StartMultipleRMs(RCLASS *C, HASH *H, uint8_t *b){
 
   if(C->nRM < C->mRM)
-    StartRMs(C, H, GetIdxR(b, C), 0);
+    StartRMs(C, H, GetIdxRM(b, C), 0);
 
   if(C->rev == 1 && C->nRM < C->mRM)
-    StartRMs(C, H, GetIdxRevR(b, C), 1);
+    StartRMs(C, H, GetIdxRevRM(b, C), 1);
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
