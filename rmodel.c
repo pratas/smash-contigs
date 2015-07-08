@@ -84,15 +84,15 @@ uint64_t GetIdxRM(uint8_t *p, RCLASS *C){
 static int32_t GetFirstNonActiveRM(RCLASS *C){
   int32_t k;
 
-  fprintf(stderr, "\n");
+//  fprintf(stderr, "\n");
 
   for(k = 0 ; k < C->mRM ; ++k){
-    fprintf(stderr, "%u ", C->active[k]);
+//    fprintf(stderr, "%u ", C->active[k]);
     if(C->active[k] == 0)
       return k;
     }
 
-  fprintf(stderr, "x: %u , %d, %d\n", k, C->nRM, C->mRM);
+//  fprintf(stderr, "x: %u , %d, %d\n", k, C->nRM, C->mRM);
 
   fprintf(stderr, "Impossible state!\n");
   exit(1);
@@ -110,11 +110,19 @@ void StartRMs(RCLASS *C, HASH *H, uint64_t idx, uint8_t ir){
 
   while(C->nRM < C->mRM && n < E->nPos){
 
-  fprintf(stderr, "y: %d, %d\n", C->nRM, C->mRM);
+//  fprintf(stderr, "y: %d, %d\n", C->nRM, C->mRM);
 
     k = GetFirstNonActiveRM(C);
  
-    C->RM[k].pos = (ir == 0) ? E->pos[n] : E->pos[n]-C->kmer-1;
+  if(ir == 0) 
+    C->RM[k].pos = E->pos[n];
+  else{
+    if(E->pos[n] <= C->kmer+1){
+      ++n;
+      continue;
+      }
+    C->RM[n].pos = E->pos[n]-C->kmer-1;
+    }
 
     // RESET TO DEFAULTS
     C->RM[k].nFails = 0;
@@ -137,28 +145,27 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
   for(n = 0 ; n < C->mRM ; ++n){
     if(C->active[n] == 1){
 
-      if(C->RM[n].win[0] == 1 && C->RM[n].nFails > 0)
+      if(C->RM[n].win[0] == 1 /* && C->RM[n].nFails > 0*/)
         C->RM[n].nFails--;
       
 //printf("%d\n", C->RM[n].nFails);
 
       if(C->RM[n].rev == 0){
-        if(b[C->RM[n].pos] == 4 || b[C->RM[n].pos] != sym){
+        if(b[C->RM[n].pos] != sym){
           C->RM[n].nFails++;
 
-//          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
+          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
           }
         else{
           if(C->RM[n].nFails > 1)
             C->RM[n].nFails--;
-//          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
+          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
           }
-//        C->RM[n].pos++;
+        C->RM[n].pos++;
         }
 
       else{
-/*
-        if(b[C->RM[n].pos] == 4 || GetCompNum(b[C->RM[n].pos]) != sym){
+        if(/*GetCompNum(*/b[C->RM[n].pos]/*)*/ != sym){
           C->RM[n].nFails++;
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
           }
@@ -168,7 +175,6 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
           }
         C->RM[n].pos--;
-*/
         }
       
       }

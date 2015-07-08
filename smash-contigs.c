@@ -64,7 +64,7 @@ void CompressTarget(Threads T){
 
         // TODO: ADD PROTECTION TO THE BEGGINNING...
     
-        UpdateRMs(Mod, symBuf->buf, sym);
+        UpdateRMs(Mod, Seq->buf, sym);
         StopRMs(Mod, nBase, Writter);
         StartMultipleRMs(Mod, Hash, symBuf->buf+symBuf->idx-1);
 
