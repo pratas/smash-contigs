@@ -137,7 +137,7 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
   for(n = 0 ; n < C->mRM ; ++n){
     if(C->active[n] == 1){
 
-      if(C->RM[n].win[0] == 1 && C->RM[n].nFails > 1)
+      if(C->RM[n].win[0] == 1 && C->RM[n].nFails > 0)
         C->RM[n].nFails--;
       
 //printf("%d\n", C->RM[n].nFails);
@@ -145,18 +145,20 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
       if(C->RM[n].rev == 0){
         if(b[C->RM[n].pos] == 4 || b[C->RM[n].pos] != sym){
           C->RM[n].nFails++;
-          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
+
+//          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
           }
         else{
           if(C->RM[n].nFails > 1)
             C->RM[n].nFails--;
-          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
+//          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
           }
-        C->RM[n].pos++;
+//        C->RM[n].pos++;
         }
 
       else{
-        if(b[C->RM[n].pos] == 4 || /*GetCompNum(*/ b[C->RM[n].pos] /*)*/ != sym){
+/*
+        if(b[C->RM[n].pos] == 4 || GetCompNum(b[C->RM[n].pos]) != sym){
           C->RM[n].nFails++;
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
           }
@@ -166,6 +168,7 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
           }
         C->RM[n].pos--;
+*/
         }
       
       }
