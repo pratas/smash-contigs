@@ -87,21 +87,7 @@ static int32_t GetFirstNonActiveRM(RCLASS *C){
     if(C->active[k] == 0)
       return k;
 
-  fprintf(stderr, "  [x] Error: impossible non active RM!\n");
-  exit(1);
-  }
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// GET ACTIVE RMODEL ID
-//
-static int32_t GetFirstActiveRM(RCLASS *C){
-  uint32_t k;
-  for(k = 0 ; k < C->mRM ; ++k)
-    if(C->active[k] == 1)
-      return k;
-
-  fprintf(stderr, "  [x] Error: impossible active RM!\n");
-  exit(1);
+  return C->mRM;
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -118,18 +104,7 @@ int32_t StartRMs(RCLASS *C, HASH *H, uint64_t idx, uint8_t ir){
 
     k = GetFirstNonActiveRM(C);
  
-    if(ir == 0){
-      C->RM[k].pos = E->pos[n];
-      }
-    else{
-
-/*    if(E->pos[n] <= C->kmer + 1){
-        ++n;
-        continue;
-        }     */
-
-      C->RM[k].pos = E->pos[n] - C->kmer - 1;
-      }
+    C->RM[k].pos = (ir == 0) ? E->pos[n] : E->pos[n]-C->kmer-1;
 
     // RESET TO DEFAULTS
     C->RM[k].nFails  = 0;
@@ -152,24 +127,37 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
 
   for(n = 0 ; n < C->mRM ; ++n){
     if(C->active[n] == 1){
+
+ printf("%d\n", C->RM[n].nFails);
       
       if(C->RM[n].win[0] == 1)
         C->RM[n].nFails--;
       ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
 
       if(C->RM[n].rev == 0){
-        if(b[C->RM[n].pos++] != sym){
+
+        if(b[C->RM[n].pos] == 4 || b[C->RM[n].pos] != sym){
           C->RM[n].nFails++;
           C->RM[n].win[C->RM[n].winSize] = 1;
           }
+        else{
+          C->RM[n].nFails--;
+          }
+
+        C->RM[n].pos++;
         }
       else{
-        if(GetCompNum(b[C->RM[n].pos--]) != sym){  // POSITION IS LOOKING TO 'N's ALSO!!! FIXME
+        if(b[C->RM[n].pos] == 4 || /*GetCompNum(*/ b[C->RM[n].pos] /*)*/ != sym){
           C->RM[n].nFails++;
           C->RM[n].win[C->RM[n].winSize] = 1;
           }
-        }
+        else{
+          C->RM[n].nFails--;
+          }
 
+        C->RM[n].pos--;
+        }
+      
       }
     }
   }
@@ -184,24 +172,16 @@ void StopRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->active[id] == 1){
 
-        // TODO: UPDATE FAILS
- 
-/* 
-        C->RM[id].win[C->RM[id].winSize] = sym;
-        for(n = 0 ; n < C->winSize ; ++n)
-          if(C->RM[id].win[n] == 1)
-            ;
-*/
+        printf("maxFails: %d\n", C->maxFails);
 
         if(C->RM[id].nFails > C->maxFails){
 
-          if(100 > C->minSize)
-            ; //WRITE POS TO FILE
+          // if(100 > C->minSize) //WRITE POS TO FILE
 
           C->active[id] == 0;
+          if(--C->nRM < 1)
+            return;
           }
-
-        // TODO: SHIFT BUFFER
 
         }
       }

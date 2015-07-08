@@ -12,7 +12,7 @@
 typedef struct{
   uint32_t pos;      // POSITION OF THE FIRST PREDICTED K-MER 
   uint32_t size;     // CURRENT SIZE OF THE RMODEL
-  uint32_t nFails;   // NUMBER OF TIMES THIS MODEL WAS WRONG
+  int32_t  nFails;   // NUMBER OF TIMES THIS MODEL WAS WRONG
   uint32_t winSize;  // WINDOW SIZE FOR MODEL ACTING
   uint8_t  *win;     // MODEL ACTING ACCORDING TO THE WINDOW SIZE
   uint8_t  rev;      // INVERTED REPEAT MODEL. IF REV=1 THEN IS ON
