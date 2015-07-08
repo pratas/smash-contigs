@@ -82,33 +82,43 @@ uint64_t GetIdxRM(uint8_t *p, RCLASS *C){
 // GET NON ACTIVE RMODEL ID
 //
 static int32_t GetFirstNonActiveRM(RCLASS *C){
-  uint32_t k;
-  for(k = 0 ; k < C->mRM ; ++k)
+  int32_t k;
+
+  fprintf(stderr, "\n");
+
+  for(k = 0 ; k < C->mRM ; ++k){
+    fprintf(stderr, "%u ", C->active[k]);
     if(C->active[k] == 0)
       return k;
+    }
 
-  return C->mRM;
+  fprintf(stderr, "x: %u , %d, %d\n", k, C->nRM, C->mRM);
+
+  fprintf(stderr, "Impossible state!\n");
+  exit(1);
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // START EACH REPEAT MODEL
 //
-int32_t StartRMs(RCLASS *C, HASH *H, uint64_t idx, uint8_t ir){
-  uint32_t n, k;
+void StartRMs(RCLASS *C, HASH *H, uint64_t idx, uint8_t ir){
+  uint32_t n = 0, k = 0;
   ENTRY *E;
 
   if((E = GetHEnt(H, idx)) == NULL)
-    return 0; // NEVER SEEN IN THE HASH TABLE, SO LETS QUIT
+    return; // NEVER SEEN IN THE HASH TABLE, SO LETS QUIT
 
   while(C->nRM < C->mRM && n < E->nPos){
+
+  fprintf(stderr, "y: %d, %d\n", C->nRM, C->mRM);
 
     k = GetFirstNonActiveRM(C);
  
     C->RM[k].pos = (ir == 0) ? E->pos[n] : E->pos[n]-C->kmer-1;
 
     // RESET TO DEFAULTS
-    C->RM[k].nFails  = 0;
-    C->RM[k].rev     = ir;
+    C->RM[k].nFails = 0;
+    C->RM[k].rev = ir;
     memset(C->RM[k].win, 0, C->RM[k].winSize); 
 
     C->active[k] = 1;  // SET IT ACTIVE
@@ -116,7 +126,6 @@ int32_t StartRMs(RCLASS *C, HASH *H, uint64_t idx, uint8_t ir){
     ++n;
     }
 
-  return 1;
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -128,33 +137,34 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
   for(n = 0 ; n < C->mRM ; ++n){
     if(C->active[n] == 1){
 
- printf("%d\n", C->RM[n].nFails);
-      
-      if(C->RM[n].win[0] == 1)
+      if(C->RM[n].win[0] == 1 && C->RM[n].nFails > 1)
         C->RM[n].nFails--;
-      ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
+      
+//printf("%d\n", C->RM[n].nFails);
 
       if(C->RM[n].rev == 0){
-
         if(b[C->RM[n].pos] == 4 || b[C->RM[n].pos] != sym){
           C->RM[n].nFails++;
-          C->RM[n].win[C->RM[n].winSize] = 1;
+          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
           }
         else{
-          C->RM[n].nFails--;
+          if(C->RM[n].nFails > 1)
+            C->RM[n].nFails--;
+          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
           }
-
         C->RM[n].pos++;
         }
+
       else{
         if(b[C->RM[n].pos] == 4 || /*GetCompNum(*/ b[C->RM[n].pos] /*)*/ != sym){
           C->RM[n].nFails++;
-          C->RM[n].win[C->RM[n].winSize] = 1;
+          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
           }
         else{
-          C->RM[n].nFails--;
+          if(C->RM[n].nFails > 1)
+            C->RM[n].nFails--;
+          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
           }
-
         C->RM[n].pos--;
         }
       
@@ -166,21 +176,20 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
 // STOP USELESS REPEAT MODELS
 //
 void StopRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
-  uint32_t id, n;
+  uint32_t id;
 
   if(C->nRM > 0){
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->active[id] == 1){
 
-        printf("maxFails: %d\n", C->maxFails);
+        // printf("maxFails: %d\n", C->maxFails);
 
         if(C->RM[id].nFails > C->maxFails){
 
           // if(100 > C->minSize) //WRITE POS TO FILE
 
-          C->active[id] == 0;
-          if(--C->nRM < 1)
-            return;
+          C->active[id] = 0;
+          --C->nRM;
           }
 
         }
@@ -195,7 +204,7 @@ void ResetAllRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
   uint32_t n;
 
   for(n = 0 ; n < C->mRM ; ++n){
-    fprintf(Writter, "%"PRIu64"\t%"PRIu64"\n", iBase, 0);
+    //fprintf(Writter, "%"PRIu64"\t%"PRIu64"\n", iBase, 0);
     C->active[n] = 0;
     }
   C->nRM = 0;

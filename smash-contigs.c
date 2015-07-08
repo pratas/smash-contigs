@@ -34,7 +34,7 @@ void CompressTarget(Threads T){
   sprintf(name, ".t%u", T.id+1);
   FILE        *Writter = Fopen(concatenate(P->Con.name, name), "w");
   uint64_t    nBase = 0, idxPos = 0;
-  uint32_t    n, k;
+  uint32_t    k;
   PARSER      *PA = CreateParser();
   CBUF        *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
   uint8_t     *readBuf = (uint8_t *) Calloc(BUFFER_SIZE, sizeof(uint8_t)), sym;
@@ -94,11 +94,10 @@ void *CompressThread(void *Thr){
 // - - - - - - - - - - - - - - - - R E F E R E N C E - - - - - - - - - - - - -
 void LoadReference(){
   FILE     *Reader = Fopen(P->Ref.name, "r");
-  uint32_t n;
-  uint64_t nBases = 0, nReads = 0, idx = 0;
+  uint64_t nBases = 0;
   PARSER   *PA = CreateParser();
   CBUF     *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
-  uint8_t  sym, irSym, *readBuf;
+  uint8_t  sym, *readBuf;
   FileType(PA, Reader);
   fclose(Reader);
   struct   stat s;
@@ -165,10 +164,7 @@ void CompressAction(){
 // - - - - - - - - - - - - - - - - - M A I N - - - - - - - - - - - - - - - - -
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 int32_t main(int argc, char *argv[]){
-  char        **p = *&argv, **xargv, *xpl = NULL;
-  int32_t     xargc = 0;
-  uint32_t    n;
-  Threads     *T;
+  char        **p = *&argv;
 
   P = (Parameters *) Malloc(1 * sizeof(Parameters));
   if((P->help = ArgsState(DEF_HELP, p, argc, "-h")) == 1 || argc < 2){
@@ -189,11 +185,12 @@ int32_t main(int argc, char *argv[]){
   P->repeats    = ArgsNum   (DEF_REPE,    p, argc, "-r", MIN_REPE, MAX_REPE);
   P->editions   = ArgsNum   (DEF_EDIT,    p, argc, "-e", MIN_EDIT, MAX_EDIT);
   P->nThreads   = ArgsNum   (DEF_THRE,    p, argc, "-n", MIN_THRE, MAX_THRE);
-  P->positions  = ArgsFiles (p, argc, "-o");
+  P->positions  = ArgsFiles              (p, argc, "-o");
   P->Con.name   = argv[argc-2];
   P->Ref.name   = argv[argc-1];
   P->Con.length = FopenBytesInFile(P->Con.name); 
   P->Ref.length = FopenBytesInFile(P->Ref.name); 
+  P->window     = P->kmer;
 
   fprintf(stderr, "\n");
   if(P->verbose) PrintArgs(P);

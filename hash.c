@@ -11,7 +11,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // SILVERS HASH
 //
-static uint64_t XHASH(uint64_t x){
+uint64_t XHASH(uint64_t x){
   return (x * 786433 + 196613) % 68719476735;
   }
 

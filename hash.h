@@ -27,6 +27,7 @@ HASH;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+uint64_t    XHASH             (uint64_t);
 HASH        *CreateHash       (void);
 ENTRY       *GetHEnt          (HASH   *, uint64_t);
 void        InsertKmerPos     (HASH   *, uint64_t, uint32_t);

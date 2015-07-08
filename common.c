@@ -430,7 +430,6 @@ uint8_t CmpCheckSum(uint32_t cs, uint32_t checksum){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 void PrintArgs(Parameters *P){
-  uint32_t n;
   fprintf(stderr, "==[ CONFIGURATION ]=================\n");
   fprintf(stderr, "Verbose mode ....................... %s\n", P->verbose == 0 
   ? "no" : "yes");
