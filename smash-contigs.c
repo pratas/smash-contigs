@@ -55,12 +55,13 @@ void CompressTarget(Threads T){
 
       if((sym = DNASymToNum(sym)) == 4){
         nBase++;
+        Mod->n++;
         continue;
         }
       
       symBuf->buf[symBuf->idx] = sym;
 
-      if(PA->nRead % (T.id + 1) == 0){
+      if(PA->nRead % P->nThreads == T.id){
 
         // TODO: ADD PROTECTION TO THE BEGGINNING...
     
@@ -68,7 +69,7 @@ void CompressTarget(Threads T){
         StopRMs(Mod, nBase, Writter);
         StartMultipleRMs(Mod, Hash, symBuf->buf+symBuf->idx-1);
 
-        //printf("%u : %u\n", Mod->nRM, Mod->mRM);
+        // printf("%u : %u\n", Mod->nRM, Mod->mRM);
         }
 
       UpdateCBuffer(symBuf);
@@ -198,8 +199,8 @@ int32_t main(int argc, char *argv[]){
   fprintf(stderr, "==[ PROCESSING ]====================\n");
   TIME *Time = CreateClock(clock());
   CompressAction();
-  // JoinThreads();
-  // CreateMap();
+  // JoinThreadedFiles();
+  // CreateMapWithProjections();
   StopTimeNDRM(Time, clock());
   fprintf(stderr, "\n");
 

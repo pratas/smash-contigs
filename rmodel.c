@@ -37,6 +37,7 @@ uint8_t ir){
   C->idx      = 0;
   C->idxRev   = 0;
   C->kmer     = k;
+  C->n        = 0;
   C->mult     = CalcMult(k);
   C->maxFails = editions;
   C->minSize  = min;
@@ -114,15 +115,15 @@ void StartRMs(RCLASS *C, HASH *H, uint64_t idx, uint8_t ir){
 
     k = GetFirstNonActiveRM(C);
  
-  if(ir == 0) 
-    C->RM[k].pos = E->pos[n];
-  else{
-    if(E->pos[n] <= C->kmer+1){
-      ++n;
-      continue;
+    if(ir == 0) 
+      C->RM[k].pos = E->pos[n];
+    else{
+      if(E->pos[n] <= C->kmer+1){
+        ++n;
+        continue;
+        }
+      C->RM[n].pos = E->pos[n]-C->kmer-1;
       }
-    C->RM[n].pos = E->pos[n]-C->kmer-1;
-    }
 
     // RESET TO DEFAULTS
     C->RM[k].nFails = 0;
@@ -145,10 +146,10 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
   for(n = 0 ; n < C->mRM ; ++n){
     if(C->active[n] == 1){
 
-      if(C->RM[n].win[0] == 1 /* && C->RM[n].nFails > 0*/)
+      if(C->RM[n].win[0] == 1)
         C->RM[n].nFails--;
       
-//printf("%d\n", C->RM[n].nFails);
+      //printf("%d\n", C->RM[n].nFails);
 
       if(C->RM[n].rev == 0){
         if(b[C->RM[n].pos] != sym){
@@ -164,8 +165,8 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
         C->RM[n].pos++;
         }
 
-      else{
-        if(/*GetCompNum(*/b[C->RM[n].pos]/*)*/ != sym){
+      else{ // FIXME: COMPLEMENT IS A BTX WITH N's...
+        if(GetCompNum(b[C->RM[n].pos]) != sym){
           C->RM[n].nFails++;
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
           }
@@ -191,8 +192,6 @@ void StopRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->active[id] == 1){
 
-        // printf("maxFails: %d\n", C->maxFails);
-
         if(C->RM[id].nFails > C->maxFails){
 
           // if(100 > C->minSize) //WRITE POS TO FILE
@@ -213,7 +212,7 @@ void ResetAllRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
   uint32_t n;
 
   for(n = 0 ; n < C->mRM ; ++n){
-    //fprintf(Writter, "%"PRIu64"\t%"PRIu64"\n", iBase, 0);
+    // fprintf(Writter, "%"PRIu64"\t%"PRIu64"\n", iBase, 0);
     C->active[n] = 0;
     }
   C->nRM = 0;
