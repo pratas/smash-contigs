@@ -216,23 +216,51 @@ void StopRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// PRINT BLOCK
+//
+static void PrintBlock(RCLASS *C, uint64_t iBase, uint32_t n, FILE *Writter){
+
+  if(C->RM[n].pos > C->RM[n].init){
+
+    fprintf(Writter, "%s\t%u\t%u\t%s\t%u\t%u\n",
+
+        "contigs1",                               // SAMPLE CONTIG NAME
+        iBase - C->kmer,                          // SAMPLE CONTIG INIT
+        0,                                        // SAMPLE CONTIG END
+ 
+        "ref",                                    // TARGET CONTIG NAME
+        C->RM[n].init - C->kmer,                  // TARGET CONTIG INIT
+        C->RM[n].pos);                            // TARGET CONTIG END
+
+    }
+  else{
+
+    fprintf(Writter, "%s\t%u\t%u\t%s\t%u\t%u\n",
+
+        "contigs1",                               // SAMPLE CONTIG NAME
+        iBase - C->kmer,                          // SAMPLE CONTIG INIT
+        0,                                        // SAMPLE CONTIG END
+
+        "ref",                                    // TARGET CONTIG NAME
+        C->RM[n].init + C->kmer,                  // TARGET CONTIG INIT
+        C->RM[n].pos);                            // TARGET CONTIG END
+
+    }
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // FORCE STOP REPEAT MODELS DURING END OF READ
 //
 void ResetAllRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
   uint32_t n;
 
   for(n = 0 ; n < C->mRM ; ++n){
-    if(C->RM[n].pos - C->RM[n].init > C->minSize){
+    if(C->active[n] == 1){
+      if(labs(C->RM[n].pos - C->RM[n].init) > C->minSize){
+  
+        PrintBlock(C, iBase, n, Writter);
 
-      fprintf(Writter, "%s\t%u\t%u\t%s\t%u\t%u\n", 
-
-      "contigs1",     // SAMPLE CONTIG NAME
-      iBase,          // SAMPLE CONTIG INIT
-      0,              // SAMPLE CONTIG END
-
-      "ref",          // TARGET CONTIG NAME
-      C->RM[n].init,  // TARGET CONTIG INIT
-      C->RM[n].pos);  // TARGET CONTIG END
+        }
       }
 
     C->active[n] = 0;
