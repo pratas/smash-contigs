@@ -157,6 +157,8 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
             C->RM[n].nFails--;
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
           }
+
+        // TODO: PROTECT MAXIMUM
         C->RM[n].pos++;
         }
 

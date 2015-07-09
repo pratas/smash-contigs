@@ -33,7 +33,7 @@ void CompressTarget(Threads T){
   char        name[MAX_FILENAME];
   sprintf(name, ".t%u", T.id+1);
   FILE        *Writter = Fopen(concatenate(P->Con.name, name), "w");
-  uint64_t    nBase = 0, idxPos = 0;
+  uint64_t    nBaseRelative = 0, nBaseAbsolute = 0, nNRelative = 0, idxPos = 0;
   uint32_t    k;
   PARSER      *PA = CreateParser();
   CBUF        *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
@@ -41,21 +41,22 @@ void CompressTarget(Threads T){
   RCLASS      *Mod = CreateRClass(P->repeats, P->editions, P->minimum, P->kmer,
               P->inversion);
 
-  FileType(PA, Reader);
-
-  nBase = 0;
   while((k = fread(readBuf, 1, BUFFER_SIZE, Reader)))
     for(idxPos = 0 ; idxPos < k ; ++idxPos){
       
       if(ParseSym(PA, (sym = readBuf[idxPos])) == -1){
-        if(Mod->nRM > 0) 
-          ResetAllRMs(Mod, nBase, Writter);
+        if(Mod->nRM > 0){ 
+          ResetAllRMs(Mod, nBaseRelative, Writter);
+          }
+        nNRelative = 0;
+        nBaseRelative = 0;
         continue;
         }
 
       if((sym = DNASymToNum(sym)) == 4){
-        nBase++;
-        Mod->n++;
+        ++nNRelative;
+        ++nBaseRelative;
+        ++nBaseAbsolute;
         continue;
         }
       
@@ -63,17 +64,18 @@ void CompressTarget(Threads T){
 
       if(PA->nRead % P->nThreads == T.id){
 
-        // TODO: ADD PROTECTION TO THE BEGGINNING...
-    
-        UpdateRMs(Mod, Seq->buf, sym);
-        StopRMs(Mod, nBase, Writter);
-        StartMultipleRMs(Mod, Hash, symBuf->buf+symBuf->idx-1);
+        if(nBaseRelative > Mod->kmer){  // PROTECTION ON THE BEGGINING OF K-SIZE
+          UpdateRMs(Mod, Seq->buf, sym);
+          StopRMs(Mod, nBaseRelative, Writter);
+          StartMultipleRMs(Mod, Hash, symBuf->buf+symBuf->idx-1);
+          }
 
         // printf("%u : %u\n", Mod->nRM, Mod->mRM);
         }
 
       UpdateCBuffer(symBuf);
-      nBase++;
+      ++nBaseRelative;
+      ++nBaseAbsolute;
       }
 
   Free(readBuf);
@@ -94,13 +96,10 @@ void *CompressThread(void *Thr){
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - - - R E F E R E N C E - - - - - - - - - - - - -
 void LoadReference(){
-  FILE     *Reader = Fopen(P->Ref.name, "r");
   uint64_t nBases = 0;
   PARSER   *PA = CreateParser();
   CBUF     *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
   uint8_t  sym, *readBuf;
-  FileType(PA, Reader);
-  fclose(Reader);
   struct   stat s;
   size_t   size, k;
   long     fd = open(P->Ref.name, O_RDONLY);
@@ -111,8 +110,8 @@ void LoadReference(){
   size = s.st_size;
   readBuf = (uint8_t *) mmap(0, size, PROT_READ, MAP_PRIVATE, fd, 0);
   for(k = 0 ; k < size ; ++k){
-
     if(ParseSym(PA, (sym = *readBuf++)) == -1) continue;
+
     sym = DNASymToNum(sym);
     UpdateSeq(Seq, sym);
 
