@@ -85,15 +85,10 @@ uint64_t GetIdxRM(uint8_t *p, RCLASS *C){
 static int32_t GetFirstNonActiveRM(RCLASS *C){
   int32_t k;
 
-//  fprintf(stderr, "\n");
-
   for(k = 0 ; k < C->mRM ; ++k){
-//    fprintf(stderr, "%u ", C->active[k]);
     if(C->active[k] == 0)
       return k;
     }
-
-//  fprintf(stderr, "x: %u , %d, %d\n", k, C->nRM, C->mRM);
 
   fprintf(stderr, "Impossible state!\n");
   exit(1);
@@ -165,7 +160,16 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
         C->RM[n].pos++;
         }
 
-      else{ // FIXME: COMPLEMENT IS A BTX WITH N's...
+      else{
+        
+        if(b[C->RM[n].pos] == 4){ // PROTECT COMPLEMENT FROM OTHER SYMBOLS
+          C->RM[n].nFails++;
+          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
+          if(C->RM[n].pos > 1)
+            C->RM[n].pos--;
+          continue;
+          }
+
         if(GetCompNum(b[C->RM[n].pos]) != sym){
           C->RM[n].nFails++;
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
@@ -175,7 +179,9 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
             C->RM[n].nFails--;
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
           }
-        C->RM[n].pos--;
+
+        if(C->RM[n].pos > 1)
+          C->RM[n].pos--;
         }
       
       }
