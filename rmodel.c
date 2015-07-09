@@ -43,6 +43,7 @@ uint8_t ir){
   C->minSize  = min;
   for(n = 0 ; n < max ; ++n){
     C->RM[n].pos     = 0;
+    C->RM[n].init    = 0;
     C->RM[n].nFails  = 0;
     C->RM[n].winSize = k;
     C->RM[n].win     = (uint8_t *) Calloc(k + 1, sizeof(uint8_t));
@@ -110,14 +111,15 @@ void StartRMs(RCLASS *C, HASH *H, uint64_t idx, uint8_t ir){
 
     k = GetFirstNonActiveRM(C);
  
-    if(ir == 0) 
-      C->RM[k].pos = E->pos[n];
+    if(ir == 0){ 
+      C->RM[k].init = C->RM[k].pos = E->pos[n];
+      }
     else{
       if(E->pos[n] <= C->kmer+1){
         ++n;
         continue;
         }
-      C->RM[n].pos = E->pos[n]-C->kmer-1;
+      C->RM[k].init = C->RM[n].pos = E->pos[n]-C->kmer-1;
       }
 
     // RESET TO DEFAULTS
@@ -220,7 +222,19 @@ void ResetAllRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
   uint32_t n;
 
   for(n = 0 ; n < C->mRM ; ++n){
-    // fprintf(Writter, "%"PRIu64"\t%"PRIu64"\n", iBase, 0);
+    if(C->RM[n].pos - C->RM[n].init > C->minSize){
+
+      fprintf(Writter, "%s\t%u\t%u\t%s\t%u\t%u\n", 
+
+      "contigs1",     // SAMPLE CONTIG NAME
+      iBase,          // SAMPLE CONTIG INIT
+      0,              // SAMPLE CONTIG END
+
+      "ref",          // TARGET CONTIG NAME
+      C->RM[n].init,  // TARGET CONTIG INIT
+      C->RM[n].pos);  // TARGET CONTIG END
+      }
+
     C->active[n] = 0;
     }
   C->nRM = 0;
