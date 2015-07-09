@@ -19,9 +19,22 @@ PARSER *CreateParser(void){
 int32_t ParseSym(PARSER *PA, uint8_t sym){
       
   switch(sym){
-    case '>':  PA->header = 1; PA->nRead++;  return -1;
-    case '\n': PA->header = 0;               return -1;
-    default:   if(PA->header==1)             return -1;
+    case '>':  
+      PA->header = 1; 
+      PA->nRead++;  
+      return -1;
+    case '\n': 
+      if(PA->header == 0){
+        PA->header = 0;               
+        return -99;
+        }
+      else{
+        PA->header = 0;               
+        return -2;
+        }
+    default:   
+      if(PA->header==1)             
+        return -3;
     }
 
   // NUCLEOTIDE PARSE

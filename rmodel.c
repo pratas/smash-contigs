@@ -227,7 +227,6 @@ static void PrintBlock(RCLASS *C, uint64_t iBase, uint32_t n, FILE *Writter){
         "contigs1",                               // SAMPLE CONTIG NAME
         iBase - C->kmer,                          // SAMPLE CONTIG INIT
         0,                                        // SAMPLE CONTIG END
- 
         "ref",                                    // TARGET CONTIG NAME
         C->RM[n].init - C->kmer,                  // TARGET CONTIG INIT
         C->RM[n].pos);                            // TARGET CONTIG END
@@ -240,7 +239,6 @@ static void PrintBlock(RCLASS *C, uint64_t iBase, uint32_t n, FILE *Writter){
         "contigs1",                               // SAMPLE CONTIG NAME
         iBase - C->kmer,                          // SAMPLE CONTIG INIT
         0,                                        // SAMPLE CONTIG END
-
         "ref",                                    // TARGET CONTIG NAME
         C->RM[n].init + C->kmer,                  // TARGET CONTIG INIT
         C->RM[n].pos);                            // TARGET CONTIG END
@@ -257,9 +255,7 @@ void ResetAllRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
   for(n = 0 ; n < C->mRM ; ++n){
     if(C->active[n] == 1){
       if(labs(C->RM[n].pos - C->RM[n].init) > C->minSize){
-  
         PrintBlock(C, iBase, n, Writter);
-
         }
       }
 

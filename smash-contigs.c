@@ -35,6 +35,7 @@ void CompressTarget(Threads T){
   FILE        *Writter = Fopen(concatenate(P->Con.name, name), "w");
   uint64_t    nBaseRelative = 0, nBaseAbsolute = 0, nNRelative = 0, idxPos = 0;
   uint32_t    k;
+  int32_t     action;
   PARSER      *PA = CreateParser();
   CBUF        *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
   uint8_t     *readBuf = (uint8_t *) Calloc(BUFFER_SIZE, sizeof(uint8_t)), sym;
@@ -44,12 +45,14 @@ void CompressTarget(Threads T){
   while((k = fread(readBuf, 1, BUFFER_SIZE, Reader)))
     for(idxPos = 0 ; idxPos < k ; ++idxPos){
       
-      if(ParseSym(PA, (sym = readBuf[idxPos])) == -1){
-        if(Mod->nRM > 0){ 
-          ResetAllRMs(Mod, nBaseRelative, Writter);
+      if((action = ParseSym(PA, (sym = readBuf[idxPos]))) < 0){
+        if(action == -2){
+          if(Mod->nRM > 0){ 
+            ResetAllRMs(Mod, nBaseRelative, Writter);
+            }
+          nNRelative = 0;
+          nBaseRelative = 0;
           }
-        nNRelative = 0;
-        nBaseRelative = 0;
         continue;
         }
 
@@ -108,7 +111,7 @@ void LoadReference(){
   size = s.st_size;
   readBuf = (uint8_t *) mmap(0, size, PROT_READ, MAP_PRIVATE, fd, 0);
   for(k = 0 ; k < size ; ++k){
-    if(ParseSym(PA, (sym = *readBuf++)) == -1) continue;
+    if(ParseSym(PA, (sym = *readBuf++)) < 0) continue;
 
     sym = DNASymToNum(sym);
     UpdateSeq(Seq, sym);
