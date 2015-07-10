@@ -226,7 +226,15 @@ void StopRMs(RCLASS *C, uint64_t position, FILE *Writter){
         if(C->RM[id].nFails > C->maxFails){
 
           if(labs(C->RM[id].pos - C->RM[id].init) > C->minSize)
+
+            // SE FOR O MAIOR ESCREVE
             PrintBlock(C, position, id, Writter);
+
+            // ELSE
+            //   -> CASO ESTEJA CONTIDO NO TARGET:
+            //       + NÃO ESCREVE!
+            //   -> ELSE:
+            //       + ESCREVE! (região diferente)
 
           C->active[id] = 0;
           --C->nRM;
