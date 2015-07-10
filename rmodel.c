@@ -193,32 +193,9 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// STOP USELESS REPEAT MODELS
-//
-void StopRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
-  uint32_t id;
-
-  if(C->nRM > 0){
-    for(id = 0 ; id < C->mRM ; ++id){
-      if(C->active[id] == 1){
-
-        if(C->RM[id].nFails > C->maxFails){
-
-          // if(100 > C->minSize) //WRITE POS TO FILE
-
-          C->active[id] = 0;
-          --C->nRM;
-          }
-
-        }
-      }
-    }
-  }
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // PRINT BLOCK
 //
-static void PrintBlock(RCLASS *C, uint64_t iBase, uint32_t n, FILE *Writter){
+void PrintBlock(RCLASS *C, uint64_t iBase, uint32_t n, FILE *Writter){
 
   if(C->RM[n].pos > C->RM[n].init){
 
@@ -243,6 +220,26 @@ static void PrintBlock(RCLASS *C, uint64_t iBase, uint32_t n, FILE *Writter){
         C->RM[n].init + C->kmer,                  // TARGET CONTIG INIT
         C->RM[n].pos);                            // TARGET CONTIG END
 
+    }
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// STOP USELESS REPEAT MODELS
+//
+void StopRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
+  uint32_t id;
+
+  if(C->nRM > 0){
+    for(id = 0 ; id < C->mRM ; ++id){
+      if(C->active[id] == 1){
+        if(C->RM[id].nFails > C->maxFails){
+          if(labs(C->RM[id].pos - C->RM[id].init) > C->minSize)
+            PrintBlock(C, iBase, id, Writter);
+          C->active[id] = 0;
+          --C->nRM;
+          }
+        }
+      }
     }
   }
 
