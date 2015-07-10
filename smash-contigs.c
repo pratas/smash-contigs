@@ -71,7 +71,7 @@ void CompressTarget(Threads T){
         if(nBaseRelative > Mod->kmer){  // PROTECTION ON THE BEGGINING OF K-SIZE
           UpdateRMs(Mod, Seq->buf, sym);
           StopRMs(Mod, nBaseRelative, Writter);
-          StartMultipleRMs(Mod, Hash, symBuf->buf+symBuf->idx-1);
+          StartMultipleRMs(Mod, Hash, nBaseRelative, symBuf->buf+symBuf->idx-1);
           }
         //printf("%u ", Mod->nRM);
         }

@@ -98,7 +98,7 @@ static int32_t GetFirstNonActiveRM(RCLASS *C){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // START EACH REPEAT MODEL
 //
-void StartRMs(RCLASS *C, HASH *H, uint64_t idx, uint8_t ir){
+void StartRMs(RCLASS *C, HASH *H, uint64_t iPos, uint64_t idx, uint8_t ir){
   uint32_t n = 0, k = 0;
   ENTRY *E;
 
@@ -119,12 +119,13 @@ void StartRMs(RCLASS *C, HASH *H, uint64_t idx, uint8_t ir){
         ++n;
         continue;
         }
-      C->RM[k].init = C->RM[n].pos = E->pos[n]-C->kmer-1;
+      C->RM[k].init = C->RM[k].pos = E->pos[n]-C->kmer-1;
       }
 
     // RESET TO DEFAULTS
     C->RM[k].nFails = 0;
     C->RM[k].rev = ir;
+    C->RM[k].initRel = iPos;
     memset(C->RM[k].win, 0, C->RM[k].winSize); 
 
     C->active[k] = 1;  // SET IT ACTIVE
@@ -192,12 +193,12 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // PRINT BLOCK
 //
-void PrintBlock(RCLASS *C, uint64_t iBase, uint32_t n, FILE *Writter){
+void PrintBlock(RCLASS *C, uint64_t ePos, uint32_t n, FILE *Writter){
   if(C->RM[n].pos > C->RM[n].init){
     fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t%"PRIu64"\t%"PRIu64"\n",
     "contigs1",                                        // SAMPLE CONTIG NAME
-    iBase-labs(C->RM[n].pos-C->RM[n].init)-C->kmer,    // SAMPLE CONTIG INIT
-    iBase,                                             // SAMPLE CONTIG END
+    C->RM[n].initRel - C->kmer,                        // SAMPLE CONTIG INIT
+    ePos,                                              // SAMPLE CONTIG END
     "ref",                                             // TARGET CONTIG NAME
     C->RM[n].init - C->kmer,                           // TARGET CONTIG INIT
     C->RM[n].pos);                                     // TARGET CONTIG END
@@ -205,8 +206,8 @@ void PrintBlock(RCLASS *C, uint64_t iBase, uint32_t n, FILE *Writter){
   else{
     fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t%"PRIu64"\t%"PRIu64"\n",
     "contigs1",                                        // SAMPLE CONTIG NAME
-    iBase-labs(C->RM[n].pos-C->RM[n].init)-C->kmer,    // SAMPLE CONTIG INIT
-    iBase,                                             // SAMPLE CONTIG END
+    C->RM[n].initRel - C->kmer,                        // SAMPLE CONTIG INIT
+    ePos,                                              // SAMPLE CONTIG END
     "ref",                                             // TARGET CONTIG NAME
     C->RM[n].init + C->kmer,                           // TARGET CONTIG INIT
     C->RM[n].pos);                                     // TARGET CONTIG END
@@ -216,15 +217,17 @@ void PrintBlock(RCLASS *C, uint64_t iBase, uint32_t n, FILE *Writter){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // STOP USELESS REPEAT MODELS
 //
-void StopRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
+void StopRMs(RCLASS *C, uint64_t position, FILE *Writter){
   uint32_t id;
 
   if(C->nRM > 0){
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->active[id] == 1){
         if(C->RM[id].nFails > C->maxFails){
+
           if(labs(C->RM[id].pos - C->RM[id].init) > C->minSize)
-            PrintBlock(C, iBase, id, Writter);
+            PrintBlock(C, position, id, Writter);
+
           C->active[id] = 0;
           --C->nRM;
           }
@@ -236,13 +239,13 @@ void StopRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // FORCE STOP REPEAT MODELS DURING END OF READ
 //
-void ResetAllRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
+void ResetAllRMs(RCLASS *C, uint64_t position, FILE *Writter){
   uint32_t n;
 
   for(n = 0 ; n < C->mRM ; ++n){
     if(C->active[n] == 1){
       if(labs(C->RM[n].pos - C->RM[n].init) > C->minSize){
-        PrintBlock(C, iBase, n, Writter);
+        PrintBlock(C, position, n, Writter);
         }
       }
 
@@ -254,13 +257,13 @@ void ResetAllRMs(RCLASS *C, uint64_t iBase, FILE *Writter){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // START NEW REPEAT MODELS IF THERE IS STILL SPACE
 //                         
-void StartMultipleRMs(RCLASS *C, HASH *H, uint8_t *b){
+void StartMultipleRMs(RCLASS *C, HASH *H, uint64_t iPos, uint8_t *b){
 
   if(C->nRM < C->mRM)
-    StartRMs(C, H, GetIdxRM(b, C), 0);
+    StartRMs(C, H, iPos, GetIdxRM(b, C), 0);
 
   if(C->rev == 1 && C->nRM < C->mRM)
-    StartRMs(C, H, GetIdxRevRM(b, C), 1);
+    StartRMs(C, H, iPos, GetIdxRevRM(b, C), 1);
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
