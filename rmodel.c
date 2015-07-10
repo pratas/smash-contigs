@@ -138,11 +138,13 @@ void StartRMs(RCLASS *C, HASH *H, uint64_t iPos, uint64_t idx, uint8_t ir){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // UPDATE REPEAT MODEL
 //
-void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
+void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
   uint32_t n;
 
   for(n = 0 ; n < C->mRM ; ++n){
     if(C->active[n] == 1){
+
+      C->RM[n].size = labs(ePos-C->RM[n].initRel) + C->kmer;
 
       if(C->RM[n].win[0] == 1)
         C->RM[n].nFails--;
@@ -150,7 +152,6 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
       if(C->RM[n].rev == 0){
         if(b[C->RM[n].pos] != sym){
           C->RM[n].nFails++;
-
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
           }
         else{
@@ -158,12 +159,10 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
             C->RM[n].nFails--;
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
           }
-
         C->RM[n].pos++;  // TODO: PROTECT MAXIMUM
         }
 
       else{
-        
         if(b[C->RM[n].pos] == 4){ // PROTECT COMPLEMENT FROM OTHER SYMBOLS
           C->RM[n].nFails++;
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
@@ -171,7 +170,6 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
             C->RM[n].pos--;
           continue;
           }
-
         if(GetCompNum(b[C->RM[n].pos]) != sym){
           C->RM[n].nFails++;
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
@@ -181,11 +179,9 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
             C->RM[n].nFails--;
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
           }
-
         if(C->RM[n].pos > 1)
           C->RM[n].pos--;
         }
-      
       }
     }
   }
@@ -195,22 +191,24 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
 //
 void PrintBlock(RCLASS *C, uint64_t ePos, uint32_t n, FILE *Writter){
   if(C->RM[n].pos > C->RM[n].init){
-    fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t%"PRIu64"\t%"PRIu64"\n",
+    fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
     "contigs1",                                        // SAMPLE CONTIG NAME
     C->RM[n].initRel - C->kmer,                        // SAMPLE CONTIG INIT
     ePos,                                              // SAMPLE CONTIG END
     "ref",                                             // TARGET CONTIG NAME
     C->RM[n].init - C->kmer,                           // TARGET CONTIG INIT
-    C->RM[n].pos);                                     // TARGET CONTIG END
+    C->RM[n].pos,                                      // TARGET CONTIG END
+    C->RM[n].size);
     }
   else{
-    fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t%"PRIu64"\t%"PRIu64"\n",
+    fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
     "contigs1",                                        // SAMPLE CONTIG NAME
     C->RM[n].initRel - C->kmer,                        // SAMPLE CONTIG INIT
     ePos,                                              // SAMPLE CONTIG END
     "ref",                                             // TARGET CONTIG NAME
     C->RM[n].init + C->kmer,                           // TARGET CONTIG INIT
-    C->RM[n].pos);                                     // TARGET CONTIG END
+    C->RM[n].pos,                                      // TARGET CONTIG END
+    C->RM[n].size);
     }
   }
 
@@ -224,8 +222,7 @@ void StopRMs(RCLASS *C, uint64_t position, FILE *Writter){
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->active[id] == 1){
         if(C->RM[id].nFails > C->maxFails){
-
-          if(labs(C->RM[id].pos - C->RM[id].init) > C->minSize)
+          if(C->RM[id].size > C->minSize)
 
             // SE FOR O MAIOR ESCREVE
             PrintBlock(C, position, id, Writter);

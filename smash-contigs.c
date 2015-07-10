@@ -69,7 +69,7 @@ void CompressTarget(Threads T){
 
       if(PA->nRead % P->nThreads == T.id){
         if(nBaseRelative > Mod->kmer){  // PROTECTION ON THE BEGGINING OF K-SIZE
-          UpdateRMs(Mod, Seq->buf, sym);
+          UpdateRMs(Mod, Seq->buf, nBaseRelative, sym);
           StopRMs(Mod, nBaseRelative, Writter);
           StartMultipleRMs(Mod, Hash, nBaseRelative, symBuf->buf+symBuf->idx-1);
           }
@@ -194,6 +194,11 @@ int32_t main(int argc, char *argv[]){
   P->Con.length = FopenBytesInFile(P->Con.name); 
   P->Ref.length = FopenBytesInFile(P->Ref.name); 
   P->window     = P->kmer;
+
+  if(P->minimum <= P->kmer){
+    fprintf(stderr, "  [x] Error: minimum block size must be >= than k-mer!\n");
+    exit(1);
+    }
 
   fprintf(stderr, "\n");
   if(P->verbose) PrintArgs(P);

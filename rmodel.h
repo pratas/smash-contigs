@@ -11,9 +11,9 @@
 //
 typedef struct{
   uint64_t initRel;  // FIRST POSITION OF THE REPEAT IN THE CONTIG
+  uint64_t size;     // CURRENT SIZE OF THE RMODEL IN THE CONTIG
   uint64_t init;     // FIRST POSITION OF THE FIRST PREDICTED K-MER 
   uint64_t pos;      // CURRENT POSITION OF THE FIRST PREDICTED K-MER 
-  uint64_t size;     // CURRENT SIZE OF THE RMODEL
   int32_t  nFails;   // NUMBER OF TIMES THIS MODEL WAS WRONG
   uint32_t winSize;  // WINDOW SIZE FOR MODEL ACTING
   uint8_t  *win;     // MODEL ACTING ACCORDING TO THE WINDOW SIZE
@@ -46,7 +46,7 @@ uint64_t   GetIdxRevRM      (uint8_t *, RCLASS *);
 uint64_t   GetIdxRM         (uint8_t *, RCLASS *);
 void       PrintBlock       (RCLASS *, uint64_t, uint32_t, FILE *);
 void       StartRMs         (RCLASS *, HASH *, uint64_t, uint64_t, uint8_t);
-void       UpdateRMs        (RCLASS *, uint8_t *, uint8_t);
+void       UpdateRMs        (RCLASS *, uint8_t *, uint64_t, uint8_t);
 void       StopRMs          (RCLASS *, uint64_t, FILE *);
 void       ResetAllRMs      (RCLASS *, uint64_t, FILE *);
 void       StartMultipleRMs (RCLASS *, HASH *, uint64_t, uint8_t *);
