@@ -32,7 +32,7 @@ void CompressTarget(Threads T){
   FILE        *Reader  = Fopen(P->Con.name, "r");
   char        name[MAX_FILENAME];
   sprintf(name, ".t%u", T.id+1);
-  FILE        *Writter = Fopen(concatenate(P->Con.name, name), "w");
+  FILE        *Writter = Fopen(concatenate(P->positions, name), "w");
   uint64_t    nBaseRelative = 0, nBaseAbsolute = 0, nNRelative = 0, idxPos = 0;
   uint32_t    k;
   int32_t     action;
@@ -72,6 +72,8 @@ void CompressTarget(Threads T){
           UpdateRMs(Mod, Seq->buf, nBaseRelative, sym);
           StopRMs(Mod, nBaseRelative, Writter);
           StartMultipleRMs(Mod, Hash, nBaseRelative, symBuf->buf+symBuf->idx-1);
+
+          //FIXME: ref positions overflow
           }
         //printf("%u ", Mod->nRM);
         }
