@@ -33,7 +33,7 @@ int32_t ParseSym(PARSER *PA, uint8_t sym){
         return -2;
         }
     default:   
-      if(PA->header==1)             
+      if(PA->header == 1)             
         return -3;
     }
 

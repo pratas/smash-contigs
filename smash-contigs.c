@@ -46,6 +46,7 @@ void CompressTarget(Threads T){
     for(idxPos = 0 ; idxPos < k ; ++idxPos){
       
       if((action = ParseSym(PA, (sym = readBuf[idxPos]))) < 0){
+
         if(action == -2){
           if(Mod->nRM > 0){ 
             ResetAllRMs(Mod, nBaseRelative, Writter);
@@ -53,6 +54,7 @@ void CompressTarget(Threads T){
           nNRelative = 0;
           nBaseRelative = 0;
           }
+
         continue;
         }
 

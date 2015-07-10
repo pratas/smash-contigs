@@ -146,8 +146,6 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
       if(C->RM[n].win[0] == 1)
         C->RM[n].nFails--;
       
-      //printf("%d\n", C->RM[n].nFails);
-
       if(C->RM[n].rev == 0){
         if(b[C->RM[n].pos] != sym){
           C->RM[n].nFails++;
@@ -160,8 +158,7 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
           }
 
-        // TODO: PROTECT MAXIMUM
-        C->RM[n].pos++;
+        C->RM[n].pos++;  // TODO: PROTECT MAXIMUM
         }
 
       else{
@@ -196,30 +193,23 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint8_t sym){
 // PRINT BLOCK
 //
 void PrintBlock(RCLASS *C, uint64_t iBase, uint32_t n, FILE *Writter){
-
   if(C->RM[n].pos > C->RM[n].init){
-
-    fprintf(Writter, "%s\t%u\t%u\t%s\t%u\t%u\n",
-
-        "contigs1",                               // SAMPLE CONTIG NAME
-        iBase - C->kmer,                          // SAMPLE CONTIG INIT
-        0,                                        // SAMPLE CONTIG END
-        "ref",                                    // TARGET CONTIG NAME
-        C->RM[n].init - C->kmer,                  // TARGET CONTIG INIT
-        C->RM[n].pos);                            // TARGET CONTIG END
-
+    fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t%"PRIu64"\t%"PRIu64"\n",
+    "contigs1",                                        // SAMPLE CONTIG NAME
+    iBase-labs(C->RM[n].pos-C->RM[n].init)-C->kmer,    // SAMPLE CONTIG INIT
+    iBase,                                             // SAMPLE CONTIG END
+    "ref",                                             // TARGET CONTIG NAME
+    C->RM[n].init - C->kmer,                           // TARGET CONTIG INIT
+    C->RM[n].pos);                                     // TARGET CONTIG END
     }
   else{
-
-    fprintf(Writter, "%s\t%u\t%u\t%s\t%u\t%u\n",
-
-        "contigs1",                               // SAMPLE CONTIG NAME
-        iBase - C->kmer,                          // SAMPLE CONTIG INIT
-        0,                                        // SAMPLE CONTIG END
-        "ref",                                    // TARGET CONTIG NAME
-        C->RM[n].init + C->kmer,                  // TARGET CONTIG INIT
-        C->RM[n].pos);                            // TARGET CONTIG END
-
+    fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t%"PRIu64"\t%"PRIu64"\n",
+    "contigs1",                                        // SAMPLE CONTIG NAME
+    iBase-labs(C->RM[n].pos-C->RM[n].init)-C->kmer,    // SAMPLE CONTIG INIT
+    iBase,                                             // SAMPLE CONTIG END
+    "ref",                                             // TARGET CONTIG NAME
+    C->RM[n].init + C->kmer,                           // TARGET CONTIG INIT
+    C->RM[n].pos);                                     // TARGET CONTIG END
     }
   }
 
