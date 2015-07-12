@@ -123,7 +123,8 @@ void LoadReference(){
     if(sym != 4){
       symBuf->buf[symBuf->idx] = sym;
       Mod->idx = GetIdxRM(symBuf->buf+symBuf->idx-1, Mod);
-      InsertKmerPos(Hash, Mod->idx, k);
+      // CONDITION TO LOAD KMER AFTER nBASES & FOR EACH READ RESET IDX
+        InsertKmerPos(Hash, Mod->idx, k);
       UpdateCBuffer(symBuf);
       }
 

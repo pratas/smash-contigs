@@ -191,24 +191,26 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
 //
 void PrintBlock(RCLASS *C, uint64_t ePos, uint32_t n, FILE *Writter){
   if(C->RM[n].pos > C->RM[n].init){
-    fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
+    fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
+    "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
     "contigs1",                                        // SAMPLE CONTIG NAME
     C->RM[n].initRel - C->kmer,                        // SAMPLE CONTIG INIT
     ePos,                                              // SAMPLE CONTIG END
     "ref",                                             // TARGET CONTIG NAME
     C->RM[n].init - C->kmer,                           // TARGET CONTIG INIT
     C->RM[n].pos,                                      // TARGET CONTIG END
-    C->RM[n].size);
+    C->RM[n].size, C->RM[n].init);
     }
   else{
-    fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
+    fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
+    "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
     "contigs1",                                        // SAMPLE CONTIG NAME
     C->RM[n].initRel - C->kmer,                        // SAMPLE CONTIG INIT
     ePos,                                              // SAMPLE CONTIG END
     "ref",                                             // TARGET CONTIG NAME
     C->RM[n].init + C->kmer,                           // TARGET CONTIG INIT
     C->RM[n].pos,                                      // TARGET CONTIG END
-    C->RM[n].size);
+    C->RM[n].size, C->RM[n].init);
     }
   }
 
