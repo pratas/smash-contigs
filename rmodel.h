@@ -18,7 +18,8 @@ typedef struct{
   uint32_t winSize;  // WINDOW SIZE FOR MODEL ACTING
   uint8_t  *win;     // MODEL ACTING ACCORDING TO THE WINDOW SIZE
   uint8_t  rev;      // INVERTED REPEAT MODEL. IF REV=1 THEN IS ON
-  uint8_t  stop;     // INTRUCTION FOR THE NEXT STOP REPEATS: STOP THIS MODEL
+  uint8_t  stop;     // STOP THIS MODEL = 1
+  uint8_t  write;    // WRITE TO DISK THIS MODEL = 1
   }
 RMODEL;
 

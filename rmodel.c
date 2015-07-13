@@ -122,6 +122,7 @@ void StartRMs(RCLASS *C, HASH *H, uint64_t iPos, uint64_t idx, uint8_t ir){
     // RESET TO DEFAULTS
     C->RM[k].nFails  = 0;
     C->RM[k].stop    = 0;
+    C->RM[k].write   = 0;
     C->RM[k].rev     = ir;
     C->RM[k].initRel = iPos;
     memset(C->RM[k].win, 0, C->RM[k].winSize); 
@@ -235,29 +236,95 @@ FILE *Writter){
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// IS THE LARGER REPEAT? RETURN 0 OR 1
+//
+static int8_t IsTheLarger(RCLASS *C){
+  int32_t k;
+
+  for(k = 0 ; k < C->mRM ; ++k){
+    if(C->active[k] == 0)
+
+      return k;
+    }
+
+  fprintf(stderr, "Impossible state!\n");
+  exit(1);
+  }
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // STOP USELESS REPEAT MODELS
 //
 void StopRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
-  uint32_t id;
+  int32_t id, largerRM = -1, largerRMIR = -1;
+  uint64_t size = 0, sizeIR = 0;
 
   if(C->nRM > 0){
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->active[id] == 1){
         if(C->RM[id].nFails > C->maxFails || C->RM[id].stop == 1){
+
           if(C->RM[id].size > C->minSize){
 
+            if(C->RM[id].rev == 0 && size < C->RM[id].size){
+              size = C->RM[id].size;
+              largerRM = id;
+              }
+
+            if(C->RM[id].rev == 1 && sizeIR < C->RM[id].size){
+              sizeIR = C->RM[id].size;
+              largerRMIR = id;
+              }
+           
+            C->RM[id].write = 2;
+
             // SE FOR O MAIOR ESCREVE
-            PrintBlock(C, position, id, buf, Writter);
+            // PrintBlock(C, position, id, buf, Writter);
 
             // ELSE
             //   -> CASO ESTEJA CONTIDO NO TARGET:
             //       + NÃO ESCREVE!
             //   -> ELSE:
             //       + ESCREVE! (região diferente)
+
+            continue;
             }
 
           C->active[id] = 0;
           --C->nRM;
+          }
+        }
+      }
+
+    if(largerRM != -1){
+      C->RM[largerRM].write = 1;
+      PrintBlock(C, position, largerRM, buf, Writter);
+      C->active[largerRM] = 0;
+      --C->nRM;
+      }
+
+    if(C->rev == 1 && largerRMIR != -1){
+      C->RM[largerRM].write = 1;
+      PrintBlock(C, position, largerRMIR, buf, Writter);
+      C->active[largerRMIR] = 0;
+      --C->nRM;
+      }
+
+    for(id = 0 ; id < C->mRM ; ++id){
+      if(C->RM[id].write == 2){ // IT WAS SMALLER
+
+        if(C->RM[id].rev == 0){
+          if(C->RM[largerRM].init > C->RM[id].init || C->RM[largerRM].pos > C->RM[id].pos){
+            C->RM[id].write = 1;
+            PrintBlock(C, position, id, buf, Writter);
+            }
+          }
+        else{
+          if(C->RM[largerRMIR].init < C->RM[id].init || C->RM[largerRMIR].pos < C->RM[id].pos){
+            C->RM[id].write = 1;
+            PrintBlock(C, position, id, buf, Writter);
+            }
+
           }
         }
       }
@@ -270,6 +337,9 @@ void StopRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
 void ResetAllRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
   uint32_t n;
 
+  StopRMs(C, position, buf, Writter);
+
+/*
   for(n = 0 ; n < C->mRM ; ++n){
     if(C->active[n] == 1){
       if(labs(C->RM[n].pos - C->RM[n].init) > C->minSize){
@@ -278,6 +348,10 @@ void ResetAllRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
       }
     C->active[n] = 0;
     }
+*/
+  for(n = 0 ; n < C->mRM ; ++n)
+    C->active[n] = 0;
+  
   C->nRM = 0;
   }
 
