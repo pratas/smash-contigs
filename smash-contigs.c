@@ -34,11 +34,12 @@ void CompressTarget(Threads T){
   sprintf(name, ".t%u", T.id+1);
   FILE        *Writter = Fopen(concatenate(P->positions, name), "w");
   uint64_t    nBaseRelative = 0, nBaseAbsolute = 0, nNRelative = 0, idxPos = 0;
-  uint32_t    k;
+  uint32_t    k, r = 0;
   int32_t     action;
   PARSER      *PA = CreateParser();
   CBUF        *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
-  uint8_t     *readBuf = (uint8_t *) Calloc(BUFFER_SIZE, sizeof(uint8_t)), sym;
+  uint8_t     *readBuf = (uint8_t *) Calloc(BUFFER_SIZE, sizeof(uint8_t)), sym,
+              contigName[MAX_CONTIG_NAME];
   RCLASS      *Mod = CreateRClass(P->repeats, P->editions, P->minimum, P->kmer,
               P->inversion);
 
@@ -48,12 +49,24 @@ void CompressTarget(Threads T){
       
       if((action = ParseSym(PA, (sym = readBuf[idxPos]))) < 0){
 
-        if(action == -2){
-          if(Mod->nRM > 0){ 
-            ResetAllRMs(Mod, nBaseRelative, Writter);
-            }
-          nNRelative = 0;
-          nBaseRelative = 0;
+        switch(action){
+          case -2:
+            contigName[r] = '\0';
+            if(Mod->nRM > 0) 
+              ResetAllRMs(Mod, nBaseRelative, contigName, Writter);
+            nNRelative = 0;
+            nBaseRelative = 0;
+            r = 0;
+          break;
+
+          case -3:
+            if(r >= MAX_CONTIG_NAME - 1){
+              contigName[r] = '\0';
+              }
+            else{          
+              contigName[r++] = (uint8_t) sym;        
+              }
+          break;
           }
 
         continue;
@@ -71,7 +84,7 @@ void CompressTarget(Threads T){
       if(PA->nRead % P->nThreads == T.id){
         if(nBaseRelative > Mod->kmer){  // PROTECTING THE BEGGINING OF K-SIZE
           UpdateRMs(Mod, Seq->buf, nBaseRelative, sym);
-          StopRMs(Mod, nBaseRelative, Writter);
+          StopRMs(Mod, nBaseRelative, contigName, Writter);
           StartMultipleRMs(Mod, Hash, nBaseRelative, symBuf->buf+symBuf->idx-1);
           }
         }

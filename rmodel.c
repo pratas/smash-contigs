@@ -204,14 +204,15 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // PRINT BLOCK
 //
-void PrintBlock(RCLASS *C, uint64_t ePos, uint32_t n, FILE *Writter){
+void PrintBlock(RCLASS *C, uint64_t ePos, uint32_t n, uint8_t *name, 
+FILE *Writter){
 
   // # ID_TAR INIT_REL_TAR END_REL_TAR ID_REF INIT_ABS_REF END_ABS_REF SIZE
 
   if(C->RM[n].pos > C->RM[n].init){
     fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
     "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
-    "contigs1",                                        // SAMPLE CONTIG NAME
+    name,                                              // SAMPLE CONTIG NAME
     C->RM[n].initRel - C->kmer,                        // SAMPLE CONTIG INIT
     ePos,                                              // SAMPLE CONTIG END
     "ref",                                             // TARGET CONTIG NAME
@@ -222,7 +223,7 @@ void PrintBlock(RCLASS *C, uint64_t ePos, uint32_t n, FILE *Writter){
   else{
     fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
     "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
-    "contigs1",                                        // SAMPLE CONTIG NAME
+    name,                                              // SAMPLE CONTIG NAME
     C->RM[n].initRel - C->kmer,                        // SAMPLE CONTIG INIT
     ePos,                                              // SAMPLE CONTIG END
     "ref",                                             // TARGET CONTIG NAME
@@ -235,7 +236,7 @@ void PrintBlock(RCLASS *C, uint64_t ePos, uint32_t n, FILE *Writter){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // STOP USELESS REPEAT MODELS
 //
-void StopRMs(RCLASS *C, uint64_t position, FILE *Writter){
+void StopRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
   uint32_t id;
 
   if(C->nRM > 0){
@@ -245,7 +246,7 @@ void StopRMs(RCLASS *C, uint64_t position, FILE *Writter){
           if(C->RM[id].size > C->minSize){
 
             // SE FOR O MAIOR ESCREVE
-            PrintBlock(C, position, id, Writter);
+            PrintBlock(C, position, id, buf, Writter);
 
             // ELSE
             //   -> CASO ESTEJA CONTIDO NO TARGET:
@@ -265,16 +266,15 @@ void StopRMs(RCLASS *C, uint64_t position, FILE *Writter){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // FORCE STOP REPEAT MODELS DURING END OF READ
 //
-void ResetAllRMs(RCLASS *C, uint64_t position, FILE *Writter){
+void ResetAllRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
   uint32_t n;
 
   for(n = 0 ; n < C->mRM ; ++n){
     if(C->active[n] == 1){
       if(labs(C->RM[n].pos - C->RM[n].init) > C->minSize){
-        PrintBlock(C, position, n, Writter);
+        PrintBlock(C, position, n, buf, Writter);
         }
       }
-
     C->active[n] = 0;
     }
   C->nRM = 0;

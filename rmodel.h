@@ -46,11 +46,11 @@ RCLASS     *CreateRClass    (uint32_t, uint32_t, uint32_t, uint32_t, uint8_t);
 void       RemoveRClass     (RCLASS *);
 uint64_t   GetIdxRevRM      (uint8_t *, RCLASS *);
 uint64_t   GetIdxRM         (uint8_t *, RCLASS *);
-void       PrintBlock       (RCLASS *, uint64_t, uint32_t, FILE *);
+void       PrintBlock       (RCLASS *, uint64_t, uint32_t, uint8_t *, FILE *);
 void       StartRMs         (RCLASS *, HASH *, uint64_t, uint64_t, uint8_t);
 void       UpdateRMs        (RCLASS *, uint8_t *, uint64_t, uint8_t);
-void       StopRMs          (RCLASS *, uint64_t, FILE *);
-void       ResetAllRMs      (RCLASS *, uint64_t, FILE *);
+void       StopRMs          (RCLASS *, uint64_t, uint8_t *, FILE *);
+void       ResetAllRMs      (RCLASS *, uint64_t, uint8_t *, FILE *);
 void       StartMultipleRMs (RCLASS *, HASH *, uint64_t, uint8_t *);
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
