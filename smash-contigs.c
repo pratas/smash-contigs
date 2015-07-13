@@ -60,12 +60,10 @@ void CompressTarget(Threads T){
           break;
 
           case -3:
-            if(r >= MAX_CONTIG_NAME - 1){
+            if(r >= MAX_CONTIG_NAME - 1)
               contigName[r] = '\0';
-              }
-            else{          
+            else          
               contigName[r++] = (uint8_t) sym;        
-              }
           break;
           }
 

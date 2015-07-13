@@ -164,7 +164,7 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
       if(C->RM[n].win[0] == 1)
         C->RM[n].nFails--;
       
-      if(C->RM[n].rev == 0){
+      if(C->RM[n].rev == 0){ // REGULAR REPEAT
         if(b[C->RM[n].pos] != sym)
           Hit(&C->RM[n]);
         else
@@ -174,9 +174,10 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
           C->RM[n].pos++;
         else
           C->RM[n].stop = 1;
-        }
 
-      else{
+        }
+      else{ // INVERTED REPEAT
+
         if(b[C->RM[n].pos] == 4){ // PROTECT COMPLEMENT FROM OTHER SYMBOLS
           Fail(&C->RM[n]);
           // SEE AFTER DISCARDING POLITICS
