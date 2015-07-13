@@ -8,7 +8,7 @@ SEQ *CreateSeq(uint32_t size){
   Sequence->size   = size;
   Sequence->init   = size;
   Sequence->idx    = 0;
-  Sequence->buf    = (uint8_t *) Calloc(size,sizeof(uint8_t));
+  Sequence->buf    = (uint8_t *) Calloc(size, sizeof(uint8_t));
   return Sequence;
   }
 

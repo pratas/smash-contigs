@@ -42,6 +42,7 @@ void CompressTarget(Threads T){
   RCLASS      *Mod = CreateRClass(P->repeats, P->editions, P->minimum, P->kmer,
               P->inversion);
 
+  Mod->nBases = P->Ref.nBases;
   while((k = fread(readBuf, 1, BUFFER_SIZE, Reader)))
     for(idxPos = 0 ; idxPos < k ; ++idxPos){
       
@@ -101,7 +102,6 @@ void *CompressThread(void *Thr){
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - - - R E F E R E N C E - - - - - - - - - - - - -
 void LoadReference(){
-  uint64_t nBases = 0;
   PARSER   *PA = CreateParser();
   CBUF     *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
   uint8_t  sym, *readBuf;
@@ -111,6 +111,7 @@ void LoadReference(){
   RCLASS   *Mod = CreateRClass(P->repeats, P->editions, P->minimum, P->kmer,
            P->inversion);
 
+  Mod->nBases = 0;
   fstat (fd, & s);
   size = s.st_size;
   readBuf = (uint8_t *) mmap(0, size, PROT_READ, MAP_PRIVATE, fd, 0);
@@ -123,16 +124,16 @@ void LoadReference(){
     if(sym != 4){
       symBuf->buf[symBuf->idx] = sym;
       Mod->idx = GetIdxRM(symBuf->buf+symBuf->idx-1, Mod);
-      // CONDITION TO LOAD KMER AFTER nBASES & FOR EACH READ RESET IDX
+      //TODO: CONDITION TO LOAD KMER AFTER nBASES & FOR EACH READ RESET IDX
         InsertKmerPos(Hash, Mod->idx, k);
       UpdateCBuffer(symBuf);
       }
 
     CalcProgress(P->Ref.length, k);
-    ++nBases;
+    Mod->nBases++;
     }
 
-  P->Ref.nBases = nBases;
+  P->Ref.nBases = Mod->nBases;
   RemoveCBuffer(symBuf);
   RemoveRClass(Mod);
   RemoveParser(PA);

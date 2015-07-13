@@ -18,6 +18,7 @@ typedef struct{
   uint32_t winSize;  // WINDOW SIZE FOR MODEL ACTING
   uint8_t  *win;     // MODEL ACTING ACCORDING TO THE WINDOW SIZE
   uint8_t  rev;      // INVERTED REPEAT MODEL. IF REV=1 THEN IS ON
+  uint8_t  stop;     // INTRUCTION FOR THE NEXT STOP REPEATS: STOP THIS MODEL
   }
 RMODEL;
 
@@ -34,6 +35,7 @@ typedef struct{
   uint64_t idxRev;   // CURRENT INVERTED REPEAT INDEX
   uint8_t  rev;      // INVERTED REPETAT MODEL. IF REV='Y' THEN IS TRUE
   uint64_t n;        // NUMBER OF PROCESSED N's
+  uint64_t nBases;   // NUMBER OF ACGTN's
   }
 RCLASS;
 

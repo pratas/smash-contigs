@@ -38,6 +38,7 @@ uint8_t ir){
   C->idxRev   = 0;
   C->kmer     = k;
   C->n        = 0;
+  C->nBases   = 0;
   C->mult     = CalcMult(k);
   C->maxFails = editions;
   C->minSize  = min;
@@ -106,11 +107,7 @@ void StartRMs(RCLASS *C, HASH *H, uint64_t iPos, uint64_t idx, uint8_t ir){
     return; // NEVER SEEN IN THE HASH TABLE, SO LETS QUIT
 
   while(C->nRM < C->mRM && n < E->nPos){
-
-//  fprintf(stderr, "y: %d, %d\n", C->nRM, C->mRM);
-
     k = GetFirstNonActiveRM(C);
- 
     if(ir == 0){ 
       C->RM[k].init = C->RM[k].pos = E->pos[n];
       }
@@ -123,8 +120,9 @@ void StartRMs(RCLASS *C, HASH *H, uint64_t iPos, uint64_t idx, uint8_t ir){
       }
 
     // RESET TO DEFAULTS
-    C->RM[k].nFails = 0;
-    C->RM[k].rev = ir;
+    C->RM[k].nFails  = 0;
+    C->RM[k].stop    = 0;
+    C->RM[k].rev     = ir;
     C->RM[k].initRel = iPos;
     memset(C->RM[k].win, 0, C->RM[k].winSize); 
 
@@ -133,6 +131,23 @@ void StartRMs(RCLASS *C, HASH *H, uint64_t iPos, uint64_t idx, uint8_t ir){
     ++n;
     }
 
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// HIT REPEAT
+//
+static void Hit(RMODEL *R){
+  if(R->nFails > 1)
+    R->nFails--;
+  ShiftBuffer(R->win, R->winSize, 0);
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// FAIL REPEAT
+//
+static void Fail(RMODEL *R){
+  R->nFails++;
+  ShiftBuffer(R->win, R->winSize, 1);
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -151,36 +166,67 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
       
       if(C->RM[n].rev == 0){
         if(b[C->RM[n].pos] != sym){
+          Hit(&C->RM[n]);
+/*
           C->RM[n].nFails++;
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
+*/
           }
         else{
+          Fail(&C->RM[n]);
+/*
           if(C->RM[n].nFails > 1)
             C->RM[n].nFails--;
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
+*/
           }
-        C->RM[n].pos++;  // TODO: PROTECT MAXIMUM
+
+        if(C->RM[n].pos == C->nBases){
+          C->RM[n].stop = 1;
+          }
+        else{
+          C->RM[n].pos++;
+          }
         }
 
       else{
         if(b[C->RM[n].pos] == 4){ // PROTECT COMPLEMENT FROM OTHER SYMBOLS
+          Fail(&C->RM[n]);
+/*
           C->RM[n].nFails++;
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
-          if(C->RM[n].pos > 1)
+*/
+          if(C->RM[n].pos == 1){
+            C->RM[n].stop = 1;
+            }
+          else{
             C->RM[n].pos--;
+            }
           continue;
           }
+
         if(GetCompNum(b[C->RM[n].pos]) != sym){
+          Fail(&C->RM[n]);
+/*
           C->RM[n].nFails++;
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
+*/
           }
         else{
+          Hit(&C->RM[n]);
+/*
           if(C->RM[n].nFails > 1)
             C->RM[n].nFails--;
           ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
+*/
           }
-        if(C->RM[n].pos > 1)
+
+        if(C->RM[n].pos == 1){
+          C->RM[n].stop = 1;
+          }
+        else{
           C->RM[n].pos--;
+          }
         }
       }
     }
@@ -223,7 +269,7 @@ void StopRMs(RCLASS *C, uint64_t position, FILE *Writter){
   if(C->nRM > 0){
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->active[id] == 1){
-        if(C->RM[id].nFails > C->maxFails){
+        if(C->RM[id].nFails > C->maxFails || C->RM[id].stop == 1){
           if(C->RM[id].size > C->minSize)
 
             // SE FOR O MAIOR ESCREVE
