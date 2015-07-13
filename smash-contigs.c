@@ -69,14 +69,11 @@ void CompressTarget(Threads T){
       symBuf->buf[symBuf->idx] = sym;
 
       if(PA->nRead % P->nThreads == T.id){
-        if(nBaseRelative > Mod->kmer){  // PROTECTION ON THE BEGGINING OF K-SIZE
+        if(nBaseRelative > Mod->kmer){  // PROTECTING THE BEGGINING OF K-SIZE
           UpdateRMs(Mod, Seq->buf, nBaseRelative, sym);
           StopRMs(Mod, nBaseRelative, Writter);
           StartMultipleRMs(Mod, Hash, nBaseRelative, symBuf->buf+symBuf->idx-1);
-
-          //FIXME: ref positions overflow
           }
-        //printf("%u ", Mod->nRM);
         }
 
       UpdateCBuffer(symBuf);
