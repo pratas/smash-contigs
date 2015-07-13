@@ -108,20 +108,16 @@ void StartRMs(RCLASS *C, HASH *H, uint64_t iPos, uint64_t idx, uint8_t ir){
 
   while(C->nRM < C->mRM && n < E->nPos){
     k = GetFirstNonActiveRM(C);
-    if(ir == 0){ 
-      if(E->pos[n] >= C->nBases - C->kmer){
-        ++n;
-        continue;
-        }
+
+    if(E->pos[n] >= C->nBases - C->kmer || E->pos[n] < C->kmer){
+      ++n;
+      continue;
+      }
+
+    if(ir == 0)
       C->RM[k].init = C->RM[k].pos = E->pos[n];
-      }
-    else{
-      if(E->pos[n] <= C->kmer){
-        ++n;
-        continue;
-        }
+    else
       C->RM[k].init = C->RM[k].pos = E->pos[n]-C->kmer-1;
-      }
 
     // RESET TO DEFAULTS
     C->RM[k].nFails  = 0;
@@ -210,8 +206,7 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
 //
 void PrintBlock(RCLASS *C, uint64_t ePos, uint32_t n, FILE *Writter){
 
-  if(C->RM[n].init < C->kmer)
-    return;
+  // # ID_TAR INIT_REL_TAR END_REL_TAR ID_REF INIT_ABS_REF END_ABS_REF SIZE
 
   if(C->RM[n].pos > C->RM[n].init){
     fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
