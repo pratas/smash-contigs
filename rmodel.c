@@ -109,10 +109,14 @@ void StartRMs(RCLASS *C, HASH *H, uint64_t iPos, uint64_t idx, uint8_t ir){
   while(C->nRM < C->mRM && n < E->nPos){
     k = GetFirstNonActiveRM(C);
     if(ir == 0){ 
+      if(E->pos[n] >= C->nBases - C->kmer){
+        ++n;
+        continue;
+        }
       C->RM[k].init = C->RM[k].pos = E->pos[n];
       }
     else{
-      if(E->pos[n] <= C->kmer+1){
+      if(E->pos[n] <= C->kmer){
         ++n;
         continue;
         }
@@ -165,68 +169,37 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
         C->RM[n].nFails--;
       
       if(C->RM[n].rev == 0){
-        if(b[C->RM[n].pos] != sym){
+        if(b[C->RM[n].pos] != sym)
           Hit(&C->RM[n]);
-/*
-          C->RM[n].nFails++;
-          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
-*/
-          }
-        else{
+        else
           Fail(&C->RM[n]);
-/*
-          if(C->RM[n].nFails > 1)
-            C->RM[n].nFails--;
-          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
-*/
-          }
 
-        if(C->RM[n].pos == C->nBases){
-          C->RM[n].stop = 1;
-          }
-        else{
+        if(C->RM[n].pos < C->nBases - C->kmer)
           C->RM[n].pos++;
-          }
+        else
+          C->RM[n].stop = 1;
         }
 
       else{
         if(b[C->RM[n].pos] == 4){ // PROTECT COMPLEMENT FROM OTHER SYMBOLS
           Fail(&C->RM[n]);
-/*
-          C->RM[n].nFails++;
-          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
-*/
-          if(C->RM[n].pos == 1){
-            C->RM[n].stop = 1;
-            }
-          else{
+          // SEE AFTER DISCARDING POLITICS
+          if(C->RM[n].pos > C->kmer)
             C->RM[n].pos--;
-            }
+          else
+            C->RM[n].stop = 1;
           continue;
           }
 
-        if(GetCompNum(b[C->RM[n].pos]) != sym){
+        if(GetCompNum(b[C->RM[n].pos]) != sym)
           Fail(&C->RM[n]);
-/*
-          C->RM[n].nFails++;
-          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 1);
-*/
-          }
-        else{
+        else
           Hit(&C->RM[n]);
-/*
-          if(C->RM[n].nFails > 1)
-            C->RM[n].nFails--;
-          ShiftBuffer(C->RM[n].win, C->RM[n].winSize, 0);
-*/
-          }
 
-        if(C->RM[n].pos == 1){
-          C->RM[n].stop = 1;
-          }
-        else{
+        if(C->RM[n].pos > C->kmer)
           C->RM[n].pos--;
-          }
+        else
+          C->RM[n].stop = 1;
         }
       }
     }
@@ -236,27 +209,31 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
 // PRINT BLOCK
 //
 void PrintBlock(RCLASS *C, uint64_t ePos, uint32_t n, FILE *Writter){
+
+  if(C->RM[n].init < C->kmer)
+    return;
+
   if(C->RM[n].pos > C->RM[n].init){
     fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
-    "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
+    "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
     "contigs1",                                        // SAMPLE CONTIG NAME
     C->RM[n].initRel - C->kmer,                        // SAMPLE CONTIG INIT
     ePos,                                              // SAMPLE CONTIG END
     "ref",                                             // TARGET CONTIG NAME
     C->RM[n].init - C->kmer,                           // TARGET CONTIG INIT
     C->RM[n].pos,                                      // TARGET CONTIG END
-    C->RM[n].size, C->RM[n].init);
+    C->RM[n].size);
     }
   else{
     fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
-    "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
+    "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
     "contigs1",                                        // SAMPLE CONTIG NAME
     C->RM[n].initRel - C->kmer,                        // SAMPLE CONTIG INIT
     ePos,                                              // SAMPLE CONTIG END
     "ref",                                             // TARGET CONTIG NAME
     C->RM[n].init + C->kmer,                           // TARGET CONTIG INIT
     C->RM[n].pos,                                      // TARGET CONTIG END
-    C->RM[n].size, C->RM[n].init);
+    C->RM[n].size);
     }
   }
 
@@ -270,7 +247,7 @@ void StopRMs(RCLASS *C, uint64_t position, FILE *Writter){
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->active[id] == 1){
         if(C->RM[id].nFails > C->maxFails || C->RM[id].stop == 1){
-          if(C->RM[id].size > C->minSize)
+          if(C->RM[id].size > C->minSize){
 
             // SE FOR O MAIOR ESCREVE
             PrintBlock(C, position, id, Writter);
@@ -280,6 +257,7 @@ void StopRMs(RCLASS *C, uint64_t position, FILE *Writter){
             //       + NÃO ESCREVE!
             //   -> ELSE:
             //       + ESCREVE! (região diferente)
+            }
 
           C->active[id] = 0;
           --C->nRM;
