@@ -23,8 +23,8 @@
 #include "common.h"
 #include "rmodel.h"
 
-HASH    *Hash; // HASH MEMORY SHARED BY THREADING
-SEQ     *Seq;  // SEQUENCE SHARED BY THREADING
+HASH *Hash; // HASH MEMORY SHARED BY THREADING
+SEQ  *Seq;  // SEQUENCE SHARED BY THREADING
 
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - C O M P R E S S I N G - - - - - - - - - - - - - 
@@ -220,14 +220,14 @@ int32_t main(int argc, char *argv[]){
   fprintf(stderr, "==[ PROCESSING ]====================\n");
   TIME *Time = CreateClock(clock());
   CompressAction();
-  // JoinThreadedFiles();
-  // CreateMapWithProjections();
+  // TODO: JoinThreadedFiles();
+  // TODO: CreateMapWithProjections();
   StopTimeNDRM(Time, clock());
   fprintf(stderr, "\n");
 
-  fprintf(stderr, "==[ RESULTS ]=======================\n");
-  fprintf(stderr, "4 positions...\n");
-  fprintf(stderr, "\n");
+  //fprintf(stderr, "==[ RESULTS ]=======================\n");
+  //fprintf(stderr, "4 positions...\n");
+  //fprintf(stderr, "\n");
 
   fprintf(stderr, "==[ STATISTICS ]====================\n");
   StopCalcAll(Time, clock());
