@@ -236,6 +236,15 @@ void PrintBlock(RCLASS *C, uint64_t ePos, uint32_t n, uint8_t *nm, FILE *W){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // STOP USELESS REPEAT MODELS
 //
+static void ResetRM(RCLASS *C, uint32_t id){
+  C->RM[id].write = 0;
+  C->RM[id].stop  = 0;
+  C->active[id]   = 0;
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// STOP USELESS REPEAT MODELS
+//
 void StopRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
   int32_t id, largerRM = -1, largerRMIR = -1;
   uint64_t size = 0, sizeIR = 0;
@@ -261,9 +270,7 @@ void StopRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
             continue;
             }
 
-          C->RM[id].write = 0;
-          C->RM[id].stop = 0;
-          C->active[id] = 0;
+          ResetRM(C, id);
           --C->nRM;
           }
         }
@@ -291,9 +298,7 @@ void StopRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
             }
           }
 
-        C->RM[id].write = 0;
-        C->RM[id].stop  = 0;
-        C->active[id]   = 0;
+        ResetRM(C, id);
         --C->nRM;
         }
       }
@@ -306,25 +311,11 @@ void StopRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
 void ResetAllRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
   uint32_t n;
 
-  //StopRMs(C, position, buf, Writter);
+  StopRMs(C, position, buf, Writter);
 
-  for(n = 0 ; n < C->mRM ; ++n){
-    if(C->active[n] == 1){
-      if(labs(C->RM[n].pos - C->RM[n].init) > C->minSize){
-        PrintBlock(C, position, n, buf, Writter);
-        }
-      }
-    C->RM[n].write = 0;
-    C->RM[n].stop  = 0;
-    C->active[n] = 0;
-    }
-
-/*
   for(n = 0 ; n < C->mRM ; ++n)
-    C->active[n] = 0;
-*/  
+    ResetRM(C, n);
   C->nRM = 0;
-
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

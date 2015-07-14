@@ -71,6 +71,8 @@ void CompressTarget(Threads T){
         }
 
       if((sym = DNASymToNum(sym)) == 4){
+        if(Mod->nRM > 0) // PROTECT Ns IN THE CONTIG SEQUENCE
+          ResetAllRMs(Mod, nBaseRelative, contigName, Writter);
         ++nNRelative;
         ++nBaseRelative;
         ++nBaseAbsolute;
