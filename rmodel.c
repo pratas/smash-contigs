@@ -167,9 +167,9 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
       
       if(C->RM[n].rev == 0){ // REGULAR REPEAT
         if(b[C->RM[n].pos] != sym)
-          Hit(&C->RM[n]);
-        else
           Fail(&C->RM[n]);
+        else
+          Hit(&C->RM[n]);
 
         if(C->RM[n].pos < C->nBases - C->kmer)
           C->RM[n].pos++;
@@ -180,8 +180,7 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
       else{ // INVERTED REPEAT
 
         if(b[C->RM[n].pos] == 4){ // PROTECT COMPLEMENT FROM OTHER SYMBOLS
-          Fail(&C->RM[n]);
-          // SEE AFTER DISCARDING POLITICS
+          Fail(&C->RM[n]); // SEE AFTER: DISCARDING POLITICS
           if(C->RM[n].pos > C->kmer)
             C->RM[n].pos--;
           else
@@ -206,15 +205,14 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // PRINT BLOCK
 //
-void PrintBlock(RCLASS *C, uint64_t ePos, uint32_t n, uint8_t *name, 
-FILE *Writter){
+void PrintBlock(RCLASS *C, uint64_t ePos, uint32_t n, uint8_t *nm, FILE *W){
 
   // # ID_TAR INIT_REL_TAR END_REL_TAR ID_REF INIT_ABS_REF END_ABS_REF SIZE
 
-  if(C->RM[n].pos > C->RM[n].init){
-    fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
+  if(C->RM[n].rev == 0){
+    fprintf(W, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
     "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
-    name,                                              // SAMPLE CONTIG NAME
+    nm,                                                // SAMPLE CONTIG NAME
     C->RM[n].initRel - C->kmer,                        // SAMPLE CONTIG INIT
     ePos,                                              // SAMPLE CONTIG END
     "ref",                                             // TARGET CONTIG NAME
@@ -223,9 +221,9 @@ FILE *Writter){
     C->RM[n].size);
     }
   else{
-    fprintf(Writter, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
+    fprintf(W, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
     "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
-    name,                                              // SAMPLE CONTIG NAME
+    nm,                                                // SAMPLE CONTIG NAME
     C->RM[n].initRel - C->kmer,                        // SAMPLE CONTIG INIT
     ePos,                                              // SAMPLE CONTIG END
     "ref",                                             // TARGET CONTIG NAME
@@ -234,23 +232,6 @@ FILE *Writter){
     C->RM[n].size);
     }
   }
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// IS THE LARGER REPEAT? RETURN 0 OR 1
-//
-static int8_t IsTheLarger(RCLASS *C){
-  int32_t k;
-
-  for(k = 0 ; k < C->mRM ; ++k){
-    if(C->active[k] == 0)
-
-      return k;
-    }
-
-  fprintf(stderr, "Impossible state!\n");
-  exit(1);
-  }
-
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // STOP USELESS REPEAT MODELS
@@ -264,7 +245,7 @@ void StopRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
       if(C->active[id] == 1){
         if(C->RM[id].nFails > C->maxFails || C->RM[id].stop == 1){
 
-          if(C->RM[id].size > C->minSize){
+          if(C->RM[id].size >= C->minSize){
 
             if(C->RM[id].rev == 0 && size < C->RM[id].size){
               size = C->RM[id].size;
@@ -277,55 +258,43 @@ void StopRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
               }
            
             C->RM[id].write = 2;
-
-            // SE FOR O MAIOR ESCREVE
-            // PrintBlock(C, position, id, buf, Writter);
-
-            // ELSE
-            //   -> CASO ESTEJA CONTIDO NO TARGET:
-            //       + NÃO ESCREVE!
-            //   -> ELSE:
-            //       + ESCREVE! (região diferente)
-
             continue;
             }
 
+          C->RM[id].write = 0;
+          C->RM[id].stop = 0;
           C->active[id] = 0;
           --C->nRM;
           }
         }
       }
 
-    if(largerRM != -1){
-      C->RM[largerRM].write = 1;
+    if(largerRM != -1)
       PrintBlock(C, position, largerRM, buf, Writter);
-      C->active[largerRM] = 0;
-      --C->nRM;
-      }
 
-    if(C->rev == 1 && largerRMIR != -1){
-      C->RM[largerRM].write = 1;
+    if(C->rev == 1 && largerRMIR != -1)
       PrintBlock(C, position, largerRMIR, buf, Writter);
-      C->active[largerRMIR] = 0;
-      --C->nRM;
-      }
 
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->RM[id].write == 2){ // IT WAS SMALLER
 
         if(C->RM[id].rev == 0){
-          if(C->RM[largerRM].init > C->RM[id].init || C->RM[largerRM].pos > C->RM[id].pos){
-            C->RM[id].write = 1;
+          if(C->RM[largerRM].init > C->RM[id].init || 
+             C->RM[largerRM].pos  > C->RM[id].pos){
             PrintBlock(C, position, id, buf, Writter);
             }
           }
         else{
-          if(C->RM[largerRMIR].init < C->RM[id].init || C->RM[largerRMIR].pos < C->RM[id].pos){
-            C->RM[id].write = 1;
+          if(C->RM[largerRMIR].init < C->RM[id].init || 
+             C->RM[largerRMIR].pos  < C->RM[id].pos){
             PrintBlock(C, position, id, buf, Writter);
             }
-
           }
+
+        C->RM[id].write = 0;
+        C->RM[id].stop  = 0;
+        C->active[id]   = 0;
+        --C->nRM;
         }
       }
     }
@@ -337,22 +306,25 @@ void StopRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
 void ResetAllRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
   uint32_t n;
 
-  StopRMs(C, position, buf, Writter);
+  //StopRMs(C, position, buf, Writter);
 
-/*
   for(n = 0 ; n < C->mRM ; ++n){
     if(C->active[n] == 1){
       if(labs(C->RM[n].pos - C->RM[n].init) > C->minSize){
         PrintBlock(C, position, n, buf, Writter);
         }
       }
+    C->RM[n].write = 0;
+    C->RM[n].stop  = 0;
     C->active[n] = 0;
     }
-*/
+
+/*
   for(n = 0 ; n < C->mRM ; ++n)
     C->active[n] = 0;
-  
+*/  
   C->nRM = 0;
+
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
