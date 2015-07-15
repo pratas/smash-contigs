@@ -18,6 +18,7 @@
 #include "defs.h"
 #include "param.h"
 #include "msg.h"
+#include "pos.h"
 #include "parser.h"
 #include "buffer.h"
 #include "common.h"
@@ -25,6 +26,18 @@
 
 HASH *Hash; // HASH MEMORY SHARED BY THREADING
 SEQ  *Seq;  // SEQUENCE SHARED BY THREADING
+
+//////////////////////////////////////////////////////////////////////////////
+// - - - - - - - - - - R E L A T I V E   T O   G L O B A L - - - - - - - - - - 
+void GlobalRefToRelative(){
+  fprintf(stderr, "  [+] Building models ...\n");
+
+
+
+
+  fprintf(stderr, "      Done!                \n");
+  return;
+  }
 
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - C O M P R E S S I N G - - - - - - - - - - - - - 
@@ -220,7 +233,8 @@ int32_t main(int argc, char *argv[]){
   fprintf(stderr, "==[ PROCESSING ]====================\n");
   TIME *Time = CreateClock(clock());
   CompressAction();
-  // TODO: JoinThreadedFiles();
+  GlobalRefToRelative();
+
   // TODO: CreateMapWithProjections();
   StopTimeNDRM(Time, clock());
   fprintf(stderr, "\n");

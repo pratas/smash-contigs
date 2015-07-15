@@ -4,10 +4,10 @@ CPLP   = -fstrict-aliasing -ffast-math -msse2 -g
 #-----------------------------------------------------------------------------
 CFLAGS = -O3 -Wall $(CPLP)
 #-----------------------------------------------------------------------------
-LIBS   = -lm
-DEPS   = defs.h
+LIBS   = -lm -lpthread
+DEPS   = defs.h param.h
 PROGS  = $(BIN)/smash-contigs
-OBJS   = mem.o common.o hash.o rmodel.o msg.o parser.o param.o time.o seq.o buffer.o 
+OBJS   = mem.o common.o hash.o rmodel.o msg.o parser.o pos.o time.o seq.o buffer.o 
 all:
 	$(MAKE) progs
 progs: $(PROGS)
@@ -25,8 +25,8 @@ msg.o: msg.c msg.h $(DEPS)
 	$(CC) -c $(CFLAGS) msg.c
 parser.o: parser.c parser.h $(DEPS)
 	$(CC) -c $(CFLAGS) parser.c
-param.o: param.c param.h $(DEPS)
-	$(CC) -c $(CFLAGS) param.c
+pos.o: pos.c pos.h $(DEPS)
+	$(CC) -c $(CFLAGS) pos.c
 time.o: time.c time.h $(DEPS)
 	$(CC) -c $(CFLAGS) time.c
 seq.o: seq.c seq.h $(DEPS)
