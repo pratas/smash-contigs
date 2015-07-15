@@ -21,6 +21,7 @@ HEADERS;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 HEADERS   *CreateHeaders        (void);
+void      UpdateHeaders         (HEADERS *);
 void      RemoveHeaders         (HEADERS *);
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
