@@ -24,8 +24,9 @@
 #include "common.h"
 #include "rmodel.h"
 
-HASH *Hash; // HASH MEMORY SHARED BY THREADING
-SEQ  *Seq;  // SEQUENCE SHARED BY THREADING
+HASH     *Hash; // HASH MEMORY SHARED BY THREADING
+SEQ      *Seq;  // SEQUENCE SHARED BY THREADING
+HEADERS  *Head; // HEADERS SHARED BY THREADING
 
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - R E L A T I V E   T O   G L O B A L - - - - - - - - - - 
@@ -174,6 +175,7 @@ void CompressAction(){
   fprintf(stderr, "  [+] Building models ...\n");
   Seq  = CreateSeq(100000);
   Hash = CreateHash();
+  Head = CreateHeaders();
   fprintf(stderr, "      Done!                \n");
 
   fprintf(stderr, "  [+] Loading reference ...\n");
