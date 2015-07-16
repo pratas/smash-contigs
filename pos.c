@@ -6,6 +6,7 @@
 HEADERS *CreateHeaders(void){
   HEADERS *Headers = (HEADERS *) Calloc(1, sizeof(HEADERS));
   Headers->nPos        = 1;
+  Headers->iPos        = 0;
   Headers->Pos         = (POS *) Calloc(1, sizeof(POS));
   return Headers;
   }
@@ -13,8 +14,7 @@ HEADERS *CreateHeaders(void){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 void UpdateHeaders(HEADERS *Headers){
-  Headers->nPos++;
-  Headers->Pos = (POS *) Realloc(Headers->Pos, Headers->nPos * sizeof(POS));
+  Headers->Pos = (POS *) Realloc(Headers->Pos, (Headers->nPos+1)*sizeof(POS));
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -15,6 +15,7 @@ POS;
 typedef struct{
   POS      *Pos;
   uint64_t nPos;
+  uint64_t iPos;
   }
 HEADERS;
 

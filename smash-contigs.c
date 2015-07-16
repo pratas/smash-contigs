@@ -129,18 +129,45 @@ void LoadReference(){
   PARSER   *PA = CreateParser();
   CBUF     *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
   uint8_t  sym, *readBuf;
+  int32_t  action;
+  uint64_t r = 0;
   struct   stat s;
   size_t   size, k;
   long     fd = open(P->Ref.name, O_RDONLY);
   RCLASS   *Mod = CreateRClass(P->repeats, P->editions, P->minimum, P->kmer,
            P->inversion);
 
+  Head->Pos[Head->nPos].init = 0;
   Mod->nBases = 0;
   fstat (fd, & s);
   size = s.st_size;
   readBuf = (uint8_t *) mmap(0, size, PROT_READ, MAP_PRIVATE, fd, 0);
   for(k = 0 ; k < size ; ++k){
-    if(ParseSym(PA, (sym = *readBuf++)) < 0) continue;
+
+    if((action = ParseSym(PA, (sym = *readBuf++))) < 0){
+      switch(action){
+        case -1:
+          UpdateHeaders(Head); 
+          if(Head->iPos > 0){
+            Head->Pos[Head->iPos].end  = Mod->nBases;
+            Head->Pos[Head->nPos].init = Mod->nBases+1;
+            }
+          Head->iPos++;
+          Head->nPos++;
+        break;
+        case -2:
+          Head->Pos[Head->iPos].name[r] = '\0';
+          r = 0;
+        break;
+        case -3:
+          if(r >= MAX_CONTIG_NAME - 1)
+            Head->Pos[Head->iPos].name[r] = '\0';
+          else
+            Head->Pos[Head->iPos].name[r++] = (uint8_t) sym;
+        break;
+        }
+      continue; // CASE -99
+      }
 
     sym = DNASymToNum(sym);
     UpdateSeq(Seq, sym);
