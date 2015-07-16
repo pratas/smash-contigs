@@ -203,24 +203,43 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// GET INDEX POSITION
+//
+static uint64_t GetIPoint(HEADERS *Head, uint64_t init){
+  uint64_t id;
+  for(id = 0 ; id < Head->nPos ; ++id){
+    if(Head->Pos[id].init <= init && Head->Pos[id].end >= init){
+      return id;   
+      }
+    }
+  return id;
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // PRINT BLOCK
 //
-void PrintBlock(RCLASS *C, uint64_t ePos, uint32_t n, uint8_t *nm, FILE *W){
+void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t *nm, FILE *W){
 
   // # ID_TAR INIT_REL_TAR END_REL_TAR ID_REF INIT_ABS_REF END_ABS_REF SIZE
+  uint64_t idxPos = 0;
 
   if(C->RM[n].rev == 0){
+
+    idxPos = GetIPoint(Head, C->RM[n].init-C->kmer);
+
     fprintf(W, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
     "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
-    nm,                                                // SAMPLE CONTIG NAME
-    C->RM[n].initRel - C->kmer,                        // SAMPLE CONTIG INIT
-    ePos,                                              // SAMPLE CONTIG END
-    "ref",                                             // TARGET CONTIG NAME
-    C->RM[n].init - C->kmer,                           // TARGET CONTIG INIT
-    C->RM[n].pos,                                      // TARGET CONTIG END
+    nm,                                                  // SAMPLE CONTIG NAME
+    C->RM[n].initRel - C->kmer,                          // SAMPLE CONTIG INIT
+    ePos,                                                // SAMPLE CONTIG END
+    Head->Pos[idxPos].name,                              // TARGET CONTIG NAME
+    (C->RM[n].init-C->kmer) - Head->Pos[idxPos].init,    // TARGET CONTIG INIT
+    C->RM[n].pos - Head->Pos[idxPos].init,               // TARGET CONTIG END
     C->RM[n].size);
     }
   else{
+    //TODO: MISSING RELATIVE POS IN IR
+
     fprintf(W, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
     "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
     nm,                                                // SAMPLE CONTIG NAME
@@ -245,7 +264,7 @@ static void ResetRM(RCLASS *C, uint32_t id){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // STOP USELESS REPEAT MODELS
 //
-void StopRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
+void StopRMs(RCLASS *C, HEADERS *Head, uint64_t position, uint8_t *buf, FILE *Writter){
   int32_t id, largerRM = -1, largerRMIR = -1;
   uint64_t size = 0, sizeIR = 0;
 
@@ -277,10 +296,10 @@ void StopRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
       }
 
     if(largerRM != -1)
-      PrintBlock(C, position, largerRM, buf, Writter);
+      PrintBlock(C, Head, position, largerRM, buf, Writter);
 
     if(C->rev == 1 && largerRMIR != -1)
-      PrintBlock(C, position, largerRMIR, buf, Writter);
+      PrintBlock(C, Head, position, largerRMIR, buf, Writter);
 
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->RM[id].write == 2){ // IT WAS SMALLER
@@ -288,13 +307,13 @@ void StopRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
         if(C->RM[id].rev == 0){
           if(C->RM[largerRM].init > C->RM[id].init || 
              C->RM[largerRM].pos  > C->RM[id].pos){
-            PrintBlock(C, position, id, buf, Writter);
+            PrintBlock(C, Head, position, id, buf, Writter);
             }
           }
         else{
           if(C->RM[largerRMIR].init < C->RM[id].init || 
              C->RM[largerRMIR].pos  < C->RM[id].pos){
-            PrintBlock(C, position, id, buf, Writter);
+            PrintBlock(C, Head, position, id, buf, Writter);
             }
           }
 
@@ -308,10 +327,10 @@ void StopRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // FORCE STOP REPEAT MODELS DURING END OF READ
 //
-void ResetAllRMs(RCLASS *C, uint64_t position, uint8_t *buf, FILE *Writter){
+void ResetAllRMs(RCLASS *C, HEADERS *Header, uint64_t position, uint8_t *buf, FILE *Writter){
   uint32_t n;
 
-  StopRMs(C, position, buf, Writter);
+  StopRMs(C, Header, position, buf, Writter);
 
   for(n = 0 ; n < C->mRM ; ++n)
     ResetRM(C, n);

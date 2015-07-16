@@ -14,11 +14,11 @@
 #include <sys/mman.h>
 #include "mem.h"
 #include "seq.h"
+#include "pos.h"
 #include "time.h"
 #include "defs.h"
 #include "param.h"
 #include "msg.h"
-#include "pos.h"
 #include "parser.h"
 #include "buffer.h"
 #include "common.h"
@@ -27,18 +27,6 @@
 HASH     *Hash; // HASH MEMORY SHARED BY THREADING
 SEQ      *Seq;  // SEQUENCE SHARED BY THREADING
 HEADERS  *Head; // HEADERS SHARED BY THREADING
-
-//////////////////////////////////////////////////////////////////////////////
-// - - - - - - - - - - R E L A T I V E   T O   G L O B A L - - - - - - - - - - 
-void GlobalRefToRelative(){
-  fprintf(stderr, "  [+] Building models ...\n");
-
-
-
-
-  fprintf(stderr, "      Done!                \n");
-  return;
-  }
 
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - C O M P R E S S I N G - - - - - - - - - - - - - 
@@ -60,19 +48,16 @@ void CompressTarget(Threads T){
   Mod->nBases = P->Ref.nBases;
   while((k = fread(readBuf, 1, BUFFER_SIZE, Reader)))
     for(idxPos = 0 ; idxPos < k ; ++idxPos){
-      
       if((action = ParseSym(PA, (sym = readBuf[idxPos]))) < 0){
-
         switch(action){
           case -2:
             contigName[r] = '\0';
             if(Mod->nRM > 0) 
-              ResetAllRMs(Mod, nBaseRelative, contigName, Writter);
+              ResetAllRMs(Mod, Head, nBaseRelative, contigName, Writter);
             nNRelative = 0;
             nBaseRelative = 0;
             r = 0;
           break;
-
           case -3:
             if(r >= MAX_CONTIG_NAME - 1)
               contigName[r] = '\0';
@@ -80,13 +65,12 @@ void CompressTarget(Threads T){
               contigName[r++] = (uint8_t) sym;        
           break;
           }
-
         continue;
         }
 
       if((sym = DNASymToNum(sym)) == 4){
         if(Mod->nRM > 0) // PROTECT Ns IN THE CONTIG SEQUENCE
-          ResetAllRMs(Mod, nBaseRelative, contigName, Writter);
+          ResetAllRMs(Mod, Head, nBaseRelative, contigName, Writter);
         ++nNRelative;
         ++nBaseRelative;
         ++nBaseAbsolute;
@@ -98,7 +82,7 @@ void CompressTarget(Threads T){
       if(PA->nRead % P->nThreads == T.id){
         if(nBaseRelative > Mod->kmer){  // PROTECTING THE BEGGINING OF K-SIZE
           UpdateRMs(Mod, Seq->buf, nBaseRelative, sym);
-          StopRMs(Mod, nBaseRelative, contigName, Writter);
+          StopRMs(Mod, Head, nBaseRelative, contigName, Writter);
           StartMultipleRMs(Mod, Hash, nBaseRelative, symBuf->buf+symBuf->idx-1);
           }
         }
@@ -137,33 +121,32 @@ void LoadReference(){
   RCLASS   *Mod = CreateRClass(P->repeats, P->editions, P->minimum, P->kmer,
            P->inversion);
 
-  Head->Pos[Head->nPos].init = 0;
+  Head->Pos[0].init = 0;
   Mod->nBases = 0;
   fstat (fd, & s);
   size = s.st_size;
   readBuf = (uint8_t *) mmap(0, size, PROT_READ, MAP_PRIVATE, fd, 0);
   for(k = 0 ; k < size ; ++k){
-
     if((action = ParseSym(PA, (sym = *readBuf++))) < 0){
       switch(action){
         case -1:
           UpdateHeaders(Head); 
-          if(Head->iPos > 0){
+          if(Head->iPos != 0){
             Head->Pos[Head->iPos].end  = Mod->nBases;
-            Head->Pos[Head->nPos].init = Mod->nBases+1;
+            Head->Pos[Head->nPos].init = Mod->nBases + 1;
             }
           Head->iPos++;
           Head->nPos++;
         break;
         case -2:
-          Head->Pos[Head->iPos].name[r] = '\0';
+          Head->Pos[Head->iPos-1].name[r] = '\0';
           r = 0;
         break;
         case -3:
           if(r >= MAX_CONTIG_NAME - 1)
-            Head->Pos[Head->iPos].name[r] = '\0';
+            Head->Pos[Head->iPos-1].name[r] = '\0';
           else
-            Head->Pos[Head->iPos].name[r++] = (uint8_t) sym;
+            Head->Pos[Head->iPos-1].name[r++] = (uint8_t) sym;
         break;
         }
       continue; // CASE -99
@@ -223,7 +206,7 @@ void CompressAction(){
 // - - - - - - - - - - - - - - - - - M A I N - - - - - - - - - - - - - - - - -
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 int32_t main(int argc, char *argv[]){
-  char        **p = *&argv;
+  char **p = *&argv;
 
   P = (Parameters *) Malloc(1 * sizeof(Parameters));
   if((P->help = ArgsState(DEF_HELP, p, argc, "-h")) == 1 || argc < 2){
@@ -262,8 +245,6 @@ int32_t main(int argc, char *argv[]){
   fprintf(stderr, "==[ PROCESSING ]====================\n");
   TIME *Time = CreateClock(clock());
   CompressAction();
-  GlobalRefToRelative();
-
   // TODO: CreateMapWithProjections();
   StopTimeNDRM(Time, clock());
   fprintf(stderr, "\n");

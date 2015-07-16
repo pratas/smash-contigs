@@ -38,7 +38,6 @@ typedef struct{
   uint32_t tar;
   uint32_t ref;
   uint64_t min;
-  //RMODEL   *R;
   }
 Threads;
 

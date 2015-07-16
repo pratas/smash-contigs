@@ -4,17 +4,17 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 HEADERS *CreateHeaders(void){
-  HEADERS *Headers = (HEADERS *) Calloc(1, sizeof(HEADERS));
-  Headers->nPos        = 1;
-  Headers->iPos        = 0;
-  Headers->Pos         = (POS *) Calloc(1, sizeof(POS));
-  return Headers;
+  HEADERS *Heads = (HEADERS *) Calloc(1, sizeof(HEADERS));
+  Heads->nPos    = 1;
+  Heads->iPos    = 0;
+  Heads->Pos     = (POS *) Calloc(1, sizeof(POS));
+  return Heads;
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-void UpdateHeaders(HEADERS *Headers){
-  Headers->Pos = (POS *) Realloc(Headers->Pos, (Headers->nPos+1)*sizeof(POS));
+void UpdateHeaders(HEADERS *Heads){
+  Heads->Pos = (POS *) Realloc(Heads->Pos, (Heads->nPos + 1) * sizeof(POS));
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
