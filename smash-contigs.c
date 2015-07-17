@@ -48,7 +48,8 @@ void CompressTarget(Threads T){
   Mod->nBases = P->Ref.nBases;
   while((k = fread(readBuf, 1, BUFFER_SIZE, Reader)))
     for(idxPos = 0 ; idxPos < k ; ++idxPos){
-      if((action = ParseSym(PA, (sym = readBuf[idxPos]))) < 0){
+      sym = readBuf[idxPos];
+      if((action = ParseSym(PA, sym)) < 0){
         switch(action){
           case -2:
             contigName[r] = '\0';
@@ -127,16 +128,15 @@ void LoadReference(){
   size = s.st_size;
   readBuf = (uint8_t *) mmap(0, size, PROT_READ, MAP_PRIVATE, fd, 0);
   for(k = 0 ; k < size ; ++k){
-    if((action = ParseSym(PA, (sym = *readBuf++))) < 0){
+    sym = *readBuf++;
+    if((action = ParseSym(PA, sym)) < 0){
       switch(action){
         case -1:
-          UpdateHeaders(Head); 
-          if(Head->iPos != 0){
-            Head->Pos[Head->iPos].end  = Mod->nBases;
-            Head->Pos[Head->nPos].init = Mod->nBases + 1;
+          UpdateHeaders(Head);
+          if(Head->iPos != 1){
+            Head->Pos[Head->iPos-2].end  = Mod->nBases;
+            Head->Pos[Head->iPos-1].init = Mod->nBases + 1;
             }
-          Head->iPos++;
-          Head->nPos++;
         break;
         case -2:
           Head->Pos[Head->iPos-1].name[r] = '\0';
@@ -167,6 +167,7 @@ void LoadReference(){
     Mod->nBases++;
     }
 
+  Head->Pos[Head->iPos-1].end = Mod->nBases;
   P->Ref.nBases = Mod->nBases;
   RemoveCBuffer(symBuf);
   RemoveRClass(Mod);
@@ -191,6 +192,12 @@ void CompressAction(){
   fprintf(stderr, "  [+] Loading reference ...\n");
   LoadReference();
   fprintf(stderr, "      Done!                \n");
+
+fprintf(stderr, "head->iPos: %u\n", Head->iPos);
+for(n = 0 ; n < Head->iPos ; ++n)
+  fprintf(stderr, "%s\t%"PRIu64"\t%"PRIu64"\n", Head->Pos[n].name, Head->Pos[n].init, Head->Pos[n].end);
+
+
 
   fprintf(stderr, "  [+] Compressing contigs ... \n");
   fprintf(stderr, "      (this may take a while) ");
