@@ -6,7 +6,7 @@
 #include "hash.h"
 #include "pos.h"
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // REPEAT MODELS TO HANDLE LONG SEGMENTS. DATA SUBSTITUTIONS DO NOT AFFECT THE
 // PERFORMANCE SO MUCH AS IN CONTEXT MODELS.
 //
@@ -41,20 +41,21 @@ typedef struct{
   }
 RCLASS;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 uint64_t   CalcMult         (uint32_t);
 RCLASS     *CreateRClass    (uint32_t, uint32_t, uint32_t, uint32_t, uint8_t);
 void       RemoveRClass     (RCLASS *);
 uint64_t   GetIdxRevRM      (uint8_t *, RCLASS *);
 uint64_t   GetIdxRM         (uint8_t *, RCLASS *);
-void       PrintBlock       (RCLASS *, HEADERS *, uint64_t, uint32_t, uint8_t *, FILE *);
+void       PrintBlock       (RCLASS *, HEADERS *, uint64_t, uint32_t, uint8_t *, 
+                            FILE *);
 void       StartRMs         (RCLASS *, HASH *, uint64_t, uint64_t, uint8_t);
 void       UpdateRMs        (RCLASS *, uint8_t *, uint64_t, uint8_t);
 void       StopRMs          (RCLASS *, HEADERS *, uint64_t, uint8_t *, FILE *);
 void       ResetAllRMs      (RCLASS *, HEADERS *, uint64_t, uint8_t *, FILE *);
 void       StartMultipleRMs (RCLASS *, HASH *, uint64_t, uint8_t *);
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #endif

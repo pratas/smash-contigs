@@ -62,8 +62,11 @@ void CompressTarget(Threads T){
           case -3:
             if(r >= MAX_CONTIG_NAME - 1)
               contigName[r] = '\0';
-            else          
+            else{ 
+              if(sym == ' ' && r == 0) 
+                continue;
               contigName[r++] = (uint8_t) sym;        
+              }
           break;
           }
         continue;
@@ -145,8 +148,11 @@ void LoadReference(){
         case -3:
           if(r >= MAX_CONTIG_NAME - 1)
             Head->Pos[Head->iPos-1].name[r] = '\0';
-          else
+          else{
+            if(sym == ' ' && r == 0)
+              continue;
             Head->Pos[Head->iPos-1].name[r++] = (uint8_t) sym;
+            }
         break;
         }
       continue; // CASE -99
@@ -235,7 +241,7 @@ int32_t main(int argc, char *argv[]){
   P->Ref.length = FopenBytesInFile(P->Ref.name); 
   P->window     = P->kmer;
 
-  if(P->minimum <= P->kmer){
+  if(P->minimum < P->kmer){
     fprintf(stderr, "  [x] Error: minimum block size must be >= than k-mer!\n");
     exit(1);
     }
@@ -246,13 +252,9 @@ int32_t main(int argc, char *argv[]){
   fprintf(stderr, "==[ PROCESSING ]====================\n");
   TIME *Time = CreateClock(clock());
   CompressAction();
-  // TODO: CreateMapWithProjections();
+  // TODO: ReduceProjections();
   StopTimeNDRM(Time, clock());
   fprintf(stderr, "\n");
-
-  //fprintf(stderr, "==[ RESULTS ]=======================\n");
-  //fprintf(stderr, "4 positions...\n");
-  //fprintf(stderr, "\n");
 
   fprintf(stderr, "==[ STATISTICS ]====================\n");
   StopCalcAll(Time, clock());
