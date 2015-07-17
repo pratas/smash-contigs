@@ -193,12 +193,6 @@ void CompressAction(){
   LoadReference();
   fprintf(stderr, "      Done!                \n");
 
-fprintf(stderr, "head->iPos: %u\n", Head->iPos);
-for(n = 0 ; n < Head->iPos ; ++n)
-  fprintf(stderr, "%s\t%"PRIu64"\t%"PRIu64"\n", Head->Pos[n].name, Head->Pos[n].init, Head->Pos[n].end);
-
-
-
   fprintf(stderr, "  [+] Compressing contigs ... \n");
   fprintf(stderr, "      (this may take a while) ");
   for(n = 0 ; n < P->nThreads ; ++n)
