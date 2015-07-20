@@ -41,7 +41,7 @@ typedef struct{
   }
 RCLASS;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 uint64_t   CalcMult         (uint32_t);
 RCLASS     *CreateRClass    (uint32_t, uint32_t, uint32_t, uint32_t, uint8_t);
@@ -54,7 +54,7 @@ void       StartRMs         (RCLASS *, HASH *, uint64_t, uint64_t, uint8_t);
 void       UpdateRMs        (RCLASS *, uint8_t *, uint64_t, uint8_t);
 void       StopRMs          (RCLASS *, HEADERS *, uint64_t, uint8_t *, FILE *);
 void       ResetAllRMs      (RCLASS *, HEADERS *, uint64_t, uint8_t *, FILE *);
-void       StartMultipleRMs (RCLASS *, HASH *, uint64_t, uint8_t *);
+void       StartMultipleRMs (RCLASS *, HASH *, uint64_t);
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

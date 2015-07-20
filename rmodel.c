@@ -344,13 +344,9 @@ FILE *Writter){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // START NEW REPEAT MODELS IF THERE IS STILL SPACE
 //                         
-void StartMultipleRMs(RCLASS *C, HASH *H, uint64_t iPos, uint8_t *b){
-
-  if(C->nRM < C->mRM)
-    StartRMs(C, H, iPos, GetIdxRM(b, C), 0);
-
-  if(C->rev == 1 && C->nRM < C->mRM)
-    StartRMs(C, H, iPos, GetIdxRevRM(b, C), 1);
+void StartMultipleRMs(RCLASS *C, HASH *H, uint64_t iPos){
+  if(C->nRM < C->mRM) StartRMs(C, H, iPos, C->idx, 0);
+  if(C->rev == 1 && C->nRM < C->mRM) StartRMs(C, H, iPos, C->idxRev, 1);
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -71,6 +71,7 @@ void CompressTarget(Threads T){
           }
         continue;
         }
+fprintf(stderr, "%c", NumToDNASym(Seq->buf[nBaseAbsolute]));
 
       if((sym = DNASymToNum(sym)) == 4){
         if(Mod->nRM > 0) // PROTECT Ns IN THE CONTIG SEQUENCE
@@ -80,14 +81,18 @@ void CompressTarget(Threads T){
         ++nBaseAbsolute;
         continue;
         }
+
       
       symBuf->buf[symBuf->idx] = sym;
+      GetIdxRM   (symBuf->buf+symBuf->idx-1, Mod);
+      GetIdxRevRM(symBuf->buf+symBuf->idx-1, Mod);
+//          fprintf(stderr, "%"PRIu64"\n", Mod->idx);
 
       if(PA->nRead % P->nThreads == T.id){
         if(nBaseRelative > Mod->kmer){  // PROTECTING THE BEGGINING OF K-SIZE
           UpdateRMs(Mod, Seq->buf, nBaseRelative, sym);
           StopRMs(Mod, Head, nBaseRelative, contigName, Writter);
-          StartMultipleRMs(Mod, Hash, nBaseRelative, symBuf->buf+symBuf->idx-1);
+          StartMultipleRMs(Mod, Hash, nBaseRelative);
           }
         }
 
@@ -164,12 +169,15 @@ void LoadReference(){
     if(sym != 4){
       symBuf->buf[symBuf->idx] = sym;
       Mod->idx = GetIdxRM(symBuf->buf+symBuf->idx-1, Mod);
+
+//fprintf(stderr, "%"PRIu64"\n", Mod->idx); // XXX: COMPARE
+
       //TODO: CONDITION TO LOAD KMER AFTER nBASES & FOR EACH READ RESET IDX
         InsertKmerPos(Hash, Mod->idx, k);
       UpdateCBuffer(symBuf);
       }
 
-    CalcProgress(P->Ref.length, k);
+//    CalcProgress(P->Ref.length, k);
     Mod->nBases++;
     }
 
