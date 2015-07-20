@@ -5,7 +5,6 @@
 #include <math.h>
 #include "defs.h"
 #include "mem.h"
-//#include "common.h"
 #include "hash.h"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -29,11 +28,11 @@ HASH *CreateHash(void){
 // GET REPEAT MODEL HASH ENTRY
 //
 ENTRY *GetHEnt(HASH *H, uint64_t key){
-  uint32_t n, h = (uint32_t) (key % HSIZE);
-  uint64_t b = (uint64_t) key & 0xfffffff0000;
+  uint32_t n, h = key % HSIZE;
+  uint16_t b = key & 0xffff;
 
   for(n = 0 ; n < H->size[h] ; ++n)
-    if(((uint64_t) H->ent[h][n].key | b) == key)
+    if(H->ent[h][n].key == b)
       return &H->ent[h][n];
 
   return NULL;
@@ -43,11 +42,11 @@ ENTRY *GetHEnt(HASH *H, uint64_t key){
 // INSERT KMER POSITION INTO HASH TABLE 
 //
 void InsertKmerPos(HASH *H, uint64_t key, uint32_t pos){
-  uint32_t n, h = (uint32_t) key % HSIZE;
-  uint64_t b = key & 0xfffffff0000;
+  uint32_t n, h = key % HSIZE;
+  uint16_t b = key & 0xffff;
 
   for(n = 0 ; n < H->size[h] ; ++n)
-    if(((uint64_t) H->ent[h][n].key | b) == key){
+    if(H->ent[h][n].key == b){
       H->ent[h][n].pos = (PPR *) Realloc(H->ent[h][n].pos, 
       (H->ent[h][n].nPos + 1) * sizeof(PPR));
       H->ent[h][n].pos[H->ent[h][n].nPos++] = pos;           
@@ -61,7 +60,7 @@ void InsertKmerPos(HASH *H, uint64_t key, uint32_t pos){
   H->ent[h][H->size[h]].pos    = (PPR *) Malloc(sizeof(PPR));
   H->ent[h][H->size[h]].pos[0] = pos;
   H->ent[h][H->size[h]].nPos   = 1;
-  H->ent[h][H->size[h]].key    = (uint16_t) (key & 0xffff);
+  H->ent[h][H->size[h]].key    = b;
   H->size[h]++;
   }
 

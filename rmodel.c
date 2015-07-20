@@ -109,7 +109,7 @@ void StartRMs(RCLASS *C, HASH *H, uint64_t iPos, uint64_t idx, uint8_t ir){
   while(C->nRM < C->mRM && n < E->nPos){
     k = GetFirstNonActiveRM(C);
 
-    if(E->pos[n] >= C->nBases - C->kmer || E->pos[n] < C->kmer){
+    if(E->pos[n] >= C->nBases - C->kmer /*|| E->pos[n] < C->kmer*/){
       ++n;
       continue;
       }
@@ -166,6 +166,7 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
         C->RM[n].nFails--;
       
       if(C->RM[n].rev == 0){ // REGULAR REPEAT
+
         if(b[C->RM[n].pos] != sym)
           Fail(&C->RM[n]);
         else
