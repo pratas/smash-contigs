@@ -239,7 +239,6 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
   if(C->RM[n].rev == 0){
 
     idxPos = GetIPoint(Head, C->RM[n].init-C->kmer);
-  
     ProtectVoidName(nm, 0);
     ProtectVoidName(Head->Pos[idxPos].name, 1);
 
@@ -257,7 +256,6 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
   else{
 
     idxPos = GetIPoint(Head, C->RM[n].pos);
-
     ProtectVoidName(nm, 0);
     ProtectVoidName(Head->Pos[idxPos].name, 1);
 
@@ -329,12 +327,12 @@ void StopRMs(RCLASS *C, HEADERS *Head, uint64_t position, uint8_t *buf, FILE
 
         if(C->RM[id].rev == 0){
           if(C->RM[largerRM].init > C->RM[id].init || 
-             C->RM[largerRM].pos  > C->RM[id].pos){
+             C->RM[largerRM].pos  < C->RM[id].pos){
             PrintBlock(C, Head, position, id, buf, Writter);
             }
           }
         else{
-          if(C->RM[largerRMIR].init < C->RM[id].init || 
+          if(C->RM[largerRMIR].init > C->RM[id].init || 
              C->RM[largerRMIR].pos  < C->RM[id].pos){
             PrintBlock(C, Head, position, id, buf, Writter);
             }
