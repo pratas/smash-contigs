@@ -109,7 +109,7 @@ void StartRMs(RCLASS *C, HASH *H, uint64_t iPos, uint64_t idx, uint8_t ir){
   while(C->nRM < C->mRM && n < E->nPos){
     k = GetFirstNonActiveRM(C);
 
-    if(E->pos[n] >= C->nBases - C->kmer /*|| E->pos[n] < C->kmer*/){
+    if(E->pos[n] >= C->nBases - C->kmer || E->pos[n] < C->kmer){
       ++n;
       continue;
       }
@@ -172,7 +172,7 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
         else
           Hit(&C->RM[n]);
 
-        if(C->RM[n].pos < C->nBases - C->kmer)
+        if(C->RM[n].pos < C->nBases-1)
           C->RM[n].pos++;
         else
           C->RM[n].stop = 1;
@@ -217,6 +217,18 @@ static uint64_t GetIPoint(HEADERS *Head, uint64_t init){
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// PROTECT NAMES
+//
+void ProtectVoidName(uint8_t *name, uint8_t type){
+  if(name[0] == '\0'){
+    name[0] = type == 0 ? 't' : 'r';
+    name[1] = type == 0 ? 'a' : 'e';
+    name[2] = type == 0 ? 'r' : 'f';
+    name[3] = '\0';
+    }
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // PRINT BLOCK
 //
 void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t 
@@ -227,6 +239,9 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
   if(C->RM[n].rev == 0){
 
     idxPos = GetIPoint(Head, C->RM[n].init-C->kmer);
+  
+    ProtectVoidName(nm, 0);
+    ProtectVoidName(Head->Pos[idxPos].name, 1);
 
     fprintf(W, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
     "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
@@ -242,6 +257,9 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
   else{
 
     idxPos = GetIPoint(Head, C->RM[n].pos);
+
+    ProtectVoidName(nm, 0);
+    ProtectVoidName(Head->Pos[idxPos].name, 1);
 
     fprintf(W, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
     "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
