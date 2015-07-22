@@ -147,7 +147,10 @@ static void Hit(RMODEL *R){
 // FAIL REPEAT
 //
 static void Fail(RMODEL *R){
-  R->nFails++;
+  if(R->nFails < R->winSize)
+    R->nFails++;
+  else
+    fprintf(stderr, "ERROR: nfails!\n");
   ShiftBuffer(R->win, R->winSize, 1);
   }
 
@@ -161,43 +164,30 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
     if(C->active[n] == 1){
 
       C->RM[n].size = labs(ePos-C->RM[n].initRel) + C->kmer;
-
-      if(C->RM[n].win[0] == 1)
-        C->RM[n].nFails--;
+      if(C->RM[n].win[0] == 1) C->RM[n].nFails--;
       
       if(C->RM[n].rev == 0){ // REGULAR REPEAT
-
-        if(b[C->RM[n].pos] != sym)
-          Fail(&C->RM[n]);
-        else
-          Hit(&C->RM[n]);
-
-        if(C->RM[n].pos < C->nBases-1)
-          C->RM[n].pos++;
-        else
-          C->RM[n].stop = 1;
-
+        // HITS & FAILS
+        if(b[C->RM[n].pos] != sym) Fail(&C->RM[n]);
+        else                       Hit (&C->RM[n]);
+        // STOP IF POS <= KMER
+        if(C->RM[n].pos < C->nBases-1) C->RM[n].pos++;
+        else                           C->RM[n].stop = 1;
         }
       else{ // INVERTED REPEAT
-
-        if(b[C->RM[n].pos] == 4){ // PROTECT COMPLEMENT FROM OTHER SYMBOLS
+        // PROTECT EXTRA SYMBOLS
+        if(b[C->RM[n].pos] == 4){
           Fail(&C->RM[n]); // SEE AFTER: DISCARDING POLITICS
-          if(C->RM[n].pos > C->kmer)
-            C->RM[n].pos--;
-          else
-            C->RM[n].stop = 1;
+          if(C->RM[n].pos > C->kmer) C->RM[n].pos--;
+          else                       C->RM[n].stop = 1;
           continue;
           }
-
-        if(GetCompNum(b[C->RM[n].pos]) != sym)
-          Fail(&C->RM[n]);
-        else
-          Hit(&C->RM[n]);
-
-        if(C->RM[n].pos > C->kmer)
-          C->RM[n].pos--;
-        else
-          C->RM[n].stop = 1;
+        // HITS & FAILS
+        if(GetCompNum(b[C->RM[n].pos]) != sym) Fail(&C->RM[n]);
+        else                                   Hit (&C->RM[n]);
+        // STOP IF POS <= KMER
+        if(C->RM[n].pos > C->kmer) C->RM[n].pos--;
+        else                       C->RM[n].stop = 1;
         }
       }
     }
@@ -237,7 +227,7 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
   uint64_t idxPos = 0;
 
   if(C->RM[n].rev == 0){
-
+    // REGULAR REPEAT
     idxPos = GetIPoint(Head, C->RM[n].init-C->kmer);
     ProtectVoidName(nm, 0);
     ProtectVoidName(Head->Pos[idxPos].name, 1);
@@ -251,10 +241,9 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
     (C->RM[n].init-C->kmer) - Head->Pos[idxPos].init,    // TARGET CONTIG INIT
     C->RM[n].pos - Head->Pos[idxPos].init,               // TARGET CONTIG END
     C->RM[n].size);
-
     }
   else{
-
+    // REVERSE REPEAT
     idxPos = GetIPoint(Head, C->RM[n].pos);
     ProtectVoidName(nm, 0);
     ProtectVoidName(Head->Pos[idxPos].name, 1);
@@ -324,7 +313,6 @@ void StopRMs(RCLASS *C, HEADERS *Head, uint64_t position, uint8_t *buf, FILE
 
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->RM[id].write == 2){ // IT WAS SMALLER
-
         if(C->RM[id].rev == 0){
           if(C->RM[largerRM].init > C->RM[id].init || 
              C->RM[largerRM].pos  < C->RM[id].pos){
@@ -337,7 +325,6 @@ void StopRMs(RCLASS *C, HEADERS *Head, uint64_t position, uint8_t *buf, FILE
             PrintBlock(C, Head, position, id, buf, Writter);
             }
           }
-
         ResetRM(C, id);
         --C->nRM;
         }
@@ -352,6 +339,10 @@ void ResetAllRMs(RCLASS *C, HEADERS *Header, uint64_t position, uint8_t *buf,
 FILE *Writter){
   uint32_t n;
 
+  for(n = 0 ; n < C->mRM ; ++n) // FORCE STOP RM's
+    if(C->active[n] == 1)
+      C->RM[n].stop = 1;
+  
   StopRMs(C, Header, position, buf, Writter);
   for(n = 0 ; n < C->mRM ; ++n)
     ResetRM(C, n);
