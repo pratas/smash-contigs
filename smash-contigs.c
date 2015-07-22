@@ -53,8 +53,7 @@ void CompressTarget(Threads T){
         switch(action){
           case -2:
             contigName[r] = '\0';
-            if(Mod->nRM > 0) 
-//printf("%s\n", contigName);
+            if(Mod->nRM > 0 && PA->nRead % P->nThreads == T.id)
               ResetAllRMs(Mod, Head, nBaseRelative, contigName, Writter);
             nNRelative = 0;
             nBaseRelative = 0;
@@ -73,7 +72,7 @@ void CompressTarget(Threads T){
         }
 
       if((sym = DNASymToNum(sym)) == 4){
-        if(Mod->nRM > 0) // PROTECT Ns IN THE CONTIG SEQUENCE
+        if(Mod->nRM > 0 && PA->nRead % P->nThreads == T.id) // PROTECT Ns IN THE CONTIG SEQUENCE
           ResetAllRMs(Mod, Head, nBaseRelative, contigName, Writter);
         ++nNRelative;
         ++nBaseRelative;
@@ -167,9 +166,8 @@ void LoadReference(){
     if(sym != 4){
       symBuf->buf[symBuf->idx] = sym;
       Mod->idx = GetIdxRM(symBuf->buf+symBuf->idx-1, Mod);
-
       //TODO: CONDITION TO LOAD KMER AFTER nBASES & FOR EACH READ RESET IDX
-        InsertKmerPos(Hash, Mod->idx, Mod->nBases+1);
+      InsertKmerPos(Hash, Mod->idx, Mod->nBases+1);
       UpdateCBuffer(symBuf);
       }
 

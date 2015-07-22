@@ -87,10 +87,9 @@ uint64_t GetIdxRM(uint8_t *p, RCLASS *C){
 static int32_t GetFirstNonActiveRM(RCLASS *C){
   int32_t k;
 
-  for(k = 0 ; k < C->mRM ; ++k){
+  for(k = 0 ; k < C->mRM ; ++k)
     if(C->active[k] == 0)
       return k;
-    }
 
   fprintf(stderr, "Impossible state!\n");
   exit(1);
@@ -198,11 +197,9 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
 //
 static uint64_t GetIPoint(HEADERS *Head, uint64_t init){
   uint64_t id;
-  for(id = 0 ; id < Head->iPos ; ++id){
-    if(Head->Pos[id].init <= init && Head->Pos[id].end >= init){
+  for(id = 0 ; id <= Head->iPos ; ++id)
+    if(Head->Pos[id].init <= init && Head->Pos[id].end >= init)
       return id;   
-      }
-    }
   return id;
   }
 
