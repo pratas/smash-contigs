@@ -234,6 +234,7 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
 
     fprintf(W, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
     "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
+
     nm,                                                  // SAMPLE CONTIG NAME
     C->RM[n].initRel - C->kmer,                          // SAMPLE CONTIG INIT
     ePos,                                                // SAMPLE CONTIG END
@@ -250,6 +251,7 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
 
     fprintf(W, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
     "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
+
     nm,                                                  // SAMPLE CONTIG NAME
     C->RM[n].initRel - C->kmer,                          // SAMPLE CONTIG INIT
     ePos,                                                // SAMPLE CONTIG END
@@ -335,18 +337,37 @@ void StopRMs(RCLASS *C, HEADERS *Head, uint64_t position, uint8_t *buf, FILE
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // FORCE STOP REPEAT MODELS DURING END OF READ
 //
-void ResetAllRMs(RCLASS *C, HEADERS *Header, uint64_t position, uint8_t *buf, 
+void ResetAllRMs(RCLASS *C, HEADERS *Head, uint64_t position, uint8_t *buf, 
 FILE *Writter){
-  uint32_t n;
+  int32_t id, largerRM = -1, largerRMIR = -1;
+  uint64_t size = 0, sizeIR = 0;
 
-  for(n = 0 ; n < C->mRM ; ++n) // FORCE STOP RM's
-    if(C->active[n] == 1)
-      C->RM[n].stop = 1;
-  
-  StopRMs(C, Header, position, buf, Writter);
-  for(n = 0 ; n < C->mRM ; ++n)
-    ResetRM(C, n);
-  C->nRM = 0;
+  if(C->nRM > 0){
+    for(id = 0 ; id < C->mRM ; ++id){
+      if(C->active[id] == 1){
+
+        if(C->RM[id].size >= C->minSize){
+          if(C->RM[id].rev == 0 && size < C->RM[id].size){
+            size = C->RM[id].size;
+            largerRM = id;
+            }
+
+          if(C->RM[id].rev == 1 && sizeIR < C->RM[id].size){
+            sizeIR = C->RM[id].size;
+            largerRMIR = id;
+            }
+          }
+        ResetRM(C, id);
+        --C->nRM;
+        }
+      }
+    
+    if(largerRM != -1)
+      PrintBlock(C, Head, position, largerRM, buf, Writter);
+
+    if(C->rev == 1 && largerRMIR != -1)
+      PrintBlock(C, Head, position, largerRMIR, buf, Writter);
+    }
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

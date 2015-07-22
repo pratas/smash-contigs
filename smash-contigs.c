@@ -31,7 +31,7 @@ HEADERS  *Head; // HEADERS SHARED BY THREADING
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - C O M P R E S S I N G - - - - - - - - - - - - - 
 void CompressTarget(Threads T){
-  FILE        *Reader  = Fopen(P->Con.name, "r");
+  FILE        *Reader = Fopen(P->Con.name, "r");
   char        name[MAX_FILENAME];
   sprintf(name, ".t%u", T.id+1);
   FILE        *Writter = Fopen(concatenate(P->positions, name), "w");
@@ -54,18 +54,18 @@ void CompressTarget(Threads T){
           case -2:
             contigName[r] = '\0';
             if(Mod->nRM > 0) 
+//printf("%s\n", contigName);
               ResetAllRMs(Mod, Head, nBaseRelative, contigName, Writter);
             nNRelative = 0;
             nBaseRelative = 0;
             r = 0;
           break;
           case -3:
-            if(r >= MAX_CONTIG_NAME - 1)
+            if(r >= MAX_CONTIG_NAME-1)
               contigName[r] = '\0';
             else{ 
-              if(sym == ' ' && r == 0) 
-                continue;
-              contigName[r++] = (uint8_t) sym;        
+              if(sym == ' ' && r == 0) continue;
+              contigName[r++] = sym;        
               }
           break;
           }
@@ -80,7 +80,6 @@ void CompressTarget(Threads T){
         ++nBaseAbsolute;
         continue;
         }
-
       
       symBuf->buf[symBuf->idx] = sym;
       GetIdxRM   (symBuf->buf+symBuf->idx-1, Mod);
@@ -155,7 +154,7 @@ void LoadReference(){
           else{
             if(sym == ' ' && r == 0)
               continue;
-            Head->Pos[Head->iPos-1].name[r++] = (uint8_t) sym;
+            Head->Pos[Head->iPos-1].name[r++] = sym;
             }
         break;
         }
