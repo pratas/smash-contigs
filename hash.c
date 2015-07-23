@@ -29,10 +29,11 @@ HASH *CreateHash(void){
 //
 ENTRY *GetHEnt(HASH *H, uint64_t key){
   uint32_t n, h = key % HSIZE;
-  uint16_t b = key & 0xffff;
+  //uint16_t b = key & 0xffff;
 
   for(n = 0 ; n < H->size[h] ; ++n)
-    if(H->ent[h][n].key == b)
+    //if(H->ent[h][n].key == b)
+    if(H->ent[h][n].key == key)
       return &H->ent[h][n];
 
   return NULL;
@@ -43,10 +44,11 @@ ENTRY *GetHEnt(HASH *H, uint64_t key){
 //
 void InsertKmerPos(HASH *H, uint64_t key, uint32_t pos){
   uint32_t n, h = key % HSIZE;
-  uint16_t b = key & 0xffff;
+//  uint16_t b = key & 0xffff;
 
   for(n = 0 ; n < H->size[h] ; ++n)
-    if(H->ent[h][n].key == b){
+//    if(H->ent[h][n].key == b){
+    if(H->ent[h][n].key == key){
       H->ent[h][n].pos = (PPR *) Realloc(H->ent[h][n].pos, 
       (H->ent[h][n].nPos + 1) * sizeof(PPR));
       H->ent[h][n].pos[H->ent[h][n].nPos++] = pos;           
@@ -60,7 +62,8 @@ void InsertKmerPos(HASH *H, uint64_t key, uint32_t pos){
   H->ent[h][H->size[h]].pos    = (PPR *) Malloc(sizeof(PPR));
   H->ent[h][H->size[h]].pos[0] = pos;
   H->ent[h][H->size[h]].nPos   = 1;
-  H->ent[h][H->size[h]].key    = b;
+//  H->ent[h][H->size[h]].key    = b;
+  H->ent[h][H->size[h]].key    = key;
   H->size[h]++;
   }
 

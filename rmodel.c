@@ -219,20 +219,20 @@ void ProtectVoidName(uint8_t *name, uint8_t type){
 // PRINT BLOCK
 //
 void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t 
-*nm, FILE *W){
+*cName, FILE *W){
   // # ID_TAR INIT_REL_TAR END_REL_TAR ID_REF INIT_ABS_REF END_ABS_REF SIZE
   uint64_t idxPos = 0;
 
   if(C->RM[n].rev == 0){
     // REGULAR REPEAT
     idxPos = GetIPoint(Head, C->RM[n].init-C->kmer);
-    ProtectVoidName(nm, 0);
+    ProtectVoidName(cName, 0);
     ProtectVoidName(Head->Pos[idxPos].name, 1);
 
     fprintf(W, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
     "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
 
-    nm,                                                  // SAMPLE CONTIG NAME
+    cName,                                               // SAMPLE CONTIG NAME
     C->RM[n].initRel - C->kmer,                          // SAMPLE CONTIG INIT
     ePos,                                                // SAMPLE CONTIG END
     Head->Pos[idxPos].name,                              // TARGET CONTIG NAME
@@ -243,17 +243,16 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
   else{
     // REVERSE REPEAT
     idxPos = GetIPoint(Head, C->RM[n].pos);
-    ProtectVoidName(nm, 0);
+    ProtectVoidName(cName, 0);
     ProtectVoidName(Head->Pos[idxPos].name, 1);
 
     fprintf(W, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
     "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
 
-    nm,                                                  // SAMPLE CONTIG NAME
+    cName,                                               // SAMPLE CONTIG NAME
     C->RM[n].initRel - C->kmer,                          // SAMPLE CONTIG INIT
     ePos,                                                // SAMPLE CONTIG END
     Head->Pos[idxPos].name,                              // TARGET CONTIG NAME
-
     C->RM[n].init + C->kmer - Head->Pos[idxPos].init,    // TARGET CONTIG INIT
     C->RM[n].pos - Head->Pos[idxPos].init,               // TARGET CONTIG END
     C->RM[n].size);
@@ -334,7 +333,7 @@ void StopRMs(RCLASS *C, HEADERS *Head, uint64_t position, uint8_t *buf, FILE
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // FORCE STOP REPEAT MODELS DURING END OF READ
 //
-void ResetAllRMs(RCLASS *C, HEADERS *Head, uint64_t position, uint8_t *buf, 
+void ResetAllRMs(RCLASS *C, HEADERS *Head, uint64_t position, uint8_t *cName, 
 FILE *Writter){
   int32_t id, largerRM = -1, largerRMIR = -1;
   uint64_t size = 0, sizeIR = 0;
@@ -360,10 +359,10 @@ FILE *Writter){
       }
     
     if(largerRM != -1)
-      PrintBlock(C, Head, position, largerRM, buf, Writter);
+      PrintBlock(C, Head, position, largerRM, cName, Writter);
 
-    if(C->rev == 1 && largerRMIR != -1)
-      PrintBlock(C, Head, position, largerRMIR, buf, Writter);
+    if(largerRMIR != -1)
+      PrintBlock(C, Head, position, largerRMIR, cName, Writter);
     }
   }
 
@@ -371,7 +370,7 @@ FILE *Writter){
 // START NEW REPEAT MODELS IF THERE IS STILL SPACE
 //                         
 void StartMultipleRMs(RCLASS *C, HASH *H, uint64_t iPos){
-  if(C->nRM < C->mRM) StartRMs(C, H, iPos, C->idx, 0);
+  if(C->nRM < C->mRM)                StartRMs(C, H, iPos, C->idx,    0);
   if(C->rev == 1 && C->nRM < C->mRM) StartRMs(C, H, iPos, C->idxRev, 1);
   }
 

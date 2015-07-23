@@ -35,7 +35,7 @@ void CompressTarget(Threads T){
   char        name[MAX_FILENAME];
   sprintf(name, ".t%u", T.id+1);
   FILE        *Writter = Fopen(concatenate(P->positions, name), "w");
-  uint64_t    nBaseRelative = 0, nBaseAbsolute = 0, nNRelative = 0, idxPos = 0;
+  uint64_t    nBaseRelative = 0, nBaseAbsolute = 0, idxPos = 0;
   uint32_t    k, r = 0;
   int32_t     action;
   PARSER      *PA = CreateParser();
@@ -55,7 +55,6 @@ void CompressTarget(Threads T){
             contigName[r] = '\0';
             if(Mod->nRM > 0 && PA->nRead % P->nThreads == T.id)
               ResetAllRMs(Mod, Head, nBaseRelative, contigName, Writter);
-            nNRelative = 0;
             nBaseRelative = 0;
             r = 0;
           break;
@@ -74,7 +73,6 @@ void CompressTarget(Threads T){
       if((sym = DNASymToNum(sym)) == 4){
         if(Mod->nRM > 0 && PA->nRead % P->nThreads == T.id) // PROTECT Ns IN THE CONTIG SEQUENCE
           ResetAllRMs(Mod, Head, nBaseRelative, contigName, Writter);
-        ++nNRelative;
         ++nBaseRelative;
         ++nBaseAbsolute;
         continue;
