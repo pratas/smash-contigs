@@ -164,6 +164,7 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
 
       C->RM[n].size = labs(ePos-C->RM[n].initRel) + C->kmer;
       if(C->RM[n].win[0] == 1) C->RM[n].nFails--;
+
       
       if(C->RM[n].rev == 0){ // REGULAR REPEAT
         // HITS & FAILS
@@ -223,7 +224,7 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
   // # ID_TAR INIT_REL_TAR END_REL_TAR ID_REF INIT_ABS_REF END_ABS_REF SIZE
   uint64_t idxPos = 0;
 
-  if(C->RM[n].rev == 0){
+if(C->RM[n].rev == 0){
     // REGULAR REPEAT
     idxPos = GetIPoint(Head, C->RM[n].init-C->kmer);
     ProtectVoidName(cName, 0);
@@ -280,19 +281,15 @@ void StopRMs(RCLASS *C, HEADERS *Head, uint64_t position, uint8_t *buf, FILE
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->active[id] == 1){
         if(C->RM[id].nFails > C->maxFails || C->RM[id].stop == 1){
-
           if(C->RM[id].size >= C->minSize){
-
             if(C->RM[id].rev == 0 && size < C->RM[id].size){
               size = C->RM[id].size;
               largerRM = id;
               }
-
             if(C->RM[id].rev == 1 && sizeIR < C->RM[id].size){
               sizeIR = C->RM[id].size;
               largerRMIR = id;
               }
-           
             C->RM[id].write = 2;
             continue;
             }
@@ -341,13 +338,11 @@ FILE *Writter){
   if(C->nRM > 0){
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->active[id] == 1){
-
         if(C->RM[id].size >= C->minSize){
           if(C->RM[id].rev == 0 && size < C->RM[id].size){
             size = C->RM[id].size;
             largerRM = id;
             }
-
           if(C->RM[id].rev == 1 && sizeIR < C->RM[id].size){
             sizeIR = C->RM[id].size;
             largerRMIR = id;

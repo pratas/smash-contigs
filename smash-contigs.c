@@ -41,7 +41,7 @@ void CompressTarget(Threads T){
   PARSER      *PA = CreateParser();
   CBUF        *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
   uint8_t     *readBuf = (uint8_t *) Calloc(BUFFER_SIZE, sizeof(uint8_t)), sym,
-              contigName[MAX_CONTIG_NAME];
+              contigName[2][MAX_CONTIG_NAME];
   RCLASS      *Mod = CreateRClass(P->repeats, P->editions, P->minimum, P->kmer,
               P->inversion);
 
@@ -52,18 +52,21 @@ void CompressTarget(Threads T){
       if((action = ParseSym(PA, sym)) < 0){
         switch(action){
           case -2:
-            contigName[r] = '\0';
+            contigName[0][r] = '\0';
             if(Mod->nRM > 0 && PA->nRead % P->nThreads == T.id)
-              ResetAllRMs(Mod, Head, nBaseRelative, contigName, Writter);
+              ResetAllRMs(Mod, Head, nBaseRelative, contigName[1], Writter);
+            uint32_t x;
+            for(x = 0 ; x <= r ; ++x)
+              contigName[1][x] = contigName[0][x];
             nBaseRelative = 0;
             r = 0;
           break;
           case -3:
             if(r >= MAX_CONTIG_NAME-1)
-              contigName[r] = '\0';
+              contigName[0][r] = '\0';
             else{ 
               if(sym == ' ' && r == 0) continue;
-              contigName[r++] = sym;        
+              contigName[0][r++] = sym;        
               }
           break;
           }
@@ -72,7 +75,7 @@ void CompressTarget(Threads T){
 
       if((sym = DNASymToNum(sym)) == 4){
         if(Mod->nRM > 0 && PA->nRead % P->nThreads == T.id) // PROTECT Ns IN THE CONTIG SEQUENCE
-          ResetAllRMs(Mod, Head, nBaseRelative, contigName, Writter);
+          ResetAllRMs(Mod, Head, nBaseRelative, contigName[0], Writter);
         ++nBaseRelative;
         ++nBaseAbsolute;
         continue;
@@ -85,7 +88,7 @@ void CompressTarget(Threads T){
       if(PA->nRead % P->nThreads == T.id){
         if(nBaseRelative > Mod->kmer){  // PROTECTING THE BEGGINING OF K-SIZE
           UpdateRMs(Mod, Seq->buf, nBaseRelative, sym);
-          StopRMs(Mod, Head, nBaseRelative, contigName, Writter);
+          StopRMs(Mod, Head, nBaseRelative, contigName[0], Writter);
           StartMultipleRMs(Mod, Hash, nBaseRelative);
           }
         }
