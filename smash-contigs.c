@@ -121,7 +121,7 @@ void LoadReference(){
   CBUF     *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
   uint8_t  sym, *readBuf;
   int32_t  action;
-  uint64_t r = 0;
+  uint64_t r = 0, nBaseRelative = 0;
   struct   stat s;
   size_t   size, k;
   long     fd = open(P->Ref.name, O_RDONLY);
@@ -147,6 +147,8 @@ void LoadReference(){
         case -2:
           Head->Pos[Head->iPos-1].name[r] = '\0';
           r = 0;
+          nBaseRelative = 0;
+          Mode->idx = 0;
         break;
         case -3:
           if(r >= MAX_CONTIG_NAME - 1)
@@ -167,12 +169,13 @@ void LoadReference(){
     if(sym != 4){
       symBuf->buf[symBuf->idx] = sym;
       Mod->idx = GetIdxRM(symBuf->buf+symBuf->idx-1, Mod);
-      //TODO: CONDITION TO LOAD KMER AFTER nBASES & FOR EACH READ RESET IDX
-      InsertKmerPos(Hash, Mod->idx, Mod->nBases+1);
+      if(nRelativeBase >= C->kmer)
+        InsertKmerPos(Hash, Mod->idx, Mod->nBases+1);
       UpdateCBuffer(symBuf);
       }
 
     CalcProgress(P->Ref.length, k);
+    ++nRelativeBase;
     Mod->nBases++;
     }
 

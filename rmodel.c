@@ -154,6 +154,29 @@ static void Fail(RMODEL *R){
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// GET INDEX POSITION
+//
+static uint64_t GetIPoint(HEADERS *Head, uint64_t init){
+  uint64_t id;
+  for(id = 0 ; id < Head->iPos ; ++id)
+    if(Head->Pos[id].init <= init && Head->Pos[id].end >= init)
+      return id;
+  return id;
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// PROTECT NAMES
+//
+void ProtectVoidName(uint8_t *name, uint8_t type){
+  if(name[0] == '\0'){
+    name[0] = type == 0 ? 't' : 'r';
+    name[1] = type == 0 ? 'a' : 'e';
+    name[2] = type == 0 ? 'r' : 'f';
+    name[3] = '\0';
+    }
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // UPDATE REPEAT MODEL
 //
 void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
@@ -194,44 +217,20 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// GET INDEX POSITION
-//
-static uint64_t GetIPoint(HEADERS *Head, uint64_t init){
-  uint64_t id;
-  for(id = 0 ; id < Head->iPos ; ++id)
-    if(Head->Pos[id].init <= init && Head->Pos[id].end >= init)
-      return id;   
-  return id;
-  }
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// PROTECT NAMES
-//
-void ProtectVoidName(uint8_t *name, uint8_t type){
-  if(name[0] == '\0'){
-    name[0] = type == 0 ? 't' : 'r';
-    name[1] = type == 0 ? 'a' : 'e';
-    name[2] = type == 0 ? 'r' : 'f';
-    name[3] = '\0';
-    }
-  }
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // PRINT BLOCK
 //
 void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t 
 *cName, FILE *W){
-  // # ID_TAR INIT_REL_TAR END_REL_TAR ID_REF INIT_ABS_REF END_ABS_REF SIZE
   uint64_t idxPos = 0;
 
-if(C->RM[n].rev == 0){
+  if(C->RM[n].rev == 0){
     // REGULAR REPEAT
     idxPos = GetIPoint(Head, C->RM[n].init-C->kmer);
     ProtectVoidName(cName, 0);
     ProtectVoidName(Head->Pos[idxPos].name, 1);
 
-    fprintf(W, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
-    "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
+    fprintf(W, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t"
+    "%"PRIi64"\t%"PRIi64"\t%"PRIi64"\n",
 
     cName,                                               // SAMPLE CONTIG NAME
     C->RM[n].initRel - C->kmer,                          // SAMPLE CONTIG INIT
