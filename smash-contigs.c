@@ -148,7 +148,7 @@ void LoadReference(){
           Head->Pos[Head->iPos-1].name[r] = '\0';
           r = 0;
           nBaseRelative = 0;
-          Mode->idx = 0;
+          Mod->idx = 0;
         break;
         case -3:
           if(r >= MAX_CONTIG_NAME - 1)
@@ -169,13 +169,13 @@ void LoadReference(){
     if(sym != 4){
       symBuf->buf[symBuf->idx] = sym;
       Mod->idx = GetIdxRM(symBuf->buf+symBuf->idx-1, Mod);
-      if(nRelativeBase >= C->kmer)
+      if(nBaseRelative >= Mod->kmer)
         InsertKmerPos(Hash, Mod->idx, Mod->nBases+1);
       UpdateCBuffer(symBuf);
       }
 
     CalcProgress(P->Ref.length, k);
-    ++nRelativeBase;
+    ++nBaseRelative;
     Mod->nBases++;
     }
 

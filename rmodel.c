@@ -229,6 +229,11 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
     ProtectVoidName(cName, 0);
     ProtectVoidName(Head->Pos[idxPos].name, 1);
 
+/*
+    if(C->RM[n].initRel > C->kmer + 1)
+      C->RM[n].initRel += C->kmer;
+*/
+
     fprintf(W, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t"
     "%"PRIi64"\t%"PRIi64"\t%"PRIi64"\n",
 
