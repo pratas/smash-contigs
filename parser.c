@@ -21,7 +21,7 @@ int32_t ParseSym(PARSER *PA, uint8_t sym){
   switch(sym){
     case '>':  
       PA->header = 1; 
-      PA->nRead++;  
+      ++PA->nRead;  
       return -1;
     case '\n': 
       if(PA->header == 0){

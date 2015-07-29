@@ -41,7 +41,7 @@ void CompressTarget(Threads T){
   PARSER      *PA = CreateParser();
   CBUF        *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
   uint8_t     *readBuf = (uint8_t *) Calloc(BUFFER_SIZE, sizeof(uint8_t)), sym,
-              contigName[2][MAX_CONTIG_NAME];
+              *conName = (uint8_t *) Calloc(MAX_CONTIG_NAME, sizeof(uint8_t));
   RCLASS      *Mod = CreateRClass(P->repeats, P->editions, P->minimum, P->kmer,
               P->inversion);
 
@@ -51,31 +51,44 @@ void CompressTarget(Threads T){
       sym = readBuf[idxPos];
       if((action = ParseSym(PA, sym)) < 0){
         switch(action){
-          case -2:
-            contigName[0][r] = '\0';
-            if(Mod->nRM > 0 && PA->nRead % P->nThreads == T.id)
-              ResetAllRMs(Mod, Head, nBaseRelative, contigName[1], Writter);
-            uint32_t x;
-            for(x = 0 ; x <= r ; ++x)
-              contigName[1][x] = contigName[0][x];
+          case -1: // IT IS THE BEGGINING OF THE HEADER
+            if(PA->nRead > 1){
+              if(Mod->nRM > 0 && PA->nRead % P->nThreads == T.id)
+                ResetAllRMs(Mod, Head, nBaseRelative, conName, Writter);
+              }
             nBaseRelative = 0;
             r = 0;
           break;
-          case -3:
+
+          case -2: // IT IS THE '\n' HEADER END
+            if(PA->nRead % P->nThreads == T.id)
+            conName[r] = '\0';
+          break;
+
+          case -3: // IF IS A SYMBOL OF THE HEADER
+            if(PA->nRead % P->nThreads == T.id){
             if(r >= MAX_CONTIG_NAME-1)
-              contigName[0][r] = '\0';
+              conName[r] = '\0';
             else{ 
               if(sym == ' ' && r == 0) continue;
-              contigName[0][r++] = sym;        
+              conName[r++] = sym;        
               }
+             }
           break;
+
+          case -99: // IF IS A SIMPLE FORMAT BREAK
+          break;
+
+          default:
+            fprintf(stderr, "ERROR: Unknown action!\n");
           }
-        continue;
+
+        continue; // GO TO NEXT SYMBOL
         }
 
       if((sym = DNASymToNum(sym)) == 4){
-        if(Mod->nRM > 0 && PA->nRead % P->nThreads == T.id) // PROTECT Ns IN THE CONTIG SEQUENCE
-          ResetAllRMs(Mod, Head, nBaseRelative, contigName[0], Writter);
+        if(Mod->nRM > 0 && PA->nRead % P->nThreads == T.id) 
+          ResetAllRMs(Mod, Head, nBaseRelative, conName, Writter);
         ++nBaseRelative;
         ++nBaseAbsolute;
         continue;
@@ -87,9 +100,11 @@ void CompressTarget(Threads T){
 
       if(PA->nRead % P->nThreads == T.id){
         if(nBaseRelative > Mod->kmer){  // PROTECTING THE BEGGINING OF K-SIZE
+
           UpdateRMs(Mod, Seq->buf, nBaseRelative, sym);
-          StopRMs(Mod, Head, nBaseRelative, contigName[0], Writter);
+          StopRMs(Mod, Head, nBaseRelative, conName, Writter);
           StartMultipleRMs(Mod, Hash, nBaseRelative);
+
           }
         }
 
@@ -99,6 +114,7 @@ void CompressTarget(Threads T){
       }
 
   Free(readBuf);
+  Free(conName);
   RemoveCBuffer(symBuf);
   RemoveParser(PA);
   RemoveRClass(Mod);

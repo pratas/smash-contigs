@@ -234,16 +234,14 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
       C->RM[n].initRel += C->kmer;
 */
 
-    fprintf(W, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t"
-    "%"PRIi64"\t%"PRIi64"\t%"PRIi64"\n",
+    fprintf(W, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t%"PRIi64"\t%"PRIi64"\n",
 
     cName,                                               // SAMPLE CONTIG NAME
     C->RM[n].initRel - C->kmer,                          // SAMPLE CONTIG INIT
     ePos,                                                // SAMPLE CONTIG END
     Head->Pos[idxPos].name,                              // TARGET CONTIG NAME
     (C->RM[n].init-C->kmer) - Head->Pos[idxPos].init,    // TARGET CONTIG INIT
-    C->RM[n].pos - Head->Pos[idxPos].init,               // TARGET CONTIG END
-    C->RM[n].size);
+    C->RM[n].pos - Head->Pos[idxPos].init);              // TARGET CONTIG END
     }
   else{
     // REVERSE REPEAT
@@ -251,16 +249,14 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
     ProtectVoidName(cName, 0);
     ProtectVoidName(Head->Pos[idxPos].name, 1);
 
-    fprintf(W, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t"
-    "%"PRIu64"\t%"PRIu64"\t%"PRIu64"\n",
+    fprintf(W, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t%"PRIu64"\t%"PRIu64"\n",
 
     cName,                                               // SAMPLE CONTIG NAME
     C->RM[n].initRel - C->kmer,                          // SAMPLE CONTIG INIT
     ePos,                                                // SAMPLE CONTIG END
     Head->Pos[idxPos].name,                              // TARGET CONTIG NAME
     C->RM[n].init + C->kmer - Head->Pos[idxPos].init,    // TARGET CONTIG INIT
-    C->RM[n].pos - Head->Pos[idxPos].init,               // TARGET CONTIG END
-    C->RM[n].size);
+    C->RM[n].pos - Head->Pos[idxPos].init);              // TARGET CONTIG END
     }
   }
 
