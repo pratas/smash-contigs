@@ -52,28 +52,23 @@ void CompressTarget(Threads T){
       if((action = ParseSym(PA, sym)) < 0){
         switch(action){
           case -1: // IT IS THE BEGGINING OF THE HEADER
-            if(PA->nRead > 1){
-              if(Mod->nRM > 0 && PA->nRead % P->nThreads == T.id)
-                ResetAllRMs(Mod, Head, nBaseRelative, conName, Writter);
-              }
+            if(PA->nRead > 1)
+              ResetAllRMs(Mod, Head, nBaseRelative, conName, Writter);
             nBaseRelative = 0;
             r = 0;
           break;
 
           case -2: // IT IS THE '\n' HEADER END
-            if(PA->nRead % P->nThreads == T.id)
             conName[r] = '\0';
           break;
 
           case -3: // IF IS A SYMBOL OF THE HEADER
-            if(PA->nRead % P->nThreads == T.id){
             if(r >= MAX_CONTIG_NAME-1)
               conName[r] = '\0';
             else{ 
               if(sym == ' ' && r == 0) continue;
               conName[r++] = sym;        
               }
-             }
           break;
 
           case -99: // IF IS A SIMPLE FORMAT BREAK
