@@ -14,7 +14,7 @@
 typedef uint32_t PPR;  // PRECISION OF THE POSITION POINTER FOR REPEATS
 
 typedef struct{
-  #define LOWP
+  #ifdef LOWP
   uint16_t key;      // THE KEY (INDEX / HASHSIZE) STORED IN THIS ENTRY
   #else
   uint64_t key;      // THE KEY STORED IN THIS ENTRY
