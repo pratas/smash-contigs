@@ -41,7 +41,7 @@ ENTRY *GetHEnt(HASH *H, uint64_t key){
       return &H->ent[h][n];
       }
 
-  return NULL;
+  return NULL; // NOT FOUND!
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
