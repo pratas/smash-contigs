@@ -1,6 +1,7 @@
 # SMASH-CONTIGS #
 
-![ScreenShot](/logo.png)
+<p align="center"><img src="/logo.png" 
+alt="smash-contigs" width="350" height="260" border="0" /></p>
 
 Smash-contigs is a fast tool to handle the detection of similarity between pairs of DNA sequences.
 According to Smash, it is the lighter and faster approach to compute rearrangements at expense of some more memory.
