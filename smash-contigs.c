@@ -91,11 +91,9 @@ void CompressTarget(Threads T){
 
       if(PA->nRead % P->nThreads == T.id){
         if(nBaseRelative > Mod->kmer){  // PROTECTING THE BEGGINING OF K-SIZE
-
           UpdateRMs(Mod, Seq->buf, nBaseRelative, sym);
           StopRMs(Mod, Head, nBaseRelative, conName, Writter);
           StartMultipleRMs(Mod, Hash, nBaseRelative);
-
           }
         }
 
