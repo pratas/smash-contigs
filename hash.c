@@ -7,8 +7,6 @@
 #include "mem.h"
 #include "hash.h"
 
-//#define LOWP
-
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // SILVERS HASH
 //

@@ -9,12 +9,16 @@
 //
 #define HSIZE        16777259   // NEXT PRIME AFTER 16777216 (24 BITS)
 #define MAX_CTX      20         // ((HASH_SIZE (24 B) + KEY (16 B))>>1) = 20 
+#define LOWP
 
 typedef uint32_t PPR;  // PRECISION OF THE POSITION POINTER FOR REPEATS
 
 typedef struct{
-//  uint16_t key;      // THE KEY (INDEX / HASHSIZE) STORED IN THIS ENTRY
+  #define LOWP
+  uint16_t key;      // THE KEY (INDEX / HASHSIZE) STORED IN THIS ENTRY
+  #else
   uint64_t key;      // THE KEY STORED IN THIS ENTRY
+  #endif
   uint16_t nPos;
   PPR      *pos;     // LIST WITH THE REPEATING POSITIONS
   }
