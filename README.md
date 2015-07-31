@@ -63,13 +63,13 @@ By default, smash-contigs has many parameters assigned in order to avoid the est
 | -h             | It will print the parameters menu (help menu).                                        |
 | -V             | It will print the smash version number, license type and authors.                    |
 | -v             | It will print progress information such as positions of the patterns, times, etc.    |
-| -k &#60;k-mer&#62;   | Size of the matching word  (interval [1;20]). 
-| -m &#60;minimum&#62;     | Minimum similarity size.
-| -r &#60;repeats&#62;     | Maximum number of repeats (common value is between 50 and 500).
-| -e &#60;editions&#62;     | Maxmim number of substitutions allowed in the repeat without being discarded.
+| -k &#60;k-mer&#62;    | Size of the matching word  (interval [1;20]). |
+| -m &#60;minimum&#62;  | Minimum similarity size. |
+| -r &#60;repeats&#62;  | Maximum number of repeats (common value is between 50 and 500). |
+| -e &#60;editions&#62; | Maxmim number of substitutions allowed in the repeat without being discarded. |
 | -i             | It will not detect inverted pattern regions. |
-| -n             | Number of threads for computation. |
-| -o &#60;outFile&#62;     | Output file with positions. The default name uses the match as prefix. |
+| -n &#60;threads&#63;  | Number of threads for computation. |
+| -o &#60;outFile&#62;  | Output file with positions. The default name uses the match as prefix. |
 | [refFile]     | The contigs filename. This should only be a FASTA format file. |
 | [tarFile]     | The reference filename. This should only be a FASTA format file. |
 
