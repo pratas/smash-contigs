@@ -7,6 +7,8 @@
 #include "mem.h"
 #include "hash.h"
 
+//#define LOWP
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // SILVERS HASH
 //
@@ -29,12 +31,17 @@ HASH *CreateHash(void){
 //
 ENTRY *GetHEnt(HASH *H, uint64_t key){
   uint32_t n, h = key % HSIZE;
-  //uint16_t b = key & 0xffff;
-
+  #ifdef LOWP
+  uint16_t b = key & 0xffff;
+  #endif
   for(n = 0 ; n < H->size[h] ; ++n)
-    //if(H->ent[h][n].key == b)
-    if(H->ent[h][n].key == key)
+    #ifdef LOWP
+    if(H->ent[h][n].key == b){
+    #else
+    if(H->ent[h][n].key == key){
+    #endif
       return &H->ent[h][n];
+      }
 
   return NULL;
   }
@@ -44,11 +51,16 @@ ENTRY *GetHEnt(HASH *H, uint64_t key){
 //
 void InsertKmerPos(HASH *H, uint64_t key, uint32_t pos){
   uint32_t n, h = key % HSIZE;
-//  uint16_t b = key & 0xffff;
+  #ifdef LOWP
+  uint16_t b = key & 0xffff;
+  #endif
 
   for(n = 0 ; n < H->size[h] ; ++n)
-//    if(H->ent[h][n].key == b){
+    #ifdef LOWP
+    if(H->ent[h][n].key == b){
+    #else
     if(H->ent[h][n].key == key){
+    #endif
       H->ent[h][n].pos = (PPR *) Realloc(H->ent[h][n].pos, 
       (H->ent[h][n].nPos + 1) * sizeof(PPR));
       H->ent[h][n].pos[H->ent[h][n].nPos++] = pos;           
@@ -59,11 +71,14 @@ void InsertKmerPos(HASH *H, uint64_t key, uint32_t pos){
   H->ent[h] = (ENTRY *) Realloc(H->ent[h], (H->size[h]+1) * sizeof(ENTRY));
 
   // CREATE A NEW POSITION
-  H->ent[h][H->size[h]].pos    = (PPR *) Malloc(sizeof(PPR));
+  H->ent[h][H->size[h]].pos = (PPR *) Malloc(sizeof(PPR));
   H->ent[h][H->size[h]].pos[0] = pos;
-  H->ent[h][H->size[h]].nPos   = 1;
-//  H->ent[h][H->size[h]].key    = b;
-  H->ent[h][H->size[h]].key    = key;
+  H->ent[h][H->size[h]].nPos = 1;
+  #ifdef LOWP
+  H->ent[h][H->size[h]].key = b;
+  #else
+  H->ent[h][H->size[h]].key = key;
+  #endif
   H->size[h]++;
   }
 

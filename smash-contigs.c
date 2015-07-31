@@ -57,11 +57,9 @@ void CompressTarget(Threads T){
             nBaseRelative = 0;
             r = 0;
           break;
-
           case -2: // IT IS THE '\n' HEADER END
             conName[r] = '\0';
           break;
-
           case -3: // IF IS A SYMBOL OF THE HEADER
             if(r >= MAX_CONTIG_NAME-1)
               conName[r] = '\0';
@@ -70,14 +68,12 @@ void CompressTarget(Threads T){
               conName[r++] = sym;        
               }
           break;
-
           case -99: // IF IS A SIMPLE FORMAT BREAK
           break;
-
           default:
             fprintf(stderr, "ERROR: Unknown action!\n");
+            exit(1);
           }
-
         continue; // GO TO NEXT SYMBOL
         }
 

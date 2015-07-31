@@ -4,11 +4,11 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 SEQ *CreateSeq(uint32_t size){
-  SEQ *Sequence    = (SEQ *) Calloc(1, sizeof(SEQ));
-  Sequence->size   = size;
-  Sequence->init   = size;
-  Sequence->idx    = 0;
-  Sequence->buf    = (uint8_t *) Calloc(size, sizeof(uint8_t));
+  SEQ *Sequence  = (SEQ *) Calloc(1, sizeof(SEQ));
+  Sequence->size = size;
+  Sequence->init = size;
+  Sequence->idx  = 0;
+  Sequence->buf  = (uint8_t *) Calloc(size, sizeof(uint8_t));
   return Sequence;
   }
 
