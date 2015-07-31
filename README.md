@@ -1,5 +1,7 @@
 # SMASH-CONTIGS #
 
+![ScreenShot](/logo.png)
+
 Smash-contigs is a fast tool to handle the detection of similarity between pairs of DNA sequences.
 According to Smash, it is the lighter and faster approach to compute rearrangements at expense of some more memory.
 This is a Linux server version. Current implementation is limited to a reference with maximum of 4 GB.
