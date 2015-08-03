@@ -35,7 +35,7 @@ void CompressTarget(Threads T){
   char        name[MAX_FILENAME];
   sprintf(name, ".t%u", T.id+1);
   FILE        *Writter = Fopen(concatenate(P->positions, name), "w");
-  uint64_t    nBaseRelative = 0, nBaseAbsolute = 0, idxPos = 0;
+  int64_t     nBaseRelative = 0, nBaseAbsolute = 0, idxPos = 0;
   uint32_t    k, r = 0;
   int32_t     action;
   PARSER      *PA = CreateParser();
@@ -86,11 +86,11 @@ void CompressTarget(Threads T){
         }
       
       symBuf->buf[symBuf->idx] = sym;
-      GetIdxRM   (symBuf->buf+symBuf->idx-1, Mod);
-      GetIdxRevRM(symBuf->buf+symBuf->idx-1, Mod);
+      GetIdxRM   (symBuf->buf+symBuf->idx, Mod);
+      GetIdxRevRM(symBuf->buf+symBuf->idx-2, Mod);
 
       if(PA->nRead % P->nThreads == T.id){
-        if(nBaseRelative > Mod->kmer){  // PROTECTING THE BEGGINING OF K-SIZE
+        if(nBaseRelative >= Mod->kmer){  // PROTECTING THE BEGGINING OF K-SIZE
           UpdateRMs(Mod, Seq->buf, nBaseRelative, sym);
           StopRMs(Mod, Head, nBaseRelative, conName, Writter);
           StartMultipleRMs(Mod, Hash, nBaseRelative);
@@ -175,7 +175,7 @@ void LoadReference(){
       symBuf->buf[symBuf->idx] = sym;
       Mod->idx = GetIdxRM(symBuf->buf+symBuf->idx-1, Mod);
       if(nBaseRelative >= Mod->kmer)
-        InsertKmerPos(Hash, Mod->idx, Mod->nBases+1);
+        InsertKmerPos(Hash, Mod->idx, Mod->nBases);
       UpdateCBuffer(symBuf);
       }
 

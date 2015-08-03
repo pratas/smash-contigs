@@ -230,11 +230,11 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
 
     fprintf(W, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t%"PRIi64"\t%"PRIi64"\n",
     cName,                                               // SAMPLE CONTIG NAME
-    C->RM[n].initRel - C->kmer,                          // SAMPLE CONTIG INIT
-    ePos,                                                // SAMPLE CONTIG END
+    C->RM[n].initRel - C->kmer + 2,                      // SAMPLE CONTIG INIT
+    ePos + 1,                                            // SAMPLE CONTIG END
     Head->Pos[idxPos].name,                              // TARGET CONTIG NAME
-    (C->RM[n].init-C->kmer) - Head->Pos[idxPos].init,    // TARGET CONTIG INIT
-    C->RM[n].pos - Head->Pos[idxPos].init);              // TARGET CONTIG END
+    C->RM[n].init - C->kmer - Head->Pos[idxPos].init,    // TARGET CONTIG INIT
+    C->RM[n].pos  - Head->Pos[idxPos].init);             // TARGET CONTIG END
     }
   else{ // REVERSE REPEAT
     idxPos = GetIPoint(Head, C->RM[n].pos);
