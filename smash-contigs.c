@@ -87,7 +87,7 @@ void CompressTarget(Threads T){
       
       symBuf->buf[symBuf->idx] = sym;
       GetIdxRM   (symBuf->buf+symBuf->idx, Mod);
-      GetIdxRevRM(symBuf->buf+symBuf->idx-2, Mod);
+      GetIdxRevRM(symBuf->buf+symBuf->idx, Mod);
 
       if(PA->nRead % P->nThreads == T.id){
         if(nBaseRelative >= Mod->kmer){  // PROTECTING THE BEGGINING OF K-SIZE

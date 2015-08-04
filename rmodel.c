@@ -198,19 +198,19 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
         }
       else{ // INVERTED REPEAT
         // PROTECT EXTRA SYMBOLS
-        if(b[C->RM[n].pos-2] == 4){
+        if(b[C->RM[n].pos] == 4){
           Fail(&C->RM[n]); // SEE AFTER: DISCARDING POLITICS
-          if(C->RM[n].pos-2 > C->kmer) C->RM[n].pos--;
-          else                         C->RM[n].stop = 1;
+          if(C->RM[n].pos > C->kmer) C->RM[n].pos--;
+          else                       C->RM[n].stop = 1;
           continue;
           }
 
         // HITS & FAILS
-        if(GetCompNum(b[C->RM[n].pos-2]) != sym) Fail(&C->RM[n]);
-        else                                     Hit (&C->RM[n]);
+        if(GetCompNum(b[C->RM[n].pos]) != sym) Fail(&C->RM[n]);
+        else                                   Hit (&C->RM[n]);
         // STOP IF POS <= KMER
-        if(C->RM[n].pos-2 > C->kmer) C->RM[n].pos--;
-        else                         C->RM[n].stop = 1;
+        if(C->RM[n].pos > 0) C->RM[n].pos--;
+        else                 C->RM[n].stop = 1;
         }
       }
     }
@@ -243,7 +243,7 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
 
     fprintf(W, "%s\t%"PRIu64"\t%"PRIu64"\t%s\t%"PRIu64"\t%"PRIu64"\n",
     cName,                                               // SAMPLE CONTIG NAME
-    C->RM[n].initRel - C->kmer,                          // SAMPLE CONTIG INIT
+    C->RM[n].initRel - C->kmer + 1,                      // SAMPLE CONTIG INIT
     ePos,                                                // SAMPLE CONTIG END
     Head->Pos[idxPos].name,                              // TARGET CONTIG NAME
     C->RM[n].init + C->kmer - Head->Pos[idxPos].init,    // TARGET CONTIG INIT
