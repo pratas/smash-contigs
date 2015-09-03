@@ -6,6 +6,14 @@
 #include <inttypes.h>
 #include <unistd.h>
 
+#define DEFAULT_CX             70.0
+#define DEFAULT_CY             75.0
+#define DEFAULT_TX             50.0
+#define DEFAULT_TY             82.0
+#define DEFAULT_WIDTH          25.0
+#define LEVEL_SATURATION       160
+#define LEVEL_VALUE            160
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 typedef uint64_t ULL;
