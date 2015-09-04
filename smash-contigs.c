@@ -253,29 +253,58 @@ void PrintPlot(void){
   Painter *Paint;
 
   fprintf(stderr, "  [+] Printing plot ...\n");
+
+  PLOT = Fopen(P->image, "w");
   SetRatio(MAX(P->Ref.nBases, P->Con.nBases) / DEFAULT_SCALE);
   Paint = CreatePainter(GetPoint(P->Ref.nBases), GetPoint(P->Con.nBases),
           backColor);
-
-  PLOT = Fopen(P->image, "w");
-  Paint->width = 25.0;
-
   PrintHead(PLOT, (2 * DEFAULT_CX) + (((Paint->width + DEFAULT_SPACE) * 2) -
+  Paint->width = 30.0;
   DEFAULT_SPACE), Paint->maxSize + EXTRA);
-
   Rect(PLOT, (2 * DEFAULT_CX) + (((Paint->width + DEFAULT_SPACE) * 2) -
   DEFAULT_SPACE), Paint->maxSize + EXTRA, 0, 0, backColor);
-
   RectOval(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy,
   backColor);
   RectOval(PLOT, Paint->width, Paint->tarSize, Paint->cx, Paint->cy,
   backColor);
 
+/*
+  if(nPatterns + nIRPatterns > 0)
+    mult = 255 / (nPatterns + nIRPatterns);
+  colorIdx = 0;
+*/
+
+  for(n = 0 ; n < 10 ; ++n){
+/*
+        Rect(PLOT, Paint->width, GetPoint(distance), Paint->cx +
+        DEFAULT_SPACE + DEFAULT_WIDTH, Paint->cy +
+        GetPoint(patterns->p[k].init), GetRgbColor(colorIdx * mult));
+
+          Rect(PLOT, Paint->width, GetPoint(patternsLB->p[n].end -
+          patternsLB->p[n].init), Paint->cx, Paint->cy +
+          GetPoint(patternsLB->p[n].init), GetRgbColor(colorIdx * mult));
+*/  
+    ++colorIdx;
+    }
+
+  for(n = 0 ; n < 10 ; ++n){
+
+        RectIR(PLOT, Paint->width, GetPoint(distance), Paint->cx +
+        DEFAULT_SPACE + DEFAULT_WIDTH, Paint->cy +
+        GetPoint(patternsIR->p[k].init), GetRgbColor(colorIdx * mult));
+
+          Rect(PLOT, Paint->width, GetPoint(patternsLBIR->p[n].end -
+          patternsLBIR->p[n].init), Paint->cx, Paint->cy +
+          GetPoint(patternsLBIR->p[n].init), GetRgbColor(colorIdx * mult));
+
+    ++colorIdx;
+    }
+
   Chromosome(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy);
   Chromosome(PLOT, Paint->width, Paint->tarSize, Paint->cx + DEFAULT_SPACE +
   DEFAULT_WIDTH, Paint->cy);
-
   PrintFinal(PLOT);
+
   fprintf(stderr, "      Done!\n");
   }
 
