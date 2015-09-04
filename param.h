@@ -30,6 +30,7 @@ typedef struct{
   FILEP    Ref;
   FILEP    Con;
   char     *positions;
+  char     *image;
   }
 Parameters;
 

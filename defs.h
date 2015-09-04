@@ -6,13 +6,7 @@
 #include <inttypes.h>
 #include <unistd.h>
 
-#define DEFAULT_CX             70.0
-#define DEFAULT_CY             75.0
-#define DEFAULT_TX             50.0
-#define DEFAULT_TY             82.0
-#define DEFAULT_WIDTH          25.0
-#define LEVEL_SATURATION       160
-#define LEVEL_VALUE            160
+#define MAX(a,b) (((a)>(b))?(a):(b))
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -64,7 +58,6 @@ typedef int8_t   I8;
 #define MAX_STR                2048
 
 
-
 #define DEF_HELP               0
 #define DEF_VERBOSE            0
 #define DEF_FORCE              0
@@ -91,6 +84,7 @@ typedef int8_t   I8;
 #define GUARD                  64
 #define MAX_FILENAME           4096
 #define MAX_CONTIG_NAME        2048
+#define DEFAULT_SCALE          150
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

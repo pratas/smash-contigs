@@ -21,6 +21,7 @@
 #include "msg.h"
 #include "parser.h"
 #include "buffer.h"
+#include "paint.h"
 #include "common.h"
 #include "rmodel.h"
 
@@ -102,6 +103,7 @@ void CompressTarget(Threads T){
       ++nBaseAbsolute;
       }
 
+  P->Con.nBases = nBaseAbsolute;
   Free(readBuf);
   Free(conName);
   RemoveCBuffer(symBuf);
@@ -220,11 +222,38 @@ void CompressAction(){
   }
 
 //////////////////////////////////////////////////////////////////////////////
+// - - - - - - - - - - - - - - - - J O I N E R - - - - - - - - - - - - - - - -
+void ThreadConcatenation(void){
+  FILE *OUT = NULL;
+  uint32_t n, k;
+  uint8_t *buf;
+
+  fprintf(stderr, "  [+] Joinning thread files ...\n");
+
+  OUT = Fopen(P->positions, "w");
+  buf = (uint8_t *) Malloc(BUFFER_SIZE * sizeof(uint8_t));
+  for(n = 0 ; n < P->nThreads ; ++n){
+    char tmp[MAX_FILENAME];
+    sprintf(tmp, "%s.t%u", P->positions, n+1);
+    FILE *IN = Fopen(tmp, "r");
+    while((k = fread(buf, 1, BUFFER_SIZE, IN)))
+      fwrite(buf, 1, k, OUT);
+    fclose(IN);
+    unlink(tmp);
+    }
+  
+  fprintf(stderr, "      Done!                \n");
+  }
+
+//////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // - - - - - - - - - - - - - - - - - M A I N - - - - - - - - - - - - - - - - -
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 int32_t main(int argc, char *argv[]){
   char **p = *&argv;
+  char backColor[] = "#ffffff";
+  FILE *PLOT = NULL;
+  Painter *Paint;
 
   P = (Parameters *) Malloc(1 * sizeof(Parameters));
   if((P->help = ArgsState(DEF_HELP, p, argc, "-h")) == 1 || argc < 2){
@@ -246,6 +275,7 @@ int32_t main(int argc, char *argv[]){
   P->editions   = ArgsNum   (DEF_EDIT,    p, argc, "-e", MIN_EDIT, MAX_EDIT);
   P->nThreads   = ArgsNum   (DEF_THRE,    p, argc, "-n", MIN_THRE, MAX_THRE);
   P->positions  = ArgsFiles              (p, argc, "-o");
+  P->image      = ArgsFilesImg           (p, argc, "-x");
   P->Con.name   = argv[argc-2];
   P->Ref.name   = argv[argc-1];
   P->Con.length = FopenBytesInFile(P->Con.name); 
@@ -264,6 +294,35 @@ int32_t main(int argc, char *argv[]){
   TIME *Time = CreateClock(clock());
   CompressAction();
   // TODO: ReduceProjections();
+  ThreadConcatenation();
+
+
+  fprintf(stderr, "  [+] Printing plot ...\n");
+  SetRatio(MAX(P->Ref.nBases, P->Con.nBases) / DEFAULT_SCALE);
+  Paint = CreatePainter(GetPoint(P->Ref.nBases), GetPoint(P->Con.nBases), 
+          backColor);
+
+  PLOT = Fopen(P->image, "w");
+  Paint->width = 25.0;
+
+  PrintHead(PLOT, (2 * DEFAULT_CX) + (((Paint->width + DEFAULT_SPACE) * 2) -
+  DEFAULT_SPACE), Paint->maxSize + EXTRA);
+
+  Rect(PLOT, (2 * DEFAULT_CX) + (((Paint->width + DEFAULT_SPACE) * 2) -
+  DEFAULT_SPACE), Paint->maxSize + EXTRA, 0, 0, backColor);
+
+  RectOval(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy,
+  backColor);
+  RectOval(PLOT, Paint->width, Paint->tarSize, Paint->cx, Paint->cy,
+  backColor);
+
+  Chromosome(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy);
+  Chromosome(PLOT, Paint->width, Paint->tarSize, Paint->cx + DEFAULT_SPACE +
+  DEFAULT_WIDTH, Paint->cy);
+
+  PrintFinal(PLOT);
+  fprintf(stderr, "      Done!\n");
+
   StopTimeNDRM(Time, clock());
   fprintf(stderr, "\n");
 
