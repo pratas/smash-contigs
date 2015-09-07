@@ -148,8 +148,6 @@ static void Hit(RMODEL *R){
 static void Fail(RMODEL *R){
   if(R->nFails < R->winSize)
     R->nFails++;
-  else
-    fprintf(stderr, "ERROR: nfails!\n");
   ShiftBuffer(R->win, R->winSize, 1);
   }
 

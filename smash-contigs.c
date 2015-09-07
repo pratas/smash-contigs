@@ -293,8 +293,8 @@ void PrintPlot(void){
       RectIR(PLOT, Paint->width, GetPoint(rf-ri), Paint->cx + DEFAULT_SPACE + 
       DEFAULT_WIDTH, Paint->cy + GetPoint(ri), GetRgbColor(colorIdx * mult));
 
-      Rect(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx, Paint->cy +
-      GetPoint(ci), GetRgbColor(colorIdx * mult));
+      Rect(PLOT, Paint->width, GetPoint(ci-cf), Paint->cx, Paint->cy +
+      GetPoint(cf), GetRgbColor(colorIdx * mult));
 
       ++inverse;
       }
@@ -302,6 +302,9 @@ void PrintPlot(void){
     ++colorIdx;
     }
   rewind(POS);
+
+  fprintf(stderr, "      Found %"PRIu64" regular and %"PRIu64" inverted "
+  "regions\n", regular, inverse);
 
   Chromosome(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy);
   Chromosome(PLOT, Paint->width, Paint->tarSize, Paint->cx + DEFAULT_SPACE +

@@ -7,11 +7,10 @@
 #define DEFAULT_CY             75.0
 #define DEFAULT_TX             50.0
 #define DEFAULT_TY             82.0
-#define DEFAULT_WIDTH          25.0
+#define DEFAULT_WIDTH          30.0
 #define LEVEL_SATURATION       160
 #define LEVEL_VALUE            160
-#define DEFAULT_WIDTH          25.0
-#define DEFAULT_SPACE          10.0
+#define DEFAULT_SPACE          30.0
 #define EXTRA                  150 
 
 uint32_t ratio;
