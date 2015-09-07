@@ -241,6 +241,7 @@ void ThreadConcatenation(void){
     fclose(IN);
     unlink(tmp);
     }
+  fclose(OUT);
   
   fprintf(stderr, "      Done!                \n");
   }
@@ -248,19 +249,21 @@ void ThreadConcatenation(void){
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - - - - - P L O T - - - - - - - - - - - - - - - -
 void PrintPlot(void){
+  FILE *PLOT = NULL, *POS = NULL;
   char backColor[] = "#ffffff";
-  FILE *PLOT = NULL;
+  uint32_t colorIdx = 0, mult = 10;
   Painter *Paint;
 
   fprintf(stderr, "  [+] Printing plot ...\n");
 
+  POS  = Fopen(P->positions, "r");
   PLOT = Fopen(P->image, "w");
   SetRatio(MAX(P->Ref.nBases, P->Con.nBases) / DEFAULT_SCALE);
   Paint = CreatePainter(GetPoint(P->Ref.nBases), GetPoint(P->Con.nBases),
           backColor);
   PrintHead(PLOT, (2 * DEFAULT_CX) + (((Paint->width + DEFAULT_SPACE) * 2) -
-  Paint->width = 30.0;
   DEFAULT_SPACE), Paint->maxSize + EXTRA);
+  Paint->width = 30.0;
   Rect(PLOT, (2 * DEFAULT_CX) + (((Paint->width + DEFAULT_SPACE) * 2) -
   DEFAULT_SPACE), Paint->maxSize + EXTRA, 0, 0, backColor);
   RectOval(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy,
@@ -268,42 +271,43 @@ void PrintPlot(void){
   RectOval(PLOT, Paint->width, Paint->tarSize, Paint->cx, Paint->cy,
   backColor);
 
-/*
-  if(nPatterns + nIRPatterns > 0)
-    mult = 255 / (nPatterns + nIRPatterns);
-  colorIdx = 0;
-*/
+  int64_t ri, rf, ci, cf;
+  uint64_t regular = 0, inverse = 0;  
+  while(1){
+    char tmp1[MAX_STR] = {'\0'}, tmp2[MAX_STR] = {'\0'};
+ 
+    if(fscanf(POS, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t%"PRIi64"\t%"PRIi64"\n", 
+    tmp1, &ri, &rf, tmp2, &ci, &cf) != 6)
+      break;
 
-  for(n = 0 ; n < 10 ; ++n){
-/*
-        Rect(PLOT, Paint->width, GetPoint(distance), Paint->cx +
-        DEFAULT_SPACE + DEFAULT_WIDTH, Paint->cy +
-        GetPoint(patterns->p[k].init), GetRgbColor(colorIdx * mult));
+    if(cf > ci){
+      Rect(PLOT, Paint->width, GetPoint(rf-ri), Paint->cx + DEFAULT_SPACE + 
+      DEFAULT_WIDTH, Paint->cy + GetPoint(ri), GetRgbColor(colorIdx * mult));
 
-          Rect(PLOT, Paint->width, GetPoint(patternsLB->p[n].end -
-          patternsLB->p[n].init), Paint->cx, Paint->cy +
-          GetPoint(patternsLB->p[n].init), GetRgbColor(colorIdx * mult));
-*/  
+      Rect(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx, Paint->cy +
+      GetPoint(ci), GetRgbColor(colorIdx * mult));
+
+      ++regular; 
+      }
+    else{ 
+      RectIR(PLOT, Paint->width, GetPoint(rf-ri), Paint->cx + DEFAULT_SPACE + 
+      DEFAULT_WIDTH, Paint->cy + GetPoint(ri), GetRgbColor(colorIdx * mult));
+
+      Rect(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx, Paint->cy +
+      GetPoint(ci), GetRgbColor(colorIdx * mult));
+
+      ++inverse;
+      }
+
     ++colorIdx;
     }
-
-  for(n = 0 ; n < 10 ; ++n){
-
-        RectIR(PLOT, Paint->width, GetPoint(distance), Paint->cx +
-        DEFAULT_SPACE + DEFAULT_WIDTH, Paint->cy +
-        GetPoint(patternsIR->p[k].init), GetRgbColor(colorIdx * mult));
-
-          Rect(PLOT, Paint->width, GetPoint(patternsLBIR->p[n].end -
-          patternsLBIR->p[n].init), Paint->cx, Paint->cy +
-          GetPoint(patternsLBIR->p[n].init), GetRgbColor(colorIdx * mult));
-
-    ++colorIdx;
-    }
+  rewind(POS);
 
   Chromosome(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy);
   Chromosome(PLOT, Paint->width, Paint->tarSize, Paint->cx + DEFAULT_SPACE +
   DEFAULT_WIDTH, Paint->cy);
   PrintFinal(PLOT);
+  fclose(POS);
 
   fprintf(stderr, "      Done!\n");
   }
