@@ -197,13 +197,14 @@ void LoadReference(){
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - - - R E D U C E - - - - - - - - - - - - - - - -
 void ReduceProjections(Threads T){
-  char name[MAX_FILENAME];
-  sprintf(name, ".t%u", T.id+1);
   FILE *IN = NULL, *OUT = NULL;
+  char name[MAX_FILENAME], nameCat[MAX_FILENAME];
+  sprintf(name, "%s.t%u", P->positions, T.id+1);
+  sprintf(nameCat, "%s.cat", name);
   int64_t ri, rf, ci, cf;
 
-  IN = Fopen(concatenate(P->positions, name), "r");
-  OUT = Fopen(concatenate(concatenate(P->positions, name), ".cat"), "w");
+  IN  = Fopen(name, "r");
+  OUT = Fopen(nameCat, "w");
 
   while(1){
     char tmp1[MAX_STR] = {'\0'}, tmp2[MAX_STR] = {'\0'};
@@ -211,11 +212,18 @@ void ReduceProjections(Threads T){
     tmp1, &ri, &rf, tmp2, &ci, &cf) != 6)
       break;
 
-    // REDUCE!
+    // TODO: REDUCE!
+    // USE A THRESHOLD ? -----------------------------------------------------
+
+
+
+    //------------------------------------------------------------------------
+ 
     fprintf(OUT, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t%"PRIi64"\t%"PRIi64"\n",
     tmp1, ri, rf, tmp2, ci, cf);
     }
 
+  unlink(name);
   fclose(IN);
   fclose(OUT);
   }
