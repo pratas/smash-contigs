@@ -114,7 +114,7 @@ void CompressTarget(Threads T){
   }
 
 //////////////////////////////////////////////////////////////////////////////
-// - - - - - - - - - - - - F   T H R E A D I N G - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - C   T H R E A D I N G - - - - - - - - - - - - - - -
 void *CompressThread(void *Thr){
   Threads *T = (Threads *) Thr;
   CompressTarget(T[0]);
@@ -195,6 +195,40 @@ void LoadReference(){
   }
 
 //////////////////////////////////////////////////////////////////////////////
+// - - - - - - - - - - - - - - - - R E D U C E - - - - - - - - - - - - - - - -
+void ReduceProjections(Threads T){
+  char name[MAX_FILENAME];
+  sprintf(name, ".t%u", T.id+1);
+  FILE *IN = NULL, *OUT = NULL;
+  int64_t ri, rf, ci, cf;
+
+  IN = Fopen(concatenate(P->positions, name), "r");
+  OUT = Fopen(concatenate(concatenate(P->positions, name), ".cat"), "w");
+
+  while(1){
+    char tmp1[MAX_STR] = {'\0'}, tmp2[MAX_STR] = {'\0'};
+    if(fscanf(IN, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t%"PRIi64"\t%"PRIi64"\n",
+    tmp1, &ri, &rf, tmp2, &ci, &cf) != 6)
+      break;
+
+    // REDUCE!
+    fprintf(OUT, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t%"PRIi64"\t%"PRIi64"\n",
+    tmp1, ri, rf, tmp2, ci, cf);
+    }
+
+  fclose(IN);
+  fclose(OUT);
+  }
+
+//////////////////////////////////////////////////////////////////////////////
+// - - - - - - - - - - - - C   T H R E A D I N G - - - - - - - - - - - - - - -
+void *ProjectionsThread(void *Thr){
+  Threads *T = (Threads *) Thr;
+  ReduceProjections(T[0]);
+  pthread_exit(NULL);
+  }
+
+//////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - C O M P R E S S O R - - - - - - - - - - - - - -
 void CompressAction(){
   uint32_t n;
@@ -219,6 +253,13 @@ void CompressAction(){
   for(n = 0 ; n < P->nThreads ; ++n) // DO NOT JOIN FORS!
     pthread_join(t[n+1], NULL);
   fprintf(stderr, "\r      Done!                   \n");
+
+  fprintf(stderr, "  [+] Reduce projections ... \n");
+  for(n = 0 ; n < P->nThreads ; ++n)
+    pthread_create(&(t[n+1]), NULL, ProjectionsThread, (void *) &(T[n]));
+  for(n = 0 ; n < P->nThreads ; ++n) // DO NOT JOIN FORS!
+    pthread_join(t[n+1], NULL);
+  fprintf(stderr, "\r      Done!                   \n");
   }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -234,7 +275,7 @@ void ThreadConcatenation(void){
   buf = (uint8_t *) Malloc(BUFFER_SIZE * sizeof(uint8_t));
   for(n = 0 ; n < P->nThreads ; ++n){
     char tmp[MAX_FILENAME];
-    sprintf(tmp, "%s.t%u", P->positions, n+1);
+    sprintf(tmp, "%s.t%u.cat", P->positions, n+1);
     FILE *IN = Fopen(tmp, "r");
     while((k = fread(buf, 1, BUFFER_SIZE, IN)))
       fwrite(buf, 1, k, OUT);
@@ -242,7 +283,7 @@ void ThreadConcatenation(void){
     unlink(tmp);
     }
   fclose(OUT);
-  
+
   fprintf(stderr, "      Done!                \n");
   }
 
@@ -361,7 +402,6 @@ int32_t main(int argc, char *argv[]){
   TIME *Time = CreateClock(clock());
   CompressAction();
   ThreadConcatenation();
-  // TODO: ReduceProjections();
   PrintPlot();
 
   StopTimeNDRM(Time, clock());
