@@ -10,7 +10,7 @@
 #define DEFAULT_WIDTH          30.0
 #define LEVEL_SATURATION       160
 #define LEVEL_VALUE            160
-#define DEFAULT_SPACE          30.0
+#define DEFAULT_SPACE          120.0
 #define EXTRA                  150 
 
 uint32_t ratio;

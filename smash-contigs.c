@@ -222,10 +222,7 @@ void ReduceProjections(Threads T){
       posCache[idx][2] = ri;
       posCache[idx][3] = rf;
 
-
-      ++idx;
-
-      if(idx == MAX_POS_CACHE)
+      if(++idx == MAX_POS_CACHE)
         idx = 0;
       }
     else{ // INVERTED
@@ -338,7 +335,7 @@ void PrintPlot(void){
   RectOval(PLOT, Paint->width, Paint->tarSize, Paint->cx, Paint->cy,
   backColor);
   Text(PLOT, Paint->cx-2,                            Paint->cy-15, "REF");
-  Text(PLOT, Paint->cx+Paint->width+DEFAULT_SPACE-4, Paint->cy-15, "CON");
+  Text(PLOT, Paint->cx+Paint->width+DEFAULT_SPACE-5, Paint->cy-15, "CON");
 
   int64_t ri, rf, ci, cf;
   uint64_t regular = 0, inverse = 0;  
@@ -346,24 +343,26 @@ void PrintPlot(void){
     char tmp1[MAX_STR] = {'\0'}, tmp2[MAX_STR] = {'\0'};
  
     if(fscanf(POS, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t%"PRIi64"\t%"PRIi64"\n", 
-    tmp1, &ri, &rf, tmp2, &ci, &cf) != 6)
+    tmp1, &ci, &cf, tmp2, &ri, &rf) != 6)
       break;
 
-    if(cf > ci){
-      Rect(PLOT, Paint->width, GetPoint(rf-ri), Paint->cx + DEFAULT_SPACE + 
-      DEFAULT_WIDTH, Paint->cy + GetPoint(ri), GetRgbColor(colorIdx * mult));
+    if(rf > ri){
+      // PRINT LINE
 
-      Rect(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx, Paint->cy +
-      GetPoint(ci), GetRgbColor(colorIdx * mult));
+      Rect(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx + DEFAULT_SPACE + 
+      DEFAULT_WIDTH, Paint->cy + GetPoint(ci), GetRgbColor(colorIdx * mult));
+
+      Rect(PLOT, Paint->width, GetPoint(rf-ri), Paint->cx, Paint->cy +
+      GetPoint(ri), GetRgbColor(colorIdx * mult));
 
       ++regular; 
       }
     else{ 
-      RectIR(PLOT, Paint->width, GetPoint(rf-ri), Paint->cx + DEFAULT_SPACE + 
-      DEFAULT_WIDTH, Paint->cy + GetPoint(ri), GetRgbColor(colorIdx * mult));
+      RectIR(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx + DEFAULT_SPACE + 
+      DEFAULT_WIDTH, Paint->cy + GetPoint(ci), GetRgbColor(colorIdx * mult));
 
-      Rect(PLOT, Paint->width, GetPoint(ci-cf), Paint->cx, Paint->cy +
-      GetPoint(cf), GetRgbColor(colorIdx * mult));
+      Rect(PLOT, Paint->width, GetPoint(ri-rf), Paint->cx, Paint->cy +
+      GetPoint(rf), GetRgbColor(colorIdx * mult));
 
       ++inverse;
       }
