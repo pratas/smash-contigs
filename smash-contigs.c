@@ -206,19 +206,27 @@ void ReduceProjections(Threads T){
   IN  = Fopen(name, "r");
   OUT = Fopen(nameCat, "w");
 
+  int64_t posCache[MAX_POS_CACHE][4];
+  uint8_t PosUsage[MAX_POS_CACHE];
+  int64_t idx = 0;
+
   while(1){
     char tmp1[MAX_STR] = {'\0'}, tmp2[MAX_STR] = {'\0'};
     if(fscanf(IN, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t%"PRIi64"\t%"PRIi64"\n",
-    tmp1, &ri, &rf, tmp2, &ci, &cf) != 6)
+    tmp1, &ci, &cf, tmp2, &ri, &rf) != 6)
       break;
 
-    // TODO: REDUCE!
-    // USE A THRESHOLD ? -----------------------------------------------------
-     
     if(cf > ci){
+      posCache[idx][0] = ci;
+      posCache[idx][1] = cf;
+      posCache[idx][2] = ri;
+      posCache[idx][3] = rf;
 
 
+      ++idx;
 
+      if(idx == MAX_POS_CACHE)
+        idx = 0;
       }
     else{ // INVERTED
 
@@ -230,7 +238,7 @@ void ReduceProjections(Threads T){
     //------------------------------------------------------------------------
  
     fprintf(OUT, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t%"PRIi64"\t%"PRIi64"\n",
-    tmp1, ri, rf, tmp2, ci, cf);
+    tmp1, ci, cf, tmp2, ri, rf);
     }
 
   unlink(name);
@@ -329,6 +337,8 @@ void PrintPlot(void){
   backColor);
   RectOval(PLOT, Paint->width, Paint->tarSize, Paint->cx, Paint->cy,
   backColor);
+  Text(PLOT, Paint->cx-2,                            Paint->cy-15, "REF");
+  Text(PLOT, Paint->cx+Paint->width+DEFAULT_SPACE-4, Paint->cy-15, "CON");
 
   int64_t ri, rf, ci, cf;
   uint64_t regular = 0, inverse = 0;  
