@@ -18,6 +18,7 @@ void PrintMenu(void){
   "  -r <repeats>               maximum repeats number,                     \n"
   "  -e <editions>              number of allowed editions,                 \n"
   "  -t <threshold>             maximum gaps allowed between copies,        \n"
+  "  -l <link>                  link type between maps [0;4],               \n"
   "  -i                         do NOT map inversions,                      \n"
   "  -n <nThreads>              number of threads,                          \n"
   "  -o <FILE>                  output text filename with positions,        \n"

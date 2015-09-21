@@ -114,6 +114,17 @@ Painter *CreatePainter(double refSize, double tarSize, char *color)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+void Polygon(FILE *F, double x1, double y1, double x2, double y2, double x3,
+double y3, double x4, double y4, char *colorf, char *colorb)
+  {
+  fprintf(F,
+            "<polygon points=\"%.2lf,%.2lf %.2lf,%.2lf %.2lf,%.2lf "
+            "%.2lf,%.2lf\" style=\"fill:%s;stroke:%s;stroke-width:1\" />",
+            x1, y1, x2, y2, x3, y3, x4, y4, colorf, colorb);
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 void Line(FILE *F, double width, double x1, double y1, double x2, double y2, 
 char *color)
   {

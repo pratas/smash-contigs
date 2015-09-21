@@ -347,11 +347,39 @@ void PrintPlot(void){
       break;
 
     if(rf > ri){
-      Line(PLOT, 2, Paint->cx + Paint->width, 
-      Paint->cy + GetPoint(ri+((rf-ri)/2.0)), 
-      Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH, 
-      Paint->cy + GetPoint(ci+((cf-ci)/2.0)), "black");
-
+      switch(P->link){
+        case 0: 
+          Line(PLOT, 2, Paint->cx + Paint->width, 
+          Paint->cy + GetPoint(ri+((rf-ri)/2.0)), 
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH, 
+          Paint->cy + GetPoint(ci+((cf-ci)/2.0)), "black");
+        break;
+        case 1:
+          Line(PLOT, 2, Paint->cx + Paint->width,
+          Paint->cy + GetPoint(ri),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(ci), "black");
+          Line(PLOT, 2, Paint->cx + Paint->width,
+          Paint->cy + GetPoint(rf),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(cf), "black");
+        break;
+        case 2:
+          Polygon(PLOT, 
+          Paint->cx + Paint->width,
+          Paint->cy + GetPoint(ri),
+          Paint->cx + Paint->width,
+          Paint->cy + GetPoint(rf),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(cf),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(ci),
+          "#ccc", "black");    
+        break;
+        default:
+        break;
+        }        
+      
       Rect(PLOT, Paint->width, GetPoint(rf-ri), Paint->cx, Paint->cy +
       GetPoint(ri), GetRgbColor(colorIdx * mult));
 
@@ -361,10 +389,38 @@ void PrintPlot(void){
       ++regular; 
       }
     else{ 
-      Line(PLOT, 2, Paint->cx + Paint->width,
-      Paint->cy + GetPoint(rf+((ri-rf)/2.0)),
-      Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-      Paint->cy + GetPoint(cf+((ci-cf)/2.0)), "green");
+      switch(P->link){
+        case 0:
+          Line(PLOT, 2, Paint->cx + Paint->width,
+          Paint->cy + GetPoint(rf+((ri-rf)/2.0)),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(cf+((ci-cf)/2.0)), "green");
+        break;
+        case 1:
+          Line(PLOT, 2, Paint->cx + Paint->width,
+          Paint->cy + GetPoint(rf),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(cf), "green");
+          Line(PLOT, 2, Paint->cx + Paint->width,
+          Paint->cy + GetPoint(ri),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(ci), "green");
+        break;
+        case 2:
+          Polygon(PLOT, 
+          Paint->cx + Paint->width,
+          Paint->cy + GetPoint(rf),
+          Paint->cx + Paint->width,
+          Paint->cy + GetPoint(ri),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(ci),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(cf),
+          "green", "black");
+        break;
+        default:
+        break;
+        }
 
       Rect(PLOT, Paint->width, GetPoint(ri-rf), Paint->cx, Paint->cy +
       GetPoint(rf), GetRgbColor(colorIdx * mult));
@@ -417,6 +473,7 @@ int32_t main(int argc, char *argv[]){
   P->repeats    = ArgsNum   (DEF_REPE,    p, argc, "-r", MIN_REPE, MAX_REPE);
   P->editions   = ArgsNum   (DEF_EDIT,    p, argc, "-e", MIN_EDIT, MAX_EDIT);
   P->threshold  = ArgsNum   (DEF_TSHO,    p, argc, "-t", MIN_TSHO, MAX_TSHO);
+  P->link       = ArgsNum   (DEF_LINK,    p, argc, "-l", MIN_LINK, MAX_LINK);
   P->nThreads   = ArgsNum   (DEF_THRE,    p, argc, "-n", MIN_THRE, MAX_THRE);
   P->positions  = ArgsFiles              (p, argc, "-o");
   P->image      = ArgsFilesImg           (p, argc, "-x");

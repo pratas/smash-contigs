@@ -10,7 +10,7 @@
 #define DEFAULT_WIDTH          30.0
 #define LEVEL_SATURATION       160
 #define LEVEL_VALUE            160
-#define DEFAULT_SPACE          120.0
+#define DEFAULT_SPACE          100.0
 #define EXTRA                  150 
 
 uint32_t ratio;
@@ -53,6 +53,8 @@ HsvColor  RgbToHsv       (RgbColor);
 char      *GetRgbColor   (uint8_t);
 void      PrintFinal     (FILE *);
 void      PrintHead      (FILE *, double, double);
+void      Polygon        (FILE *, double, double, double, double, double,
+                         double, double, double, char *, char *);
 void      Line           (FILE *, double, double, double, double, double, 
                          char *);
 void      Circle         (FILE *, double, double, double, char *);

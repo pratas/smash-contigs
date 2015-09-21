@@ -21,6 +21,7 @@ typedef struct{
   U8       force;
   U8       inversion;
   U8       level;
+  U8       link;
   U32      kmer;
   U32      minimum;
   U32      repeats;
