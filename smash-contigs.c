@@ -347,8 +347,6 @@ void PrintPlot(void){
       break;
 
     if(rf > ri){
-      // PRINT LINE
-    
       Line(PLOT, 2, Paint->cx + Paint->width, 
       Paint->cy + GetPoint(ri+((rf-ri)/2.0)), 
       Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH, 
