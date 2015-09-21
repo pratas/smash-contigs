@@ -374,7 +374,7 @@ void PrintPlot(void){
           Paint->cy + GetPoint(cf),
           Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
           Paint->cy + GetPoint(ci),
-          "#ccc", "black");    
+          GetRgbColor(colorIdx * mult), "black");    
         break;
         default:
         break;
@@ -416,7 +416,7 @@ void PrintPlot(void){
           Paint->cy + GetPoint(ci),
           Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
           Paint->cy + GetPoint(cf),
-          "green", "black");
+          GetRgbColor(colorIdx * mult), "black");
         break;
         default:
         break;

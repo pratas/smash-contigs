@@ -67,7 +67,7 @@ typedef int8_t   I8;
 #define DEF_MINI               40 
 #define DEF_REPE               100
 #define DEF_WIND               10
-#define DEF_EDIT               3
+#define DEF_EDIT               0
 #define MIN_KMER               1
 #define MAX_KMER               20
 #define MIN_REPE               1

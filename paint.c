@@ -119,7 +119,8 @@ double y3, double x4, double y4, char *colorf, char *colorb)
   {
   fprintf(F,
             "<polygon points=\"%.2lf,%.2lf %.2lf,%.2lf %.2lf,%.2lf "
-            "%.2lf,%.2lf\" style=\"fill:%s;stroke:%s;stroke-width:1\" />",
+            "%.2lf,%.2lf\" style=\"fill:%s;stroke:%s;stroke-width:1;"
+            "fill-opacity:0.7\" />",
             x1, y1, x2, y2, x3, y3, x4, y4, colorf, colorb);
   }
 
