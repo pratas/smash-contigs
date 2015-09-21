@@ -214,10 +214,18 @@ void ReduceProjections(Threads T){
 
     // TODO: REDUCE!
     // USE A THRESHOLD ? -----------------------------------------------------
-    
+     
+    if(cf > ci){
 
 
 
+      }
+    else{ // INVERTED
+
+
+
+
+      }
 
     //------------------------------------------------------------------------
  
@@ -391,6 +399,7 @@ int32_t main(int argc, char *argv[]){
   P->minimum    = ArgsNum   (DEF_MINI,    p, argc, "-m", MIN_MINI, MAX_MINI);
   P->repeats    = ArgsNum   (DEF_REPE,    p, argc, "-r", MIN_REPE, MAX_REPE);
   P->editions   = ArgsNum   (DEF_EDIT,    p, argc, "-e", MIN_EDIT, MAX_EDIT);
+  P->threshold  = ArgsNum   (DEF_TSHO,    p, argc, "-t", MIN_TSHO, MAX_TSHO);
   P->nThreads   = ArgsNum   (DEF_THRE,    p, argc, "-n", MIN_THRE, MAX_THRE);
   P->positions  = ArgsFiles              (p, argc, "-o");
   P->image      = ArgsFilesImg           (p, argc, "-x");

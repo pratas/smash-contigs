@@ -78,6 +78,9 @@ typedef int8_t   I8;
 #define MAX_EDIT               50000
 #define MIN_MINI               1
 #define MAX_MINI               9999999
+#define DEF_TSHO               0
+#define MIN_TSHO               0
+#define MAX_TSHO               9999999
 #define MIN_THRE               1
 #define MAX_THRE               500
 #define NSYM                   4

@@ -26,6 +26,7 @@ typedef struct{
   U32      repeats;
   U32      window;
   U32      editions;
+  U32      threshold;
   U32      nThreads;
   FILEP    Ref;
   FILEP    Con;
