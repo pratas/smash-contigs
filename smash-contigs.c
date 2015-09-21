@@ -214,6 +214,8 @@ void ReduceProjections(Threads T){
 
     // TODO: REDUCE!
     // USE A THRESHOLD ? -----------------------------------------------------
+    
+
 
 
 
