@@ -53,6 +53,9 @@ HsvColor  RgbToHsv       (RgbColor);
 char      *GetRgbColor   (uint8_t);
 void      PrintFinal     (FILE *);
 void      PrintHead      (FILE *, double, double);
+void      Line           (FILE *, double, double, double, double, double, 
+                         char *);
+void      Circle         (FILE *, double, double, double, char *);
 void      RectOval       (FILE *, double, double, double, double, char *);
 void      RectOvalIR     (FILE *, double, double, double, double, char *);
 void      Rect           (FILE *, double, double, double, double, char *);

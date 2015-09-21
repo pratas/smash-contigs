@@ -348,21 +348,31 @@ void PrintPlot(void){
 
     if(rf > ri){
       // PRINT LINE
-
-      Rect(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx + DEFAULT_SPACE + 
-      DEFAULT_WIDTH, Paint->cy + GetPoint(ci), GetRgbColor(colorIdx * mult));
+    
+      Line(PLOT, 2, Paint->cx + Paint->width, 
+      Paint->cy + GetPoint(ri+((rf-ri)/2.0)), 
+      Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH, 
+      Paint->cy + GetPoint(ci+((cf-ci)/2.0)), "black");
 
       Rect(PLOT, Paint->width, GetPoint(rf-ri), Paint->cx, Paint->cy +
       GetPoint(ri), GetRgbColor(colorIdx * mult));
 
+      Rect(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx + DEFAULT_SPACE + 
+      DEFAULT_WIDTH, Paint->cy + GetPoint(ci), GetRgbColor(colorIdx * mult));
+
       ++regular; 
       }
     else{ 
-      RectIR(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx + DEFAULT_SPACE + 
-      DEFAULT_WIDTH, Paint->cy + GetPoint(ci), GetRgbColor(colorIdx * mult));
+      Line(PLOT, 2, Paint->cx + Paint->width,
+      Paint->cy + GetPoint(rf+((ri-rf)/2.0)),
+      Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+      Paint->cy + GetPoint(cf+((ci-cf)/2.0)), "green");
 
       Rect(PLOT, Paint->width, GetPoint(ri-rf), Paint->cx, Paint->cy +
       GetPoint(rf), GetRgbColor(colorIdx * mult));
+
+      RectIR(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx + DEFAULT_SPACE + 
+      DEFAULT_WIDTH, Paint->cy + GetPoint(ci), GetRgbColor(colorIdx * mult));
 
       ++inverse;
       }

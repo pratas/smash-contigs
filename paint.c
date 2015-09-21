@@ -114,6 +114,26 @@ Painter *CreatePainter(double refSize, double tarSize, char *color)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+void Line(FILE *F, double width, double x1, double y1, double x2, double y2, 
+char *color)
+  {
+  fprintf(F,
+            "<line x1=\"%.2lf\" y1=\"%.2lf\" x2=\"%.2lf\" y2=\"%.2lf\" "
+            "style=\"stroke:%s;stroke-width:%.2lf\" />",
+            x1, y1, x2, y2, color, width);
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+void Circle(FILE *F, double r, double x, double y, char *color)
+  {
+  fprintf(F, 
+            "<circle cx=\"%.2lf\" cy=\"%.2lf\" r=\"%.2lf\" fill=\"%s\"/>",
+            x, y, r, color);
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 void RectOval(FILE *F, double w, double h, double x, double y, char *color)
   {
   fprintf(F, "<rect "
