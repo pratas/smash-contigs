@@ -83,7 +83,7 @@ typedef int8_t   I8;
 #define MAX_TSHO               9999999
 #define MIN_THRE               1
 #define MAX_THRE               500
-#define DEF_LINK               0
+#define DEF_LINK               3
 #define MIN_LINK               0
 #define MAX_LINK               4
 #define NSYM                   4

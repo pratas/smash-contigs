@@ -192,8 +192,8 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // PRINT BLOCK
 //
-void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t 
-*cName, FILE *W){
+void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint64_t absolute, 
+uint32_t n, uint8_t *cName, FILE *W){
   uint64_t idxPos = 0;
 
   if(C->RM[n].rev == 0){ // REGULAR REPEAT
@@ -201,10 +201,14 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
     ProtectVoidName(cName, 0);
     ProtectVoidName(Head->Pos[idxPos].name, 1);
 
-    fprintf(W, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t%"PRIi64"\t%"PRIi64"\n",
+    fprintf(W, "%s\t%"PRIi64"\t%"PRIi64"\t"
+               "%"PRIi64"\t%"PRIi64"\t%s\t"
+               "%"PRIi64"\t%"PRIi64"\n",
     cName,                                               // CONTIG NAME
-    C->RM[n].initRel - C->kmer + 2,                      // CONTIG INIT
-    ePos + 1,                                            // CONTIG END
+    C->RM[n].initRel - C->kmer + 2,                      // CONTIG RELAT INIT
+    ePos + 1,                                            // CONTIG RELAT END
+    absolute - (ePos - C->RM[n].initRel + C->kmer),
+    absolute,
     Head->Pos[idxPos].name,                              // REF NAME
     C->RM[n].init - C->kmer - Head->Pos[idxPos].init,    // REF INIT
     C->RM[n].pos  - Head->Pos[idxPos].init);             // REF END
@@ -213,11 +217,15 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
     idxPos = GetIPoint(Head, C->RM[n].pos);
     ProtectVoidName(cName, 0);
     ProtectVoidName(Head->Pos[idxPos].name, 1);
-
-    fprintf(W, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t%"PRIi64"\t%"PRIi64"\n",
+ 
+    fprintf(W, "%s\t%"PRIi64"\t%"PRIi64"\t"
+               "%"PRIi64"\t%"PRIi64"\t%s\t"
+               "%"PRIi64"\t%"PRIi64"\n",
     cName,                                               // CONTIG NAME
-    C->RM[n].initRel - C->kmer + 1,                      // CONTIG INIT
-    ePos,                                                // CONTIG END
+    C->RM[n].initRel - C->kmer + 1,                      // CONTIG RELAT INIT
+    ePos,                                                // CONTIG RELAT END
+    absolute - (ePos - C->RM[n].initRel + C->kmer), 
+    absolute,
     Head->Pos[idxPos].name,                              // REF NAME
     C->RM[n].init + C->kmer - Head->Pos[idxPos].init,    // REF INIT
     C->RM[n].pos - Head->Pos[idxPos].init);              // REF END
@@ -236,52 +244,50 @@ static void ResetRM(RCLASS *C, uint32_t id){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // STOP USELESS REPEAT MODELS
 //
-void StopRMs(RCLASS *C, HEADERS *Head, uint64_t position, uint8_t *buf, FILE 
-*Writter){
+void StopRMs(RCLASS *C, HEADERS *Head, uint64_t position, uint64_t absolute, 
+uint8_t *buf, FILE *Writter){
   int32_t id, largerRM = -1, largerRMIR = -1;
   uint64_t size = 0, sizeIR = 0;
 
   if(C->nRM > 0){
     for(id = 0 ; id < C->mRM ; ++id){
-      if(C->active[id] == 1){
-        if(C->RM[id].stop == 1){
-          if(C->RM[id].size >= C->minSize){
-            if(C->RM[id].rev == 0 && size < C->RM[id].size){
-              size = C->RM[id].size;
-              largerRM = id;
-              }
-            if(C->RM[id].rev == 1 && sizeIR < C->RM[id].size){
-              sizeIR = C->RM[id].size;
-              largerRMIR = id;
-              }
-            C->RM[id].write = 2;
-            continue;
+      if(C->active[id] == 1 && C->RM[id].stop == 1){
+        if(C->RM[id].size >= C->minSize){
+          if(C->RM[id].rev == 0 && size < C->RM[id].size){
+            size = C->RM[id].size;
+            largerRM = id;
             }
-
-          ResetRM(C, id);
-          --C->nRM;
+          if(C->RM[id].rev == 1 && sizeIR < C->RM[id].size){
+            sizeIR = C->RM[id].size;
+            largerRMIR = id;
+            }
+          C->RM[id].write = 2;
+          continue;
           }
+
+        ResetRM(C, id);
+        --C->nRM;
         }
       }
 
     if(largerRM != -1)
-      PrintBlock(C, Head, position, largerRM, buf, Writter);
+      PrintBlock(C, Head, position, absolute, largerRM, buf, Writter);
 
     if(C->rev == 1 && largerRMIR != -1)
-      PrintBlock(C, Head, position, largerRMIR, buf, Writter);
+      PrintBlock(C, Head, position, absolute, largerRMIR, buf, Writter);
 
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->RM[id].write == 2){ // IT WAS SMALLER
         if(C->RM[id].rev == 0){ // REGULAR
           if(C->RM[largerRM].init > C->RM[id].init || 
              C->RM[largerRM].pos  < C->RM[id].pos){
-            PrintBlock(C, Head, position, id, buf, Writter);
+            PrintBlock(C, Head, position, absolute, id, buf, Writter);
             }
           }
         else{ // REVERSE
           if(C->RM[largerRMIR].init < C->RM[id].init || 
              C->RM[largerRMIR].pos  > C->RM[id].pos){
-            PrintBlock(C, Head, position, id, buf, Writter);
+            PrintBlock(C, Head, position, absolute, id, buf, Writter);
             }
           }
         ResetRM(C, id);
@@ -294,8 +300,8 @@ void StopRMs(RCLASS *C, HEADERS *Head, uint64_t position, uint8_t *buf, FILE
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // FORCE STOP REPEAT MODELS DURING END OF READ
 //
-void ResetAllRMs(RCLASS *C, HEADERS *Head, uint64_t position, uint8_t *cName, 
-FILE *Writter){
+void ResetAllRMs(RCLASS *C, HEADERS *Head, uint64_t position, uint64_t 
+absolute, uint8_t *cName, FILE *Writter){
   int32_t id, largerRM = -1, largerRMIR = -1;
   uint64_t size = 0, sizeIR = 0;
 
@@ -318,10 +324,10 @@ FILE *Writter){
       }
     
     if(largerRM != -1)
-      PrintBlock(C, Head, position, largerRM, cName, Writter);
+      PrintBlock(C, Head, position, absolute, largerRM, cName, Writter);
 
     if(largerRMIR != -1)
-      PrintBlock(C, Head, position, largerRMIR, cName, Writter);
+      PrintBlock(C, Head, position, absolute, largerRMIR, cName, Writter);
     }
   }
 

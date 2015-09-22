@@ -53,7 +53,8 @@ void CompressTarget(Threads T){
         switch(action){
           case -1: // IT IS THE BEGGINING OF THE HEADER
             if(PA->nRead > 1)
-              ResetAllRMs(Mod, Head, nBaseRelative, conName, Writter);
+              ResetAllRMs(Mod, Head, nBaseRelative, nBaseAbsolute, conName, 
+              Writter);
             nBaseRelative = 0;
             r = 0;
           break;
@@ -79,7 +80,8 @@ void CompressTarget(Threads T){
 
       if((sym = DNASymToNum(sym)) == 4){
         if(Mod->nRM > 0 && PA->nRead % P->nThreads == T.id) 
-          ResetAllRMs(Mod, Head, nBaseRelative, conName, Writter);
+          ResetAllRMs(Mod, Head, nBaseRelative, nBaseAbsolute, conName, 
+          Writter);
         ++nBaseRelative;
         ++nBaseAbsolute;
         continue;
@@ -92,7 +94,7 @@ void CompressTarget(Threads T){
       if(PA->nRead % P->nThreads == T.id){
         if(nBaseRelative >= Mod->kmer){  // PROTECTING THE BEGGINING OF K-SIZE
           UpdateRMs(Mod, Seq->buf, nBaseRelative, sym);
-          StopRMs(Mod, Head, nBaseRelative, conName, Writter);
+          StopRMs(Mod, Head, nBaseRelative, nBaseAbsolute, conName, Writter);
           StartMultipleRMs(Mod, Hash, nBaseRelative);
           }
         }
@@ -199,7 +201,7 @@ void ReduceProjections(Threads T){
   char name[MAX_FILENAME], nameCat[MAX_FILENAME];
   sprintf(name, "%s.t%u", P->positions, T.id+1);
   sprintf(nameCat, "%s.cat", name);
-  int64_t ri, rf, ci, cf;
+  int64_t ri, rf, ci, cf, cx, cy;
 
   IN  = Fopen(name, "r");
   OUT = Fopen(nameCat, "w");
@@ -210,8 +212,8 @@ void ReduceProjections(Threads T){
 
   while(1){
     char tmp1[MAX_STR] = {'\0'}, tmp2[MAX_STR] = {'\0'};
-    if(fscanf(IN, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t%"PRIi64"\t%"PRIi64"\n",
-    tmp1, &ci, &cf, tmp2, &ri, &rf) != 6)
+    if(fscanf(IN, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
+    "%"PRIi64"\t%"PRIi64"\n", tmp1, &ci, &cf, &cx, &cy, tmp2, &ri, &rf) != 8)
       break;
 
     if(cf > ci){
@@ -232,8 +234,8 @@ void ReduceProjections(Threads T){
 
     //------------------------------------------------------------------------
  
-    fprintf(OUT, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t%"PRIi64"\t%"PRIi64"\n",
-    tmp1, ci, cf, tmp2, ri, rf);
+    fprintf(OUT, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
+    "%"PRIi64"\t%"PRIi64"\n", tmp1, ci, cf, cx, cy, tmp2, ri, rf);
     }
 
   unlink(name);
@@ -335,43 +337,43 @@ void PrintPlot(void){
   Text(PLOT, Paint->cx-2,                            Paint->cy-15, "REF");
   Text(PLOT, Paint->cx+Paint->width+DEFAULT_SPACE-5, Paint->cy-15, "CON");
 
-  int64_t ri, rf, ci, cf;
+  int64_t ri, rf, ci, cf, cx, cy;
   uint64_t regular = 0, inverse = 0;  
   while(1){
     char tmp1[MAX_STR] = {'\0'}, tmp2[MAX_STR] = {'\0'};
  
-    if(fscanf(POS, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t%"PRIi64"\t%"PRIi64"\n", 
-    tmp1, &ci, &cf, tmp2, &ri, &rf) != 6)
+    if(fscanf(POS, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
+    "%"PRIi64"\t%"PRIi64"\n", tmp1, &ci, &cf, &cx, &cy, tmp2, &ri, &rf) != 8)
       break;
 
     if(rf > ri){
       switch(P->link){
-        case 0: 
+        case 1: 
           Line(PLOT, 2, Paint->cx + Paint->width, 
           Paint->cy + GetPoint(ri+((rf-ri)/2.0)), 
           Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH, 
-          Paint->cy + GetPoint(ci+((cf-ci)/2.0)), "black");
+          Paint->cy + GetPoint(cx+((cy-cx)/2.0)), "black");
         break;
-        case 1:
+        case 2:
           Line(PLOT, 2, Paint->cx + Paint->width,
           Paint->cy + GetPoint(ri),
           Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(ci), "black");
+          Paint->cy + GetPoint(cx), "black");
           Line(PLOT, 2, Paint->cx + Paint->width,
           Paint->cy + GetPoint(rf),
           Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(cf), "black");
+          Paint->cy + GetPoint(cy), "black");
         break;
-        case 2:
+        case 3:
           Polygon(PLOT, 
           Paint->cx + Paint->width,
           Paint->cy + GetPoint(ri),
           Paint->cx + Paint->width,
           Paint->cy + GetPoint(rf),
           Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(cf),
+          Paint->cy + GetPoint(cy),
           Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(ci),
+          Paint->cy + GetPoint(cx),
           GetRgbColor(colorIdx * mult), "grey");    
         break;
         default:
@@ -381,39 +383,39 @@ void PrintPlot(void){
       Rect(PLOT, Paint->width, GetPoint(rf-ri), Paint->cx, Paint->cy +
       GetPoint(ri), GetRgbColor(colorIdx * mult));
 
-      Rect(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx + DEFAULT_SPACE + 
-      DEFAULT_WIDTH, Paint->cy + GetPoint(ci), GetRgbColor(colorIdx * mult));
+      Rect(PLOT, Paint->width, GetPoint(cy-cx), Paint->cx + DEFAULT_SPACE + 
+      DEFAULT_WIDTH, Paint->cy + GetPoint(cx), GetRgbColor(colorIdx * mult));
 
       ++regular; 
       }
     else{ 
       switch(P->link){
-        case 0:
+        case 1:
           Line(PLOT, 2, Paint->cx + Paint->width,
           Paint->cy + GetPoint(rf+((ri-rf)/2.0)),
           Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(cf+((ci-cf)/2.0)), "green");
+          Paint->cy + GetPoint(cy+((cx-cy)/2.0)), "green");
         break;
-        case 1:
+        case 2:
           Line(PLOT, 2, Paint->cx + Paint->width,
           Paint->cy + GetPoint(rf),
           Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(cf), "green");
+          Paint->cy + GetPoint(cy), "green");
           Line(PLOT, 2, Paint->cx + Paint->width,
           Paint->cy + GetPoint(ri),
           Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(ci), "green");
+          Paint->cy + GetPoint(cx), "green");
         break;
-        case 2:
+        case 3:
           Polygon(PLOT, 
           Paint->cx + Paint->width,
           Paint->cy + GetPoint(rf),
           Paint->cx + Paint->width,
           Paint->cy + GetPoint(ri),
           Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(ci),
+          Paint->cy + GetPoint(cx),
           Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(cf),
+          Paint->cy + GetPoint(cy),
           GetRgbColor(colorIdx * mult), "grey");
         break;
         default:
@@ -423,8 +425,8 @@ void PrintPlot(void){
       Rect(PLOT, Paint->width, GetPoint(ri-rf), Paint->cx, Paint->cy +
       GetPoint(rf), GetRgbColor(colorIdx * mult));
 
-      RectIR(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx + DEFAULT_SPACE + 
-      DEFAULT_WIDTH, Paint->cy + GetPoint(ci), GetRgbColor(colorIdx * mult));
+      RectIR(PLOT, Paint->width, GetPoint(cy-cx), Paint->cx + DEFAULT_SPACE + 
+      DEFAULT_WIDTH, Paint->cy + GetPoint(cx), GetRgbColor(colorIdx * mult));
 
       ++inverse;
       }
