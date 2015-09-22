@@ -32,19 +32,18 @@ HEADERS  *Head; // HEADERS SHARED BY THREADING
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - C O M P R E S S I N G - - - - - - - - - - - - - 
 void CompressTarget(Threads T){
-  FILE        *Reader = Fopen(P->Con.name, "r");
-  char        name[MAX_FILENAME];
+  FILE      *Reader = Fopen(P->Con.name, "r");
+  char      name[MAX_FILENAME];
   sprintf(name, ".t%u", T.id+1);
-  FILE        *Writter = Fopen(concatenate(P->positions, name), "w");
-  int64_t     nBaseRelative = 0, nBaseAbsolute = 0, idxPos = 0;
-  uint32_t    k, r = 0;
-  int32_t     action;
-  PARSER      *PA = CreateParser();
-  CBUF        *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
-  uint8_t     *readBuf = (uint8_t *) Calloc(BUFFER_SIZE, sizeof(uint8_t)), sym,
-              *conName = (uint8_t *) Calloc(MAX_CONTIG_NAME, sizeof(uint8_t));
-  RCLASS      *Mod = CreateRClass(P->repeats, P->editions, P->minimum, P->kmer,
-              P->inversion);
+  FILE      *Writter = Fopen(concatenate(P->positions, name), "w");
+  int64_t   nBaseRelative = 0, nBaseAbsolute = 0, idxPos = 0;
+  uint32_t  k, r = 0;
+  int32_t   action;
+  PARSER    *PA = CreateParser();
+  CBUF      *symBuf = CreateCBuffer(BUFFER_SIZE, BGUARD);
+  uint8_t   *readBuf = (uint8_t *) Calloc(BUFFER_SIZE, sizeof(uint8_t)), sym,
+            *conName = (uint8_t *) Calloc(MAX_CONTIG_NAME, sizeof(uint8_t));
+  RCLASS    *Mod = CreateRClass(P->repeats, P->minimum, P->kmer, P->inversion);
 
   Mod->nBases = P->Ref.nBases;
   while((k = fread(readBuf, 1, BUFFER_SIZE, Reader)))
@@ -132,8 +131,7 @@ void LoadReference(){
   struct   stat s;
   size_t   size, k;
   long     fd = open(P->Ref.name, O_RDONLY);
-  RCLASS   *Mod = CreateRClass(P->repeats, P->editions, P->minimum, P->kmer,
-           P->inversion);
+  RCLASS   *Mod = CreateRClass(P->repeats, P->minimum, P->kmer, P->inversion);
 
   Head->Pos[0].init = 0;
   Mod->nBases = 0;
@@ -471,7 +469,6 @@ int32_t main(int argc, char *argv[]){
   P->kmer       = ArgsNum   (DEF_KMER,    p, argc, "-k", MIN_KMER, MAX_KMER);
   P->minimum    = ArgsNum   (DEF_MINI,    p, argc, "-m", MIN_MINI, MAX_MINI);
   P->repeats    = ArgsNum   (DEF_REPE,    p, argc, "-r", MIN_REPE, MAX_REPE);
-  P->editions   = ArgsNum   (DEF_EDIT,    p, argc, "-e", MIN_EDIT, MAX_EDIT);
   P->threshold  = ArgsNum   (DEF_TSHO,    p, argc, "-t", MIN_TSHO, MAX_TSHO);
   P->link       = ArgsNum   (DEF_LINK,    p, argc, "-l", MIN_LINK, MAX_LINK);
   P->nThreads   = ArgsNum   (DEF_THRE,    p, argc, "-n", MIN_THRE, MAX_THRE);

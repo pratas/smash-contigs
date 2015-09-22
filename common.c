@@ -454,7 +454,7 @@ void PrintArgs(Parameters *P){
   fprintf(stderr, "Minimum block size ................. %u\n", P->minimum);
   fprintf(stderr, "Repeats number ..................... %u\n", P->repeats);
   fprintf(stderr, "Window size ........................ %u\n", P->window);
-  fprintf(stderr, "Allowed editions ................... %u\n", P->editions);
+  fprintf(stderr, "Similarity threshold ............... %u\n", P->threshold);
   fprintf(stderr, "Number of threads .................. %u\n", P->nThreads);
   fprintf(stderr, "Output positions filename .......... %s\n", P->positions);
   fprintf(stderr, "Contigs:\n");

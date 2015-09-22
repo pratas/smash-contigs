@@ -24,8 +24,7 @@ uint64_t CalcMult(uint32_t c){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // CREATES THE RCLASS BASIC STRUCTURE 
 //
-RCLASS *CreateRClass(uint32_t max, uint32_t editions, uint32_t min, uint32_t k, 
-uint8_t ir){
+RCLASS *CreateRClass(uint32_t max, uint32_t min, uint32_t k, uint8_t ir){
   uint32_t n;
 
   RCLASS *C   = (RCLASS *)  Calloc(1,   sizeof(RCLASS));
@@ -40,14 +39,10 @@ uint8_t ir){
   C->n        = 0;
   C->nBases   = 0;
   C->mult     = CalcMult(k);
-  C->maxFails = editions;
   C->minSize  = min;
   for(n = 0 ; n < max ; ++n){
     C->RM[n].pos     = 0;
     C->RM[n].init    = 0;
-    C->RM[n].nFails  = 0;
-    C->RM[n].winSize = k;
-    C->RM[n].win     = (uint8_t *) Calloc(k + 1, sizeof(uint8_t));
     }
 
   return C;
@@ -57,11 +52,6 @@ uint8_t ir){
 // REMOVE PERMANENTLY RCLASS 
 //
 void RemoveRClass(RCLASS *C){
-  uint32_t n;
-
-  for(n = 0 ; n < C->mRM ; ++n){
-    Free(C->RM[n].win);
-    }
   Free(C->RM);
   Free(C->active);
   Free(C);
@@ -119,12 +109,10 @@ void StartRMs(RCLASS *C, HASH *H, uint64_t iPos, uint64_t idx, uint8_t ir){
       C->RM[k].init = C->RM[k].pos = E->pos[n]-C->kmer-1;
 
     // RESET TO DEFAULTS
-    C->RM[k].nFails  = 0;
     C->RM[k].stop    = 0;
     C->RM[k].write   = 0;
     C->RM[k].rev     = ir;
     C->RM[k].initRel = iPos;
-    memset(C->RM[k].win, 0, C->RM[k].winSize); 
 
     C->active[k] = 1;  // SET IT ACTIVE
     C->nRM++;          // INCREASE NUMBER OF REPEATS
@@ -134,21 +122,10 @@ void StartRMs(RCLASS *C, HASH *H, uint64_t iPos, uint64_t idx, uint8_t ir){
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// HIT REPEAT
-//
-static void Hit(RMODEL *R){
-  if(R->nFails > 1)
-    R->nFails--;
-  ShiftBuffer(R->win, R->winSize, 0);
-  }
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // FAIL REPEAT
 //
 static void Fail(RMODEL *R){
-  if(R->nFails < R->winSize)
-    R->nFails++;
-  ShiftBuffer(R->win, R->winSize, 1);
+  R->stop = 1;
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -184,31 +161,35 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
     if(C->active[n] == 1){
 
       C->RM[n].size = labs(ePos-C->RM[n].initRel) + C->kmer;
-      if(C->RM[n].win[0] == 1) C->RM[n].nFails--;
       
       if(C->RM[n].rev == 0){ // REGULAR REPEAT
-        // HITS & FAILS
-        if(b[C->RM[n].pos] != sym) Fail(&C->RM[n]);
-        else                       Hit (&C->RM[n]);
+        if(b[C->RM[n].pos] != sym) 
+          Fail(&C->RM[n]);
         // STOP IF POS <= KMER
-        if(C->RM[n].pos < C->nBases-1) C->RM[n].pos++;
-        else                           C->RM[n].stop = 1;
+        if(C->RM[n].pos < C->nBases-1) 
+          C->RM[n].pos++;
+        else
+          C->RM[n].stop = 1;
         }
       else{ // INVERTED REPEAT
         // PROTECT EXTRA SYMBOLS
         if(b[C->RM[n].pos] == 4){
           Fail(&C->RM[n]); // SEE AFTER: DISCARDING POLITICS
-          if(C->RM[n].pos > C->kmer) C->RM[n].pos--;
-          else                       C->RM[n].stop = 1;
+          if(C->RM[n].pos > C->kmer) 
+            C->RM[n].pos--;
+          else
+            C->RM[n].stop = 1;
           continue;
           }
 
         // HITS & FAILS
-        if(GetCompNum(b[C->RM[n].pos]) != sym) Fail(&C->RM[n]);
-        else                                   Hit (&C->RM[n]);
+        if(GetCompNum(b[C->RM[n].pos]) != sym) 
+          Fail(&C->RM[n]);
         // STOP IF POS <= KMER
-        if(C->RM[n].pos > 0) C->RM[n].pos--;
-        else                 C->RM[n].stop = 1;
+        if(C->RM[n].pos > 0) 
+          C->RM[n].pos--;
+        else
+          C->RM[n].stop = 1;
         }
       }
     }
@@ -227,12 +208,12 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
     ProtectVoidName(Head->Pos[idxPos].name, 1);
 
     fprintf(W, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t%"PRIi64"\t%"PRIi64"\n",
-    cName,                                               // SAMPLE CONTIG NAME
-    C->RM[n].initRel - C->kmer + 2,                      // SAMPLE CONTIG INIT
-    ePos + 1,                                            // SAMPLE CONTIG END
-    Head->Pos[idxPos].name,                              // TARGET CONTIG NAME
-    C->RM[n].init - C->kmer - Head->Pos[idxPos].init,    // TARGET CONTIG INIT
-    C->RM[n].pos  - Head->Pos[idxPos].init);             // TARGET CONTIG END
+    cName,                                               // CONTIG NAME
+    C->RM[n].initRel - C->kmer + 2,                      // CONTIG INIT
+    ePos + 1,                                            // CONTIG END
+    Head->Pos[idxPos].name,                              // REF NAME
+    C->RM[n].init - C->kmer - Head->Pos[idxPos].init,    // REF INIT
+    C->RM[n].pos  - Head->Pos[idxPos].init);             // REF END
     }
   else{ // REVERSE REPEAT
     idxPos = GetIPoint(Head, C->RM[n].pos);
@@ -240,12 +221,12 @@ void PrintBlock(RCLASS *C, HEADERS *Head, uint64_t ePos, uint32_t n, uint8_t
     ProtectVoidName(Head->Pos[idxPos].name, 1);
 
     fprintf(W, "%s\t%"PRIi64"\t%"PRIi64"\t%s\t%"PRIi64"\t%"PRIi64"\n",
-    cName,                                               // SAMPLE CONTIG NAME
-    C->RM[n].initRel - C->kmer + 1,                      // SAMPLE CONTIG INIT
-    ePos,                                                // SAMPLE CONTIG END
-    Head->Pos[idxPos].name,                              // TARGET CONTIG NAME
-    C->RM[n].init + C->kmer - Head->Pos[idxPos].init,    // TARGET CONTIG INIT
-    C->RM[n].pos - Head->Pos[idxPos].init);              // TARGET CONTIG END
+    cName,                                               // CONTIG NAME
+    C->RM[n].initRel - C->kmer + 1,                      // CONTIG INIT
+    ePos,                                                // CONTIG END
+    Head->Pos[idxPos].name,                              // REF NAME
+    C->RM[n].init + C->kmer - Head->Pos[idxPos].init,    // REF INIT
+    C->RM[n].pos - Head->Pos[idxPos].init);              // REF END
     }
   }
 
@@ -269,7 +250,8 @@ void StopRMs(RCLASS *C, HEADERS *Head, uint64_t position, uint8_t *buf, FILE
   if(C->nRM > 0){
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->active[id] == 1){
-        if(C->RM[id].nFails > C->maxFails || C->RM[id].stop == 1){
+        //if(C->RM[id].nFails > C->maxFails || C->RM[id].stop == 1){
+        if(C->RM[id].stop == 1){
           if(C->RM[id].size >= C->minSize){
             if(C->RM[id].rev == 0 && size < C->RM[id].size){
               size = C->RM[id].size;
