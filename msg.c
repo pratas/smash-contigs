@@ -16,7 +16,6 @@ void PrintMenu(void){
   "  -k <k-mer>                 k-mer size [1;20],                          \n"
   "  -m <minimum>               minimum similar block size,                 \n"
   "  -r <repeats>               maximum repeats number,                     \n"
-  "  -e <editions>              number of allowed editions,                 \n"
   "  -t <threshold>             maximum gaps allowed between copies,        \n"
   "  -l <link>                  link type between maps [0;4],               \n"
   "  -i                         do NOT map inversions,                      \n"
