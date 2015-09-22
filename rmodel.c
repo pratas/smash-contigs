@@ -36,7 +36,6 @@ RCLASS *CreateRClass(uint32_t max, uint32_t min, uint32_t k, uint8_t ir){
   C->idx      = 0;
   C->idxRev   = 0;
   C->kmer     = k;
-  C->n        = 0;
   C->nBases   = 0;
   C->mult     = CalcMult(k);
   C->minSize  = min;
@@ -161,35 +160,30 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
     if(C->active[n] == 1){
 
       C->RM[n].size = labs(ePos-C->RM[n].initRel) + C->kmer;
+
+      // PROTECT EXTRA SYMBOLS
+      if(b[C->RM[n].pos] == 4){
+        Fail(&C->RM[n]); // SEE AFTER: DISCARDING POLITICS
+        continue;
+        }
       
       if(C->RM[n].rev == 0){ // REGULAR REPEAT
-        if(b[C->RM[n].pos] != sym) 
+        if(b[C->RM[n].pos] != sym){
           Fail(&C->RM[n]);
-        // STOP IF POS <= KMER
-        if(C->RM[n].pos < C->nBases-1) 
-          C->RM[n].pos++;
-        else
-          C->RM[n].stop = 1;
-        }
-      else{ // INVERTED REPEAT
-        // PROTECT EXTRA SYMBOLS
-        if(b[C->RM[n].pos] == 4){
-          Fail(&C->RM[n]); // SEE AFTER: DISCARDING POLITICS
-          if(C->RM[n].pos > C->kmer) 
-            C->RM[n].pos--;
-          else
-            C->RM[n].stop = 1;
           continue;
           }
-
-        // HITS & FAILS
-        if(GetCompNum(b[C->RM[n].pos]) != sym) 
-          Fail(&C->RM[n]);
         // STOP IF POS <= KMER
-        if(C->RM[n].pos > 0) 
-          C->RM[n].pos--;
-        else
-          C->RM[n].stop = 1;
+        if(C->RM[n].pos < C->nBases-1) C->RM[n].pos++;
+        else                           C->RM[n].stop = 1;
+        }
+      else{ // INVERTED REPEAT
+        if(GetCompNum(b[C->RM[n].pos]) != sym){
+          Fail(&C->RM[n]);
+          continue;
+          }
+        // STOP IF POS <= KMER
+        if(C->RM[n].pos > 0) C->RM[n].pos--;
+        else                 C->RM[n].stop = 1;
         }
       }
     }
@@ -250,7 +244,6 @@ void StopRMs(RCLASS *C, HEADERS *Head, uint64_t position, uint8_t *buf, FILE
   if(C->nRM > 0){
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->active[id] == 1){
-        //if(C->RM[id].nFails > C->maxFails || C->RM[id].stop == 1){
         if(C->RM[id].stop == 1){
           if(C->RM[id].size >= C->minSize){
             if(C->RM[id].rev == 0 && size < C->RM[id].size){

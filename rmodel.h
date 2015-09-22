@@ -32,7 +32,6 @@ typedef struct{
   uint64_t idx;      // CURRENT CONTEXT INDEX
   uint64_t idxRev;   // CURRENT INVERTED REPEAT INDEX
   uint8_t  rev;      // INVERTED REPETAT MODEL. IF REV='Y' THEN IS TRUE
-  uint64_t n;        // NUMBER OF PROCESSED N's
   uint64_t nBases;   // NUMBER OF ACGTN's
   }
 RCLASS;
