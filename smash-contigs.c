@@ -315,7 +315,7 @@ void ThreadConcatenation(void){
 void PrintPlot(void){
   FILE *PLOT = NULL, *POS = NULL;
   char backColor[] = "#ffffff";
-  uint32_t colorIdx = 0, mult = 10;
+  uint32_t colorIdx = 0, mult = 17;
   Painter *Paint;
 
   fprintf(stderr, "  [+] Printing plot ...\n");
