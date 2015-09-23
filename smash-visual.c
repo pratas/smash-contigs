@@ -38,8 +38,13 @@ uint32_t start, uint64_t minimum){
   if(fscanf(POS, "%s\t%"PRIi64"\t%"PRIi64"\n", watermark, &conNBases,
   &refNBases) != 3 || watermark[0] != '#' || watermark[1] != 'S' ||
   watermark[2] != 'C' || watermark[3] != 'F'){
-    fprintf(stderr, "  [x] Error: unknown positions format!\n");
+    fprintf(stderr, "  [x] Error: unknown positions file format!\n");
     exit(1);
+    }
+
+  if(P->verbose){
+    fprintf(stderr, "      Reference number of bases: %"PRIu64"\n", refNBases);
+    fprintf(stderr, "      Target number of bases: %"PRIu64"\n", conNBases);
     }
 
   SetRatio(MAX(refNBases, conNBases) / DEFAULT_SCALE);
@@ -165,7 +170,8 @@ uint32_t start, uint64_t minimum){
 
   fprintf(stderr, "      Found %"PRIu64" regular regions. \n", regular);
   fprintf(stderr, "      Found %"PRIu64" inverted regions.\n", inverse);
-  fprintf(stderr, "      Ignored %"PRIu64" regions.\n", ignored);
+  if(P->verbose)
+    fprintf(stderr, "      Ignored %"PRIu64" regions.\n", ignored);
 
   Chromosome(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy);
   Chromosome(PLOT, Paint->width, Paint->tarSize, Paint->cx + Paint->space +
