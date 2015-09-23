@@ -44,6 +44,7 @@ void PrintMenuVisual(void){
   "  -s <space>                 space between chromosomes,                  \n"
   "  -m <mult>                  color id multiplication factor,             \n"
   "  -b <begin>                 color id beggining,                         \n"
+  "  -c <minimum>               minimum block size to consider,             \n"
   "  -x <FILE>                  output image filename with map,             \n"
   "                                                                         \n"
   "Mandatory arguments:                                                     \n"

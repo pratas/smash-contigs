@@ -22,6 +22,9 @@
 #define DEF_BEGI               0
 #define MIN_BEGI               0
 #define MAX_BEGI               255
+#define DEF_MINP               0
+#define MIN_MINP               1
+#define MAX_MINP               99999999
 
 uint32_t ratio;
 

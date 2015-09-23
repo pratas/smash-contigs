@@ -23,7 +23,7 @@
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - - - - - P L O T - - - - - - - - - - - - - - - -
 void PrintPlot(char *posFile, uint32_t width, uint32_t space, uint32_t mult,
-uint32_t start){
+uint32_t start, uint64_t minimum){
   FILE *PLOT = NULL, *POS = NULL;
   char backColor[] = "#ffffff";
   int64_t conNBases = 0, refNBases = 0;
@@ -57,13 +57,22 @@ uint32_t start){
   Text(PLOT, Paint->cx,                           Paint->cy-15, "REF");
   Text(PLOT, Paint->cx+Paint->width+Paint->space, Paint->cy-15, "CON");
 
+  // IF MINIMUM IS SET DEFAULT, RESET TO BASE MAX PROPORTION
+  if(minimum == 0)
+    minimum = MAX(refNBases, conNBases) / 100;
+
   int64_t ri, rf, ci, cf, cx, cy;
-  uint64_t regular = 0, inverse = 0;  
+  uint64_t regular = 0, inverse = 0, ignored = 0;  
   while(1){
     char tmp1[MAX_STR] = {'\0'}, tmp2[MAX_STR] = {'\0'};
     if(fscanf(POS, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
     "%"PRIi64"\t%"PRIi64"\n", tmp1, &ci, &cf, &cx, &cy, tmp2, &ri, &rf) != 8)
       break;
+
+    if(labs(rf-ri) < minimum || labs(cx-cy) < minimum){
+      ++ignored;
+      continue;
+      }
 
     if(rf > ri){
       switch(P->link){
@@ -172,7 +181,7 @@ uint32_t start){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 int32_t main(int argc, char *argv[]){
   char **p = *&argv;
-  uint32_t width, space, mult, start;
+  uint32_t width, space, mult, start, minimum;
 
   P = (Parameters *) Malloc(1 * sizeof(Parameters));
   if((P->help = ArgsState(DEF_HELP, p, argc, "-h")) == 1 || argc < 2){
@@ -192,11 +201,12 @@ int32_t main(int argc, char *argv[]){
   space         = ArgsNum   (DEF_SPAC,    p, argc, "-s", MIN_SPAC, MAX_SPAC);
   mult          = ArgsNum   (DEF_MULT,    p, argc, "-m", MIN_MULT, MAX_MULT);
   start         = ArgsNum   (DEF_BEGI,    p, argc, "-b", MIN_BEGI, MAX_BEGI);
+  minimum       = ArgsNum   (DEF_MINP,    p, argc, "-c", MIN_MINP, MAX_MINP);
   P->image      = ArgsFilesImg           (p, argc, "-x");
 
   fprintf(stderr, "\n");
   fprintf(stderr, "==[ PROCESSING ]====================\n");
-  PrintPlot(argv[argc-1], width, space, mult, start);
+  PrintPlot(argv[argc-1], width, space, mult, start, minimum);
   fprintf(stderr, "\n");
 
   return EXIT_SUCCESS;
