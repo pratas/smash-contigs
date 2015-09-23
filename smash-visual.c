@@ -38,7 +38,7 @@ void PrintPlot(char *posFile){
   if(fscanf(POS, "%s\t%"PRIi64"\t%"PRIi64"\n", watermark, &conNBases,
   &refNBases) != 3 || watermark[0] != '#' || watermark[1] != 'S' ||
   watermark[2] != 'C' || watermark[3] != 'F'){
-    fprintf(stderr, "   [x] Error: unknown positions format!\n");
+    fprintf(stderr, "  [x] Error: unknown positions format!\n");
     exit(1);
     }
 
@@ -154,7 +154,7 @@ void PrintPlot(char *posFile){
     }
   rewind(POS);
 
-  fprintf(stderr, "      Found %"PRIu64" regular and %"PRIu64" inverted "
+  fprintf(stderr, "  Found %"PRIu64" regular and %"PRIu64" inverted "
   "regions\n", regular, inverse);
 
   Chromosome(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy);
@@ -163,7 +163,7 @@ void PrintPlot(char *posFile){
   PrintFinal(PLOT);
   fclose(POS);
 
-  fprintf(stderr, "      Done!\n");
+  fprintf(stderr, "  Done!\n");
   }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -190,18 +190,9 @@ int32_t main(int argc, char *argv[]){
   P->image      = ArgsFilesImg           (p, argc, "-x");
 
   fprintf(stderr, "\n");
-
-  fprintf(stderr, "==[ PROCESSING ]====================\n");
-  TIME *Time = CreateClock(clock());
   PrintPlot(argv[argc-1]);
-  StopTimeNDRM(Time, clock());
   fprintf(stderr, "\n");
 
-  fprintf(stderr, "==[ STATISTICS ]====================\n");
-  StopCalcAll(Time, clock());
-  fprintf(stderr, "\n");
-
-  RemoveClock(Time);
   return EXIT_SUCCESS;
   }
 
