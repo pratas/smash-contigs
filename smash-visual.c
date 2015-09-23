@@ -22,10 +22,10 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - - - - - P L O T - - - - - - - - - - - - - - - -
-void PrintPlot(char *posFile, uint32_t width, uint32_t space){
+void PrintPlot(char *posFile, uint32_t width, uint32_t space, uint32_t mult){
   FILE *PLOT = NULL, *POS = NULL;
   char backColor[] = "#ffffff";
-  uint32_t colorIdx = 0, mult = 7;
+  uint32_t colorIdx = 0;
   int64_t conNBases = 0, refNBases = 0;
   char watermark[MAX_FILENAME];
   Painter *Paint;
@@ -172,7 +172,7 @@ void PrintPlot(char *posFile, uint32_t width, uint32_t space){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 int32_t main(int argc, char *argv[]){
   char **p = *&argv;
-  uint32_t width, space;
+  uint32_t width, space, mult;
 
   P = (Parameters *) Malloc(1 * sizeof(Parameters));
   if((P->help = ArgsState(DEF_HELP, p, argc, "-h")) == 1 || argc < 2){
@@ -190,11 +190,12 @@ int32_t main(int argc, char *argv[]){
   P->link       = ArgsNum   (DEF_LINK,    p, argc, "-l", MIN_LINK, MAX_LINK);
   width         = ArgsNum   (DEF_WIDT,    p, argc, "-w", MIN_WIDT, MAX_WIDT);
   space         = ArgsNum   (DEF_SPAC,    p, argc, "-s", MIN_SPAC, MAX_SPAC);
+  mult          = ArgsNum   (DEF_MULT,    p, argc, "-m", MIN_MULT, MAX_MULT);
   P->image      = ArgsFilesImg           (p, argc, "-x");
 
   fprintf(stderr, "\n");
   fprintf(stderr, "==[ PROCESSING ]====================\n");
-  PrintPlot(argv[argc-1], width, space);
+  PrintPlot(argv[argc-1], width, space, mult);
   fprintf(stderr, "\n");
 
   return EXIT_SUCCESS;
