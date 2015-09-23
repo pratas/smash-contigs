@@ -25,7 +25,7 @@
 void PrintPlot(char *posFile, uint32_t width, uint32_t space){
   FILE *PLOT = NULL, *POS = NULL;
   char backColor[] = "#ffffff";
-  uint32_t colorIdx = 0, mult = 10;
+  uint32_t colorIdx = 0, mult = 7;
   int64_t conNBases = 0, refNBases = 0;
   char watermark[MAX_FILENAME];
   Painter *Paint;
@@ -54,8 +54,8 @@ void PrintPlot(char *posFile, uint32_t width, uint32_t space){
   backColor);
   RectOval(PLOT, Paint->width, Paint->tarSize, Paint->cx, Paint->cy,
   backColor);
-  Text(PLOT, Paint->cx-2,                            Paint->cy-15, "REF");
-  Text(PLOT, Paint->cx+Paint->width+Paint->space-5, Paint->cy-15, "CON");
+  Text(PLOT, Paint->cx,                           Paint->cy-15, "REF");
+  Text(PLOT, Paint->cx+Paint->width+Paint->space, Paint->cy-15, "CON");
 
   int64_t ri, rf, ci, cf, cx, cy;
   uint64_t regular = 0, inverse = 0;  
@@ -71,17 +71,17 @@ void PrintPlot(char *posFile, uint32_t width, uint32_t space){
           Line(PLOT, 2, Paint->cx + Paint->width, 
           Paint->cy + GetPoint(ri+((rf-ri)/2.0)), 
           Paint->cx + Paint->space + Paint->width, 
-          Paint->cy + GetPoint(ci+((cf-ci)/2.0)), "black");
+          Paint->cy + GetPoint(cx+((cy-cx)/2.0)), "black");
         break;
         case 2:
           Line(PLOT, 2, Paint->cx + Paint->width,
           Paint->cy + GetPoint(ri),
           Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(ci), "black");
+          Paint->cy + GetPoint(cx), "black");
           Line(PLOT, 2, Paint->cx + Paint->width,
           Paint->cy + GetPoint(rf),
           Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cf), "black");
+          Paint->cy + GetPoint(cy), "black");
         break;
         case 3:
           Polygon(PLOT, 
@@ -90,9 +90,9 @@ void PrintPlot(char *posFile, uint32_t width, uint32_t space){
           Paint->cx + Paint->width,
           Paint->cy + GetPoint(rf),
           Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cf),
+          Paint->cy + GetPoint(cy),
           Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(ci),
+          Paint->cy + GetPoint(cx),
           GetRgbColor(colorIdx * mult), "grey");    
         break;
         default:
@@ -102,8 +102,8 @@ void PrintPlot(char *posFile, uint32_t width, uint32_t space){
       Rect(PLOT, Paint->width, GetPoint(rf-ri), Paint->cx, Paint->cy +
       GetPoint(ri), GetRgbColor(colorIdx * mult));
 
-      Rect(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx + Paint->space + 
-      Paint->width, Paint->cy + GetPoint(ci), GetRgbColor(colorIdx * mult));
+      Rect(PLOT, Paint->width, GetPoint(cy-cx), Paint->cx + Paint->space + 
+      Paint->width, Paint->cy + GetPoint(cx), GetRgbColor(colorIdx * mult));
 
       ++regular; 
       }
@@ -113,17 +113,17 @@ void PrintPlot(char *posFile, uint32_t width, uint32_t space){
           Line(PLOT, 2, Paint->cx + Paint->width,
           Paint->cy + GetPoint(rf+((ri-rf)/2.0)),
           Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cf+((ci-cf)/2.0)), "green");
+          Paint->cy + GetPoint(cy+((cx-cy)/2.0)), "green");
         break;
         case 2:
           Line(PLOT, 2, Paint->cx + Paint->width,
           Paint->cy + GetPoint(rf),
           Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cf), "green");
+          Paint->cy + GetPoint(cy), "green");
           Line(PLOT, 2, Paint->cx + Paint->width,
           Paint->cy + GetPoint(ri),
           Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(ci), "green");
+          Paint->cy + GetPoint(cx), "green");
         break;
         case 3:
           Polygon(PLOT, 
@@ -132,9 +132,9 @@ void PrintPlot(char *posFile, uint32_t width, uint32_t space){
           Paint->cx + Paint->width,
           Paint->cy + GetPoint(ri),
           Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(ci),
+          Paint->cy + GetPoint(cx),
           Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cf),
+          Paint->cy + GetPoint(cy),
           GetRgbColor(colorIdx * mult), "grey");
         break;
         default:
@@ -144,8 +144,8 @@ void PrintPlot(char *posFile, uint32_t width, uint32_t space){
       Rect(PLOT, Paint->width, GetPoint(ri-rf), Paint->cx, Paint->cy +
       GetPoint(rf), GetRgbColor(colorIdx * mult));
 
-      RectIR(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx + Paint->space + 
-      Paint->width, Paint->cy + GetPoint(ci), GetRgbColor(colorIdx * mult));
+      RectIR(PLOT, Paint->width, GetPoint(cy-cx), Paint->cx + Paint->space + 
+      Paint->width, Paint->cy + GetPoint(cx), GetRgbColor(colorIdx * mult));
 
       ++inverse;
       }
@@ -154,8 +154,8 @@ void PrintPlot(char *posFile, uint32_t width, uint32_t space){
     }
   rewind(POS);
 
-  fprintf(stderr, "  Found %"PRIu64" regular and %"PRIu64" inverted "
-  "regions\n", regular, inverse);
+  fprintf(stderr, "  Found %"PRIu64" regular and %"PRIu64" inverted regions\n", 
+  regular, inverse);
 
   Chromosome(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy);
   Chromosome(PLOT, Paint->width, Paint->tarSize, Paint->cx + Paint->space +

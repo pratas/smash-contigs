@@ -10,10 +10,10 @@
 #define LEVEL_SATURATION       160
 #define LEVEL_VALUE            160
 #define EXTRA                  150 
-#define DEF_WIDT               30
+#define DEF_WIDT               40
 #define MIN_WIDT               10
 #define MAX_WIDT               5000
-#define DEF_SPAC               120.0
+#define DEF_SPAC               160.0
 #define MIN_SPAC               0
 #define MAX_SPAC               5000
 
