@@ -16,7 +16,7 @@
 #define DEF_SPAC               160.0
 #define MIN_SPAC               0
 #define MAX_SPAC               5000
-#define DEF_MULT               47  // 5 colors without overlapping 
+#define DEF_MULT               46  // 5 colors without overlapping 
 #define MIN_MULT               1
 #define MAX_MULT               255
 
