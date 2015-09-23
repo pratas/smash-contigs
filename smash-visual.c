@@ -22,7 +22,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - - - - - P L O T - - - - - - - - - - - - - - - -
-void PrintPlot(char *posFile){
+void PrintPlot(char *posFile, uint32_t width, uint32_t space){
   FILE *PLOT = NULL, *POS = NULL;
   char backColor[] = "#ffffff";
   uint32_t colorIdx = 0, mult = 10;
@@ -43,19 +43,19 @@ void PrintPlot(char *posFile){
     }
 
   SetRatio(MAX(refNBases, conNBases) / DEFAULT_SCALE);
-  Paint = CreatePainter(GetPoint(refNBases), GetPoint(conNBases), backColor);
+  Paint = CreatePainter(GetPoint(refNBases), GetPoint(conNBases), (double) 
+  width, (double) space, backColor);
 
-  PrintHead(PLOT, (2 * DEFAULT_CX) + (((Paint->width + DEFAULT_SPACE) * 2) -
-  DEFAULT_SPACE), Paint->maxSize + EXTRA);
-  Paint->width = 30.0;
-  Rect(PLOT, (2 * DEFAULT_CX) + (((Paint->width + DEFAULT_SPACE) * 2) -
-  DEFAULT_SPACE), Paint->maxSize + EXTRA, 0, 0, backColor);
+  PrintHead(PLOT, (2 * DEFAULT_CX) + (((Paint->width + Paint->space) * 2) -
+  Paint->space), Paint->maxSize + EXTRA);
+  Rect(PLOT, (2 * DEFAULT_CX) + (((Paint->width + Paint->space) * 2) -
+  Paint->space), Paint->maxSize + EXTRA, 0, 0, backColor);
   RectOval(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy,
   backColor);
   RectOval(PLOT, Paint->width, Paint->tarSize, Paint->cx, Paint->cy,
   backColor);
   Text(PLOT, Paint->cx-2,                            Paint->cy-15, "REF");
-  Text(PLOT, Paint->cx+Paint->width+DEFAULT_SPACE-5, Paint->cy-15, "CON");
+  Text(PLOT, Paint->cx+Paint->width+Paint->space-5, Paint->cy-15, "CON");
 
   int64_t ri, rf, ci, cf, cx, cy;
   uint64_t regular = 0, inverse = 0;  
@@ -70,17 +70,17 @@ void PrintPlot(char *posFile){
         case 1: 
           Line(PLOT, 2, Paint->cx + Paint->width, 
           Paint->cy + GetPoint(ri+((rf-ri)/2.0)), 
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH, 
+          Paint->cx + Paint->space + Paint->width, 
           Paint->cy + GetPoint(ci+((cf-ci)/2.0)), "black");
         break;
         case 2:
           Line(PLOT, 2, Paint->cx + Paint->width,
           Paint->cy + GetPoint(ri),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cx + Paint->space + Paint->width,
           Paint->cy + GetPoint(ci), "black");
           Line(PLOT, 2, Paint->cx + Paint->width,
           Paint->cy + GetPoint(rf),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cx + Paint->space + Paint->width,
           Paint->cy + GetPoint(cf), "black");
         break;
         case 3:
@@ -89,9 +89,9 @@ void PrintPlot(char *posFile){
           Paint->cy + GetPoint(ri),
           Paint->cx + Paint->width,
           Paint->cy + GetPoint(rf),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cx + Paint->space + Paint->width,
           Paint->cy + GetPoint(cf),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cx + Paint->space + Paint->width,
           Paint->cy + GetPoint(ci),
           GetRgbColor(colorIdx * mult), "grey");    
         break;
@@ -102,8 +102,8 @@ void PrintPlot(char *posFile){
       Rect(PLOT, Paint->width, GetPoint(rf-ri), Paint->cx, Paint->cy +
       GetPoint(ri), GetRgbColor(colorIdx * mult));
 
-      Rect(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx + DEFAULT_SPACE + 
-      DEFAULT_WIDTH, Paint->cy + GetPoint(ci), GetRgbColor(colorIdx * mult));
+      Rect(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx + Paint->space + 
+      Paint->width, Paint->cy + GetPoint(ci), GetRgbColor(colorIdx * mult));
 
       ++regular; 
       }
@@ -112,17 +112,17 @@ void PrintPlot(char *posFile){
         case 1:
           Line(PLOT, 2, Paint->cx + Paint->width,
           Paint->cy + GetPoint(rf+((ri-rf)/2.0)),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cx + Paint->space + Paint->width,
           Paint->cy + GetPoint(cf+((ci-cf)/2.0)), "green");
         break;
         case 2:
           Line(PLOT, 2, Paint->cx + Paint->width,
           Paint->cy + GetPoint(rf),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cx + Paint->space + Paint->width,
           Paint->cy + GetPoint(cf), "green");
           Line(PLOT, 2, Paint->cx + Paint->width,
           Paint->cy + GetPoint(ri),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cx + Paint->space + Paint->width,
           Paint->cy + GetPoint(ci), "green");
         break;
         case 3:
@@ -131,9 +131,9 @@ void PrintPlot(char *posFile){
           Paint->cy + GetPoint(rf),
           Paint->cx + Paint->width,
           Paint->cy + GetPoint(ri),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cx + Paint->space + Paint->width,
           Paint->cy + GetPoint(ci),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cx + Paint->space + Paint->width,
           Paint->cy + GetPoint(cf),
           GetRgbColor(colorIdx * mult), "grey");
         break;
@@ -144,8 +144,8 @@ void PrintPlot(char *posFile){
       Rect(PLOT, Paint->width, GetPoint(ri-rf), Paint->cx, Paint->cy +
       GetPoint(rf), GetRgbColor(colorIdx * mult));
 
-      RectIR(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx + DEFAULT_SPACE + 
-      DEFAULT_WIDTH, Paint->cy + GetPoint(ci), GetRgbColor(colorIdx * mult));
+      RectIR(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx + Paint->space + 
+      Paint->width, Paint->cy + GetPoint(ci), GetRgbColor(colorIdx * mult));
 
       ++inverse;
       }
@@ -158,8 +158,8 @@ void PrintPlot(char *posFile){
   "regions\n", regular, inverse);
 
   Chromosome(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy);
-  Chromosome(PLOT, Paint->width, Paint->tarSize, Paint->cx + DEFAULT_SPACE +
-  DEFAULT_WIDTH, Paint->cy);
+  Chromosome(PLOT, Paint->width, Paint->tarSize, Paint->cx + Paint->space +
+  Paint->width, Paint->cy);
   PrintFinal(PLOT);
   fclose(POS);
 
@@ -172,6 +172,7 @@ void PrintPlot(char *posFile){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 int32_t main(int argc, char *argv[]){
   char **p = *&argv;
+  uint32_t width, space;
 
   P = (Parameters *) Malloc(1 * sizeof(Parameters));
   if((P->help = ArgsState(DEF_HELP, p, argc, "-h")) == 1 || argc < 2){
@@ -187,10 +188,12 @@ int32_t main(int argc, char *argv[]){
   P->verbose    = ArgsState (DEF_VERBOSE, p, argc, "-v" );
   P->force      = ArgsState (DEF_FORCE,   p, argc, "-F" );
   P->link       = ArgsNum   (DEF_LINK,    p, argc, "-l", MIN_LINK, MAX_LINK);
+  width         = ArgsNum   (DEF_WIDT,    p, argc, "-w", MIN_WIDT, MAX_WIDT);
+  space         = ArgsNum   (DEF_SPAC,    p, argc, "-s", MIN_SPAC, MAX_SPAC);
   P->image      = ArgsFilesImg           (p, argc, "-x");
 
   fprintf(stderr, "\n");
-  PrintPlot(argv[argc-1]);
+  PrintPlot(argv[argc-1], width, space);
   fprintf(stderr, "\n");
 
   return EXIT_SUCCESS;

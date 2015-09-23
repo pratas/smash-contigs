@@ -7,11 +7,15 @@
 #define DEFAULT_CY             75.0
 #define DEFAULT_TX             50.0
 #define DEFAULT_TY             82.0
-#define DEFAULT_WIDTH          30.0
 #define LEVEL_SATURATION       160
 #define LEVEL_VALUE            160
-#define DEFAULT_SPACE          120.0
 #define EXTRA                  150 
+#define DEF_WIDT               30
+#define MIN_WIDT               10
+#define MAX_WIDT               5000
+#define DEF_SPAC               120.0
+#define MIN_SPAC               0
+#define MAX_SPAC               5000
 
 uint32_t ratio;
 
@@ -19,6 +23,7 @@ typedef struct
   {
   char    *backColor;
   double  width;
+  double  space;
   double  cx; 
   double  cy;
   double  tx;
@@ -47,7 +52,7 @@ HsvColor;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-Painter   *CreatePainter (double, double, char *);
+Painter   *CreatePainter (double, double, double, double, char *);
 RgbColor  HsvToRgb       (HsvColor);
 HsvColor  RgbToHsv       (RgbColor);
 char      *GetRgbColor   (uint8_t);
