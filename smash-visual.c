@@ -165,6 +165,7 @@ uint32_t start, uint64_t minimum){
 
   fprintf(stderr, "      Found %"PRIu64" regular regions. \n", regular);
   fprintf(stderr, "      Found %"PRIu64" inverted regions.\n", inverse);
+  fprintf(stderr, "      Ignored %"PRIu64" regions.\n", ignored);
 
   Chromosome(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy);
   Chromosome(PLOT, Paint->width, Paint->tarSize, Paint->cx + Paint->space +
