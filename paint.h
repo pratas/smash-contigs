@@ -19,6 +19,9 @@
 #define DEF_MULT               46  // 5 colors without overlapping 
 #define MIN_MULT               1
 #define MAX_MULT               255
+#define DEF_BEGI               0
+#define MIN_BEGI               0
+#define MAX_BEGI               255
 
 uint32_t ratio;
 

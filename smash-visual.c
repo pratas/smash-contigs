@@ -22,10 +22,10 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - - - - - P L O T - - - - - - - - - - - - - - - -
-void PrintPlot(char *posFile, uint32_t width, uint32_t space, uint32_t mult){
+void PrintPlot(char *posFile, uint32_t width, uint32_t space, uint32_t mult,
+uint32_t start){
   FILE *PLOT = NULL, *POS = NULL;
   char backColor[] = "#ffffff";
-  uint32_t colorIdx = 0;
   int64_t conNBases = 0, refNBases = 0;
   char watermark[MAX_FILENAME];
   Painter *Paint;
@@ -93,17 +93,17 @@ void PrintPlot(char *posFile, uint32_t width, uint32_t space, uint32_t mult){
           Paint->cy + GetPoint(cy),
           Paint->cx + Paint->space + Paint->width,
           Paint->cy + GetPoint(cx),
-          GetRgbColor(colorIdx * mult), "grey");    
+          GetRgbColor(start * mult), "grey");    
         break;
         default:
         break;
         }        
       
       Rect(PLOT, Paint->width, GetPoint(rf-ri), Paint->cx, Paint->cy +
-      GetPoint(ri), GetRgbColor(colorIdx * mult));
+      GetPoint(ri), GetRgbColor(start * mult));
 
       Rect(PLOT, Paint->width, GetPoint(cy-cx), Paint->cx + Paint->space + 
-      Paint->width, Paint->cy + GetPoint(cx), GetRgbColor(colorIdx * mult));
+      Paint->width, Paint->cy + GetPoint(cx), GetRgbColor(start * mult));
 
       ++regular; 
       }
@@ -135,22 +135,22 @@ void PrintPlot(char *posFile, uint32_t width, uint32_t space, uint32_t mult){
           Paint->cy + GetPoint(cx),
           Paint->cx + Paint->space + Paint->width,
           Paint->cy + GetPoint(cy),
-          GetRgbColor(colorIdx * mult), "grey");
+          GetRgbColor(start * mult), "grey");
         break;
         default:
         break;
         }
 
       Rect(PLOT, Paint->width, GetPoint(ri-rf), Paint->cx, Paint->cy +
-      GetPoint(rf), GetRgbColor(colorIdx * mult));
+      GetPoint(rf), GetRgbColor(start * mult));
 
       RectIR(PLOT, Paint->width, GetPoint(cy-cx), Paint->cx + Paint->space + 
-      Paint->width, Paint->cy + GetPoint(cx), GetRgbColor(colorIdx * mult));
+      Paint->width, Paint->cy + GetPoint(cx), GetRgbColor(start * mult));
 
       ++inverse;
       }
 
-    ++colorIdx;
+    ++start;
     }
   rewind(POS);
 
@@ -172,7 +172,7 @@ void PrintPlot(char *posFile, uint32_t width, uint32_t space, uint32_t mult){
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 int32_t main(int argc, char *argv[]){
   char **p = *&argv;
-  uint32_t width, space, mult;
+  uint32_t width, space, mult, start;
 
   P = (Parameters *) Malloc(1 * sizeof(Parameters));
   if((P->help = ArgsState(DEF_HELP, p, argc, "-h")) == 1 || argc < 2){
@@ -191,11 +191,12 @@ int32_t main(int argc, char *argv[]){
   width         = ArgsNum   (DEF_WIDT,    p, argc, "-w", MIN_WIDT, MAX_WIDT);
   space         = ArgsNum   (DEF_SPAC,    p, argc, "-s", MIN_SPAC, MAX_SPAC);
   mult          = ArgsNum   (DEF_MULT,    p, argc, "-m", MIN_MULT, MAX_MULT);
+  start         = ArgsNum   (DEF_BEGI,    p, argc, "-b", MIN_BEGI, MAX_BEGI);
   P->image      = ArgsFilesImg           (p, argc, "-x");
 
   fprintf(stderr, "\n");
   fprintf(stderr, "==[ PROCESSING ]====================\n");
-  PrintPlot(argv[argc-1], width, space, mult);
+  PrintPlot(argv[argc-1], width, space, mult, start);
   fprintf(stderr, "\n");
 
   return EXIT_SUCCESS;

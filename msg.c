@@ -43,6 +43,7 @@ void PrintMenuVisual(void){
   "  -w <width>                 chromosome width,                           \n"
   "  -s <space>                 space between chromosomes,                  \n"
   "  -m <mult>                  color id multiplication factor,             \n"
+  "  -b <begin>                 color id beggining,                         \n"
   "  -x <FILE>                  output image filename with map,             \n"
   "                                                                         \n"
   "Mandatory arguments:                                                     \n"
