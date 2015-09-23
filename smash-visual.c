@@ -1,0 +1,208 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <float.h>
+#include <ctype.h>
+#include <time.h>
+#include <pthread.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <sys/uio.h>
+#include <sys/mman.h>
+#include "mem.h"
+#include "time.h"
+#include "defs.h"
+#include "param.h"
+#include "msg.h"
+#include "paint.h"
+#include "common.h"
+
+//////////////////////////////////////////////////////////////////////////////
+// - - - - - - - - - - - - - - - - - - P L O T - - - - - - - - - - - - - - - -
+void PrintPlot(char *posFile){
+  FILE *PLOT = NULL, *POS = NULL;
+  char backColor[] = "#ffffff";
+  uint32_t colorIdx = 0, mult = 10;
+  int64_t conNBases = 0, refNBases = 0;
+  char watermark[MAX_FILENAME];
+  Painter *Paint;
+
+  fprintf(stderr, "  [+] Printing plot ...\n");
+
+  POS  = Fopen(posFile,  "r");
+  PLOT = Fopen(P->image, "w");
+ 
+  if(fscanf(POS, "%s\t%"PRIi64"\t%"PRIi64"\n", watermark, &conNBases,
+  &refNBases) != 3 || watermark[0] != '#' || watermark[1] != 'S' ||
+  watermark[2] != 'C' || watermark[3] != 'F'){
+    fprintf(stderr, "   [x] Error: unknown positions format!\n");
+    exit(1);
+    }
+
+  SetRatio(MAX(refNBases, conNBases) / DEFAULT_SCALE);
+  Paint = CreatePainter(GetPoint(refNBases), GetPoint(conNBases), backColor);
+
+  PrintHead(PLOT, (2 * DEFAULT_CX) + (((Paint->width + DEFAULT_SPACE) * 2) -
+  DEFAULT_SPACE), Paint->maxSize + EXTRA);
+  Paint->width = 30.0;
+  Rect(PLOT, (2 * DEFAULT_CX) + (((Paint->width + DEFAULT_SPACE) * 2) -
+  DEFAULT_SPACE), Paint->maxSize + EXTRA, 0, 0, backColor);
+  RectOval(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy,
+  backColor);
+  RectOval(PLOT, Paint->width, Paint->tarSize, Paint->cx, Paint->cy,
+  backColor);
+  Text(PLOT, Paint->cx-2,                            Paint->cy-15, "REF");
+  Text(PLOT, Paint->cx+Paint->width+DEFAULT_SPACE-5, Paint->cy-15, "CON");
+
+  int64_t ri, rf, ci, cf, cx, cy;
+  uint64_t regular = 0, inverse = 0;  
+  while(1){
+    char tmp1[MAX_STR] = {'\0'}, tmp2[MAX_STR] = {'\0'};
+    if(fscanf(POS, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
+    "%"PRIi64"\t%"PRIi64"\n", tmp1, &ci, &cf, &cx, &cy, tmp2, &ri, &rf) != 8)
+      break;
+
+    if(rf > ri){
+      switch(P->link){
+        case 1: 
+          Line(PLOT, 2, Paint->cx + Paint->width, 
+          Paint->cy + GetPoint(ri+((rf-ri)/2.0)), 
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH, 
+          Paint->cy + GetPoint(ci+((cf-ci)/2.0)), "black");
+        break;
+        case 2:
+          Line(PLOT, 2, Paint->cx + Paint->width,
+          Paint->cy + GetPoint(ri),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(ci), "black");
+          Line(PLOT, 2, Paint->cx + Paint->width,
+          Paint->cy + GetPoint(rf),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(cf), "black");
+        break;
+        case 3:
+          Polygon(PLOT, 
+          Paint->cx + Paint->width,
+          Paint->cy + GetPoint(ri),
+          Paint->cx + Paint->width,
+          Paint->cy + GetPoint(rf),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(cf),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(ci),
+          GetRgbColor(colorIdx * mult), "grey");    
+        break;
+        default:
+        break;
+        }        
+      
+      Rect(PLOT, Paint->width, GetPoint(rf-ri), Paint->cx, Paint->cy +
+      GetPoint(ri), GetRgbColor(colorIdx * mult));
+
+      Rect(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx + DEFAULT_SPACE + 
+      DEFAULT_WIDTH, Paint->cy + GetPoint(ci), GetRgbColor(colorIdx * mult));
+
+      ++regular; 
+      }
+    else{ 
+      switch(P->link){
+        case 1:
+          Line(PLOT, 2, Paint->cx + Paint->width,
+          Paint->cy + GetPoint(rf+((ri-rf)/2.0)),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(cf+((ci-cf)/2.0)), "green");
+        break;
+        case 2:
+          Line(PLOT, 2, Paint->cx + Paint->width,
+          Paint->cy + GetPoint(rf),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(cf), "green");
+          Line(PLOT, 2, Paint->cx + Paint->width,
+          Paint->cy + GetPoint(ri),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(ci), "green");
+        break;
+        case 3:
+          Polygon(PLOT, 
+          Paint->cx + Paint->width,
+          Paint->cy + GetPoint(rf),
+          Paint->cx + Paint->width,
+          Paint->cy + GetPoint(ri),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(ci),
+          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
+          Paint->cy + GetPoint(cf),
+          GetRgbColor(colorIdx * mult), "grey");
+        break;
+        default:
+        break;
+        }
+
+      Rect(PLOT, Paint->width, GetPoint(ri-rf), Paint->cx, Paint->cy +
+      GetPoint(rf), GetRgbColor(colorIdx * mult));
+
+      RectIR(PLOT, Paint->width, GetPoint(cf-ci), Paint->cx + DEFAULT_SPACE + 
+      DEFAULT_WIDTH, Paint->cy + GetPoint(ci), GetRgbColor(colorIdx * mult));
+
+      ++inverse;
+      }
+
+    ++colorIdx;
+    }
+  rewind(POS);
+
+  fprintf(stderr, "      Found %"PRIu64" regular and %"PRIu64" inverted "
+  "regions\n", regular, inverse);
+
+  Chromosome(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy);
+  Chromosome(PLOT, Paint->width, Paint->tarSize, Paint->cx + DEFAULT_SPACE +
+  DEFAULT_WIDTH, Paint->cy);
+  PrintFinal(PLOT);
+  fclose(POS);
+
+  fprintf(stderr, "      Done!\n");
+  }
+
+//////////////////////////////////////////////////////////////////////////////
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - M A I N - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+int32_t main(int argc, char *argv[]){
+  char **p = *&argv;
+
+  P = (Parameters *) Malloc(1 * sizeof(Parameters));
+  if((P->help = ArgsState(DEF_HELP, p, argc, "-h")) == 1 || argc < 2){
+    PrintMenuVisual();
+    return EXIT_SUCCESS;
+    }
+
+  if(ArgsState(DEF_VERSION, p, argc, "-V")){
+    PrintVersionVisual();
+    return EXIT_SUCCESS;
+    }
+
+  P->verbose    = ArgsState (DEF_VERBOSE, p, argc, "-v" );
+  P->force      = ArgsState (DEF_FORCE,   p, argc, "-F" );
+  P->link       = ArgsNum   (DEF_LINK,    p, argc, "-l", MIN_LINK, MAX_LINK);
+  P->image      = ArgsFilesImg           (p, argc, "-x");
+
+  fprintf(stderr, "\n");
+
+  fprintf(stderr, "==[ PROCESSING ]====================\n");
+  TIME *Time = CreateClock(clock());
+  PrintPlot(argv[argc-1]);
+  StopTimeNDRM(Time, clock());
+  fprintf(stderr, "\n");
+
+  fprintf(stderr, "==[ STATISTICS ]====================\n");
+  StopCalcAll(Time, clock());
+  fprintf(stderr, "\n");
+
+  RemoveClock(Time);
+  return EXIT_SUCCESS;
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

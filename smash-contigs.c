@@ -21,7 +21,6 @@
 #include "msg.h"
 #include "parser.h"
 #include "buffer.h"
-#include "paint.h"
 #include "common.h"
 #include "rmodel.h"
 
@@ -206,16 +205,18 @@ void ReduceProjections(Threads T){
   IN  = Fopen(name, "r");
   OUT = Fopen(nameCat, "w");
 
+/*
   int64_t posCache[MAX_POS_CACHE][4];
   uint8_t PosUsage[MAX_POS_CACHE];
   int64_t idx = 0;
+*/
 
   while(1){
     char tmp1[MAX_STR] = {'\0'}, tmp2[MAX_STR] = {'\0'};
     if(fscanf(IN, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
     "%"PRIi64"\t%"PRIi64"\n", tmp1, &ci, &cf, &cx, &cy, tmp2, &ri, &rf) != 8)
       break;
-
+/*
     if(cf > ci){
       posCache[idx][0] = ci;
       posCache[idx][1] = cf;
@@ -227,13 +228,11 @@ void ReduceProjections(Threads T){
       }
     else{ // INVERTED
 
-
-
-
       }
 
     //------------------------------------------------------------------------
- 
+*/ 
+
     fprintf(OUT, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
     "%"PRIi64"\t%"PRIi64"\n", tmp1, ci, cf, cx, cy, tmp2, ri, rf);
     }
@@ -287,15 +286,21 @@ void CompressAction(){
 
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - - - J O I N E R - - - - - - - - - - - - - - - -
+//
+// JOINNING THREADS FUNCTION
+// IT ALSO ADDS IN THE FIRST LINE A WATERMARK AND THE NUMBER OF BASES FROM REF 
+// AND CONTIGS FILES
+// 
 void ThreadConcatenation(void){
   FILE *OUT = NULL;
   uint32_t n, k;
-  uint8_t *buf;
+  uint8_t *buf = (uint8_t *) Malloc(BUFFER_SIZE * sizeof(uint8_t));
 
   fprintf(stderr, "  [+] Joinning thread files ...\n");
 
   OUT = Fopen(P->positions, "w");
-  buf = (uint8_t *) Malloc(BUFFER_SIZE * sizeof(uint8_t));
+  fprintf(OUT, "#SCF\t%"PRIi64"\t%"PRIi64"\n", P->Con.nBases, P->Ref.nBases);
+
   for(n = 0 ; n < P->nThreads ; ++n){
     char tmp[MAX_FILENAME];
     sprintf(tmp, "%s.t%u.cat", P->positions, n+1);
@@ -311,143 +316,6 @@ void ThreadConcatenation(void){
   }
 
 //////////////////////////////////////////////////////////////////////////////
-// - - - - - - - - - - - - - - - - - - P L O T - - - - - - - - - - - - - - - -
-void PrintPlot(void){
-  FILE *PLOT = NULL, *POS = NULL;
-  char backColor[] = "#ffffff";
-  uint32_t colorIdx = 0, mult = 17;
-  Painter *Paint;
-
-  fprintf(stderr, "  [+] Printing plot ...\n");
-
-  POS  = Fopen(P->positions, "r");
-  PLOT = Fopen(P->image, "w");
-  SetRatio(MAX(P->Ref.nBases, P->Con.nBases) / DEFAULT_SCALE);
-  Paint = CreatePainter(GetPoint(P->Ref.nBases), GetPoint(P->Con.nBases),
-          backColor);
-  PrintHead(PLOT, (2 * DEFAULT_CX) + (((Paint->width + DEFAULT_SPACE) * 2) -
-  DEFAULT_SPACE), Paint->maxSize + EXTRA);
-  Paint->width = 30.0;
-  Rect(PLOT, (2 * DEFAULT_CX) + (((Paint->width + DEFAULT_SPACE) * 2) -
-  DEFAULT_SPACE), Paint->maxSize + EXTRA, 0, 0, backColor);
-  RectOval(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy,
-  backColor);
-  RectOval(PLOT, Paint->width, Paint->tarSize, Paint->cx, Paint->cy,
-  backColor);
-  Text(PLOT, Paint->cx-2,                            Paint->cy-15, "REF");
-  Text(PLOT, Paint->cx+Paint->width+DEFAULT_SPACE-5, Paint->cy-15, "CON");
-
-  int64_t ri, rf, ci, cf, cx, cy;
-  uint64_t regular = 0, inverse = 0;  
-  while(1){
-    char tmp1[MAX_STR] = {'\0'}, tmp2[MAX_STR] = {'\0'};
- 
-    if(fscanf(POS, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
-    "%"PRIi64"\t%"PRIi64"\n", tmp1, &ci, &cf, &cx, &cy, tmp2, &ri, &rf) != 8)
-      break;
-
-    if(rf > ri){
-      switch(P->link){
-        case 1: 
-          Line(PLOT, 2, Paint->cx + Paint->width, 
-          Paint->cy + GetPoint(ri+((rf-ri)/2.0)), 
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH, 
-          Paint->cy + GetPoint(cx+((cy-cx)/2.0)), "black");
-        break;
-        case 2:
-          Line(PLOT, 2, Paint->cx + Paint->width,
-          Paint->cy + GetPoint(ri),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(cx), "black");
-          Line(PLOT, 2, Paint->cx + Paint->width,
-          Paint->cy + GetPoint(rf),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(cy), "black");
-        break;
-        case 3:
-          Polygon(PLOT, 
-          Paint->cx + Paint->width,
-          Paint->cy + GetPoint(ri),
-          Paint->cx + Paint->width,
-          Paint->cy + GetPoint(rf),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(cy),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(cx),
-          GetRgbColor(colorIdx * mult), "grey");    
-        break;
-        default:
-        break;
-        }        
-      
-      Rect(PLOT, Paint->width, GetPoint(rf-ri), Paint->cx, Paint->cy +
-      GetPoint(ri), GetRgbColor(colorIdx * mult));
-
-      Rect(PLOT, Paint->width, GetPoint(cy-cx), Paint->cx + DEFAULT_SPACE + 
-      DEFAULT_WIDTH, Paint->cy + GetPoint(cx), GetRgbColor(colorIdx * mult));
-
-      ++regular; 
-      }
-    else{ 
-      switch(P->link){
-        case 1:
-          Line(PLOT, 2, Paint->cx + Paint->width,
-          Paint->cy + GetPoint(rf+((ri-rf)/2.0)),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(cy+((cx-cy)/2.0)), "green");
-        break;
-        case 2:
-          Line(PLOT, 2, Paint->cx + Paint->width,
-          Paint->cy + GetPoint(rf),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(cy), "green");
-          Line(PLOT, 2, Paint->cx + Paint->width,
-          Paint->cy + GetPoint(ri),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(cx), "green");
-        break;
-        case 3:
-          Polygon(PLOT, 
-          Paint->cx + Paint->width,
-          Paint->cy + GetPoint(rf),
-          Paint->cx + Paint->width,
-          Paint->cy + GetPoint(ri),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(cx),
-          Paint->cx + DEFAULT_SPACE + DEFAULT_WIDTH,
-          Paint->cy + GetPoint(cy),
-          GetRgbColor(colorIdx * mult), "grey");
-        break;
-        default:
-        break;
-        }
-
-      Rect(PLOT, Paint->width, GetPoint(ri-rf), Paint->cx, Paint->cy +
-      GetPoint(rf), GetRgbColor(colorIdx * mult));
-
-      RectIR(PLOT, Paint->width, GetPoint(cy-cx), Paint->cx + DEFAULT_SPACE + 
-      DEFAULT_WIDTH, Paint->cy + GetPoint(cx), GetRgbColor(colorIdx * mult));
-
-      ++inverse;
-      }
-
-    ++colorIdx;
-    }
-  rewind(POS);
-
-  fprintf(stderr, "      Found %"PRIu64" regular and %"PRIu64" inverted "
-  "regions\n", regular, inverse);
-
-  Chromosome(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy);
-  Chromosome(PLOT, Paint->width, Paint->tarSize, Paint->cx + DEFAULT_SPACE +
-  DEFAULT_WIDTH, Paint->cy);
-  PrintFinal(PLOT);
-  fclose(POS);
-
-  fprintf(stderr, "      Done!\n");
-  }
-
-//////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // - - - - - - - - - - - - - - - - - M A I N - - - - - - - - - - - - - - - - -
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -456,12 +324,12 @@ int32_t main(int argc, char *argv[]){
 
   P = (Parameters *) Malloc(1 * sizeof(Parameters));
   if((P->help = ArgsState(DEF_HELP, p, argc, "-h")) == 1 || argc < 2){
-    PrintMenu();
+    PrintMenuContigs();
     return EXIT_SUCCESS;
     }
 
   if(ArgsState(DEF_VERSION, p, argc, "-V")){
-    PrintVersion();
+    PrintVersionContigs();
     return EXIT_SUCCESS;
     }
 
@@ -472,15 +340,12 @@ int32_t main(int argc, char *argv[]){
   P->minimum    = ArgsNum   (DEF_MINI,    p, argc, "-m", MIN_MINI, MAX_MINI);
   P->repeats    = ArgsNum   (DEF_REPE,    p, argc, "-r", MIN_REPE, MAX_REPE);
   P->threshold  = ArgsNum   (DEF_TSHO,    p, argc, "-t", MIN_TSHO, MAX_TSHO);
-  P->link       = ArgsNum   (DEF_LINK,    p, argc, "-l", MIN_LINK, MAX_LINK);
   P->nThreads   = ArgsNum   (DEF_THRE,    p, argc, "-n", MIN_THRE, MAX_THRE);
   P->positions  = ArgsFiles              (p, argc, "-o");
-  P->image      = ArgsFilesImg           (p, argc, "-x");
   P->Con.name   = argv[argc-2];
   P->Ref.name   = argv[argc-1];
   P->Con.length = FopenBytesInFile(P->Con.name); 
   P->Ref.length = FopenBytesInFile(P->Ref.name); 
-  P->window     = P->kmer;
 
   if(P->minimum < P->kmer){
     fprintf(stderr, "  [x] Error: minimum block size must be >= than k-mer!\n");
@@ -494,7 +359,6 @@ int32_t main(int argc, char *argv[]){
   TIME *Time = CreateClock(clock());
   CompressAction();
   ThreadConcatenation();
-  PrintPlot();
 
   StopTimeNDRM(Time, clock());
   fprintf(stderr, "\n");

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void PrintMenu(void){
+void PrintMenuContigs(void){
   fprintf(stderr,
   "Usage: smash-contigs [OPTION]... [FILE] [FILE]                           \n"
   "Similarity contigs mapping according to a reference sequence.            \n"
@@ -17,11 +17,9 @@ void PrintMenu(void){
   "  -m <minimum>               minimum similar block size,                 \n"
   "  -r <repeats>               maximum repeats number,                     \n"
   "  -t <threshold>             maximum gaps allowed between copies,        \n"
-  "  -l <link>                  link type between maps [0;4],               \n"
   "  -i                         do NOT map inversions,                      \n"
   "  -n <nThreads>              number of threads,                          \n"
   "  -o <FILE>                  output text filename with positions,        \n"
-  "  -x <FILE>                  output image filename with map,             \n"
   "                                                                         \n"
   "Mandatory arguments:                                                     \n"
   "                                                                         \n"
@@ -31,7 +29,28 @@ void PrintMenu(void){
   "Report bugs to <{pratas,ap,pjf}@ua.pt>.                                \n");
   }
 
-void PrintVersion(void){
+void PrintMenuVisual(void){
+  fprintf(stderr,
+  "Usage: smash-visual [OPTION]... [FILE]                                   \n"
+  "Visualisation of contigs map according to smash-contigs output.          \n"
+  "                                                                         \n"
+  "Non-mandatory arguments:                                                 \n"
+  "                                                                         \n"
+  "  -h                         give this help,                             \n"
+  "  -V                         display version number,                     \n"
+  "  -v                         verbose mode (more information),            \n"
+  "  -l <link>                  link type between maps [0;4],               \n"
+  "  -i                         do NOT map inversions,                      \n"
+  "  -x <FILE>                  output image filename with map,             \n"
+  "                                                                         \n"
+  "Mandatory arguments:                                                     \n"
+  "                                                                         \n"
+  "  <FILE>                     contigs filename  with positions (.pos),    \n"
+  "                                                                         \n"
+  "Report bugs to <{pratas,ap,pjf}@ua.pt>.                                \n");
+  }
+
+void PrintVersionContigs(void){
   fprintf(stderr,
   "                                                                         \n"
   "                         =====================                           \n"
@@ -39,6 +58,22 @@ void PrintVersion(void){
   "                         =====================                           \n"
   "                                                                         \n"
   "smash-contigs: similarity contigs mapping according to a ref sequence.   \n"
+  "Copyright (C) 2015-2016 University of Aveiro. This is a Free software.   \n"
+  "You may redistribute copies of it under the terms of the GNU - General   \n"
+  "Public License v2 <http://www.gnu.org/licenses/gpl.html>. There is NOT   \n"
+  "ANY WARRANTY, to the extent permitted by law. Developed and Written by   \n"
+  "Diogo Pratas, Armando J. Pinho and Paulo J. S. G. Ferreira.\n\n", VERSION,
+  RELEASE);
+  }
+
+void PrintVersionVisual(void){
+  fprintf(stderr,
+  "                                                                         \n"
+  "                         =====================                           \n"
+  "                         | smash-visual  %u.%u |                         \n"
+  "                         =====================                           \n"
+  "                                                                         \n"
+  "smash-visual:  visualising contigs according to smash-contigs program.   \n"
   "Copyright (C) 2015-2016 University of Aveiro. This is a Free software.   \n"
   "You may redistribute copies of it under the terms of the GNU - General   \n"
   "Public License v2 <http://www.gnu.org/licenses/gpl.html>. There is NOT   \n"

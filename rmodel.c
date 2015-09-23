@@ -121,13 +121,6 @@ void StartRMs(RCLASS *C, HASH *H, uint64_t iPos, uint64_t idx, uint8_t ir){
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// FAIL REPEAT
-//
-static void Fail(RMODEL *R){
-  R->stop = 1;
-  }
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // GET INDEX POSITION
 //
 static uint64_t GetIPoint(HEADERS *Head, uint64_t init){
@@ -163,13 +156,13 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
 
       // PROTECT EXTRA SYMBOLS
       if(b[C->RM[n].pos] == 4){
-        Fail(&C->RM[n]); // SEE AFTER: DISCARDING POLITICS
+        C->RM[n].stop = 1; // SEE AFTER: DISCARDING POLITICS
         continue;
         }
       
       if(C->RM[n].rev == 0){ // REGULAR REPEAT
         if(b[C->RM[n].pos] != sym){
-          Fail(&C->RM[n]);
+          C->RM[n].stop = 1;
           continue;
           }
         // STOP IF POS <= KMER
@@ -178,7 +171,7 @@ void UpdateRMs(RCLASS *C, uint8_t *b, uint64_t ePos, uint8_t sym){
         }
       else{ // INVERTED REPEAT
         if(GetCompNum(b[C->RM[n].pos]) != sym){
-          Fail(&C->RM[n]);
+          C->RM[n].stop = 1;
           continue;
           }
         // STOP IF POS <= KMER
