@@ -51,7 +51,7 @@ void CompressTarget(Threads T){
       if((action = ParseSym(PA, sym)) < 0){
         switch(action){
           case -1: // IT IS THE BEGGINING OF THE HEADER
-            if(PA->nRead > 1)
+            if(PA->nRead > 1 && Mod->nRM > 0)
               ResetAllRMs(Mod, Head, nBaseRelative, nBaseAbsolute, conName, 
               Writter);
             nBaseRelative = 0;
@@ -94,7 +94,7 @@ void CompressTarget(Threads T){
         if(nBaseRelative >= Mod->kmer){  // PROTECTING THE BEGGINING OF K-SIZE
           UpdateRMs(Mod, Seq->buf, nBaseRelative, sym);
           StopRMs(Mod, Head, nBaseRelative, nBaseAbsolute, conName, Writter);
-          StartMultipleRMs(Mod, Hash, nBaseRelative);
+          StartMultipleRMs(Mod, Hash, nBaseRelative, nBaseAbsolute);
           }
         }
 
@@ -200,7 +200,7 @@ void ReduceProjections(Threads T){
   char name[MAX_FILENAME], nameCat[MAX_FILENAME];
   sprintf(name, "%s.t%u", P->positions, T.id+1);
   sprintf(nameCat, "%s.cat", name);
-  int64_t ri, rf, ci, cf, cx, cy;
+  int64_t ri, rf, ci, cf, cx, cy, rx, ry;
 
   IN  = Fopen(name, "r");
   OUT = Fopen(nameCat, "w");
@@ -214,7 +214,8 @@ void ReduceProjections(Threads T){
   while(1){
     char tmp1[MAX_STR] = {'\0'}, tmp2[MAX_STR] = {'\0'};
     if(fscanf(IN, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
-    "%"PRIi64"\t%"PRIi64"\n", tmp1, &ci, &cf, &cx, &cy, tmp2, &ri, &rf) != 8)
+                  "%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\n", 
+                  tmp1, &ci, &cf, &cx, &cy, tmp2, &ri, &rf, &rx, &ry) != 10)
       break;
 /*
     if(cf > ci){
@@ -234,7 +235,8 @@ void ReduceProjections(Threads T){
 */ 
 
     fprintf(OUT, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
-    "%"PRIi64"\t%"PRIi64"\n", tmp1, ci, cf, cx, cy, tmp2, ri, rf);
+                 "%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\n", 
+                 tmp1, ci, cf, cx, cy, tmp2, ri, rf, rx, ry);
     }
 
   unlink(name);
