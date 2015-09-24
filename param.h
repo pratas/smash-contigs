@@ -20,6 +20,7 @@ typedef struct{
   U8       verbose;
   U8       force;
   U8       inversion;
+  U8       regular;
   U8       level;
   U8       link;
   U32      kmer;

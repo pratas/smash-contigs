@@ -86,134 +86,140 @@ uint32_t start, uint64_t minimum){
       }
 
     if(ry > rx){
-      switch(P->link){
-        case 1: 
-          Line(PLOT, 2, Paint->cx + Paint->width, 
-          Paint->cy + GetPoint(rx+((ry-rx)/2.0)), 
-          Paint->cx + Paint->space + Paint->width, 
-          Paint->cy + GetPoint(cx+((cy-cx)/2.0)), "black");
-        break;
-        case 2:
-          Line(PLOT, 2, Paint->cx + Paint->width,
-          Paint->cy + GetPoint(rx+((ry-rx)/2.0)),
-          Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cx+((cy-cx)/2.0)), 
-          GetRgbColor(start * mult));
-        break;
-        case 3:
-          Line(PLOT, 2, Paint->cx + Paint->width,
-          Paint->cy + GetPoint(rx),
-          Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cx), "black");
-          Line(PLOT, 2, Paint->cx + Paint->width,
-          Paint->cy + GetPoint(ry),
-          Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cy), "black");
-        break;
-        case 4:
-          Line(PLOT, 2, Paint->cx + Paint->width,
-          Paint->cy + GetPoint(rx),
-          Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cx), 
-          GetRgbColor(start * mult));
-          Line(PLOT, 2, Paint->cx + Paint->width,
-          Paint->cy + GetPoint(ry),
-          Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cy), 
-          GetRgbColor(start * mult));
-        break;
-        case 5:
-          Polygon(PLOT, 
-          Paint->cx + Paint->width,
-          Paint->cy + GetPoint(rx),
-          Paint->cx + Paint->width,
-          Paint->cy + GetPoint(ry),
-          Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cy),
-          Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cx),
-          GetRgbColor(start * mult), "grey");    
-        break;
-        default:
-        break;
-        }        
-      
-      Rect(PLOT, Paint->width, GetPoint(ry-rx), Paint->cx, Paint->cy +
-      GetPoint(rx), GetRgbColor(start * mult));
+      if(P->regular){
+        switch(P->link){
+          case 1: 
+            Line(PLOT, 2, Paint->cx + Paint->width, 
+            Paint->cy + GetPoint(rx+((ry-rx)/2.0)), 
+            Paint->cx + Paint->space + Paint->width, 
+            Paint->cy + GetPoint(cx+((cy-cx)/2.0)), "black");
+          break;
+          case 2:
+            Line(PLOT, 2, Paint->cx + Paint->width,
+            Paint->cy + GetPoint(rx+((ry-rx)/2.0)),
+            Paint->cx + Paint->space + Paint->width,
+            Paint->cy + GetPoint(cx+((cy-cx)/2.0)), 
+            GetRgbColor(start * mult));
+          break;
+          case 3:
+            Line(PLOT, 2, Paint->cx + Paint->width,
+            Paint->cy + GetPoint(rx),
+            Paint->cx + Paint->space + Paint->width,
+            Paint->cy + GetPoint(cx), "black");
+            Line(PLOT, 2, Paint->cx + Paint->width,
+            Paint->cy + GetPoint(ry),
+            Paint->cx + Paint->space + Paint->width,
+            Paint->cy + GetPoint(cy), "black");
+          break;
+          case 4:
+            Line(PLOT, 2, Paint->cx + Paint->width,
+            Paint->cy + GetPoint(rx),
+            Paint->cx + Paint->space + Paint->width,
+            Paint->cy + GetPoint(cx), 
+            GetRgbColor(start * mult));
+            Line(PLOT, 2, Paint->cx + Paint->width,
+            Paint->cy + GetPoint(ry),
+            Paint->cx + Paint->space + Paint->width,
+            Paint->cy + GetPoint(cy), 
+            GetRgbColor(start * mult));
+          break;
+          case 5:
+            Polygon(PLOT, 
+            Paint->cx + Paint->width,
+            Paint->cy + GetPoint(rx),
+            Paint->cx + Paint->width,
+            Paint->cy + GetPoint(ry),
+            Paint->cx + Paint->space + Paint->width,
+            Paint->cy + GetPoint(cy),
+            Paint->cx + Paint->space + Paint->width,
+            Paint->cy + GetPoint(cx),
+            GetRgbColor(start * mult), "grey");    
+          break;
+          default:
+          break;
+          }        
+ 
+        Rect(PLOT, Paint->width, GetPoint(ry-rx), Paint->cx, Paint->cy +
+        GetPoint(rx), GetRgbColor(start * mult));
 
-      Rect(PLOT, Paint->width, GetPoint(cy-cx), Paint->cx + Paint->space + 
-      Paint->width, Paint->cy + GetPoint(cx), GetRgbColor(start * mult));
-
-      ++regular; 
+        Rect(PLOT, Paint->width, GetPoint(cy-cx), Paint->cx + Paint->space + 
+        Paint->width, Paint->cy + GetPoint(cx), GetRgbColor(start * mult));
+ 
+        ++regular; 
+        }
       }
     else{ 
-      switch(P->link){
-        case 1:
-          Line(PLOT, 2, Paint->cx + Paint->width,
-          Paint->cy + GetPoint(ry+((rx-ry)/2.0)),
-          Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cy+((cx-cy)/2.0)), "green");
-        break;
-        case 2:
-          Line(PLOT, 2, Paint->cx + Paint->width,
-          Paint->cy + GetPoint(ry+((rx-ry)/2.0)),
-          Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cy+((cx-cy)/2.0)), 
-          GetRgbColor(start * mult));
-        break;
-        case 3:
-          Line(PLOT, 2, Paint->cx + Paint->width,
-          Paint->cy + GetPoint(ry),
-          Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cy), "green");
-          Line(PLOT, 2, Paint->cx + Paint->width,
-          Paint->cy + GetPoint(rx),
-          Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cx), "green");
-        break;
-        case 4:
-          Line(PLOT, 2, Paint->cx + Paint->width,
-          Paint->cy + GetPoint(ry),
-          Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cy), 
-          GetRgbColor(start * mult));
-          Line(PLOT, 2, Paint->cx + Paint->width,
-          Paint->cy + GetPoint(rx),
-          Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cx), 
-          GetRgbColor(start * mult));
-        break;
-        case 5:
-          Polygon(PLOT, 
-          Paint->cx + Paint->width,
-          Paint->cy + GetPoint(ry),
-          Paint->cx + Paint->width,
-          Paint->cy + GetPoint(rx),
-          Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cx),
-          Paint->cx + Paint->space + Paint->width,
-          Paint->cy + GetPoint(cy),
-          GetRgbColor(start * mult), "grey");
-        break;
-        default:
-        break;
+      if(P->inversion){ 
+        switch(P->link){
+          case 1:
+            Line(PLOT, 2, Paint->cx + Paint->width,
+            Paint->cy + GetPoint(ry+((rx-ry)/2.0)),
+            Paint->cx + Paint->space + Paint->width,
+            Paint->cy + GetPoint(cy+((cx-cy)/2.0)), "green");
+          break;
+          case 2:
+            Line(PLOT, 2, Paint->cx + Paint->width,
+            Paint->cy + GetPoint(ry+((rx-ry)/2.0)),
+            Paint->cx + Paint->space + Paint->width,
+            Paint->cy + GetPoint(cy+((cx-cy)/2.0)), 
+            GetRgbColor(start * mult));
+          break;
+          case 3:
+            Line(PLOT, 2, Paint->cx + Paint->width,
+            Paint->cy + GetPoint(ry),
+            Paint->cx + Paint->space + Paint->width,
+            Paint->cy + GetPoint(cy), "green");
+            Line(PLOT, 2, Paint->cx + Paint->width,
+            Paint->cy + GetPoint(rx),
+            Paint->cx + Paint->space + Paint->width,
+            Paint->cy + GetPoint(cx), "green");
+          break;
+          case 4:
+            Line(PLOT, 2, Paint->cx + Paint->width,
+            Paint->cy + GetPoint(ry),
+            Paint->cx + Paint->space + Paint->width,
+            Paint->cy + GetPoint(cy), 
+            GetRgbColor(start * mult));
+            Line(PLOT, 2, Paint->cx + Paint->width,
+            Paint->cy + GetPoint(rx),
+            Paint->cx + Paint->space + Paint->width,
+            Paint->cy + GetPoint(cx), 
+            GetRgbColor(start * mult));
+          break;
+          case 5:
+            Polygon(PLOT, 
+            Paint->cx + Paint->width,
+            Paint->cy + GetPoint(ry),
+            Paint->cx + Paint->width,
+            Paint->cy + GetPoint(rx),
+            Paint->cx + Paint->space + Paint->width,
+            Paint->cy + GetPoint(cx),
+            Paint->cx + Paint->space + Paint->width,
+            Paint->cy + GetPoint(cy),
+            GetRgbColor(start * mult), "grey");
+          break;
+          default:
+          break;
+          }
+
+        Rect(PLOT, Paint->width, GetPoint(rx-ry), Paint->cx, Paint->cy +
+        GetPoint(ry), GetRgbColor(start * mult));
+
+        RectIR(PLOT, Paint->width, GetPoint(cy-cx), Paint->cx + Paint->space + 
+        Paint->width, Paint->cy + GetPoint(cx), GetRgbColor(start * mult));
+
+        ++inverse;
         }
-
-      Rect(PLOT, Paint->width, GetPoint(rx-ry), Paint->cx, Paint->cy +
-      GetPoint(ry), GetRgbColor(start * mult));
-
-      RectIR(PLOT, Paint->width, GetPoint(cy-cx), Paint->cx + Paint->space + 
-      Paint->width, Paint->cy + GetPoint(cx), GetRgbColor(start * mult));
-
-      ++inverse;
       }
 
     ++start;
     }
   rewind(POS);
 
-  fprintf(stderr, "  Found %"PRIu64" regular regions. \n", regular);
-  fprintf(stderr, "  Found %"PRIu64" inverted regions.\n", inverse);
+  if(P->regular)
+    fprintf(stderr, "  Found %"PRIu64" regular regions. \n", regular);
+  if(P->inversion)
+    fprintf(stderr, "  Found %"PRIu64" inverted regions.\n", inverse);
   if(P->verbose)
     fprintf(stderr, "  Ignored %"PRIu64" regions.\n", ignored);
 
@@ -253,6 +259,8 @@ int32_t main(int argc, char *argv[]){
   mult          = ArgsNum   (DEF_MULT,    p, argc, "-m", MIN_MULT, MAX_MULT);
   start         = ArgsNum   (DEF_BEGI,    p, argc, "-b", MIN_BEGI, MAX_BEGI);
   minimum       = ArgsNum   (DEF_MINP,    p, argc, "-c", MIN_MINP, MAX_MINP);
+  P->inversion  = ArgsState (DEF_INVE,    p, argc, "-i" );
+  P->regular    = ArgsState (DEF_REGU,    p, argc, "-r" );
   P->image      = ArgsFilesImg           (p, argc, "-o");
 
   fprintf(stderr, "\n");

@@ -63,6 +63,7 @@ typedef int8_t   I8;
 #define DEF_FORCE              0
 #define DEF_THRE               1
 #define DEF_INVE               1
+#define DEF_REGU               1
 #define DEF_KMER               16
 #define DEF_MINI               40 
 #define DEF_REPE               100

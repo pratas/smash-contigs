@@ -65,6 +65,8 @@ void PrintMenuVisual(void){
   "  -m <mult>                  color id multiplication factor,             \n"
   "  -b <begin>                 color id beggining,                         \n"
   "  -c <minimum>               minimum block size to consider,             \n"
+  "  -i                         do NOT show inversion maps,                 \n"
+  "  -r                         do NOT show regular maps,                   \n"
   "  -o <FILE>                  output image filename with map,             \n"
   "                                                                         \n"
   "Mandatory arguments:                                                     \n"
