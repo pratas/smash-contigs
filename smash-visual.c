@@ -29,12 +29,9 @@ uint32_t start, uint64_t minimum){
   int64_t conNBases = 0, refNBases = 0;
   char watermark[MAX_FILENAME];
   Painter *Paint;
-
-  fprintf(stderr, "  [+] Printing plot ...\n");
-
   POS  = Fopen(posFile,  "r");
   PLOT = Fopen(P->image, "w");
- 
+
   if(fscanf(POS, "%s\t%"PRIi64"\t%"PRIi64"\n", watermark, &conNBases,
   &refNBases) != 3 || watermark[0] != '#' || watermark[1] != 'S' ||
   watermark[2] != 'C' || watermark[3] != 'F'){
@@ -43,9 +40,17 @@ uint32_t start, uint64_t minimum){
     }
 
   if(P->verbose){
-    fprintf(stderr, "      Reference number of bases: %"PRIu64"\n", refNBases);
-    fprintf(stderr, "      Target number of bases: %"PRIu64"\n", conNBases);
+    fprintf(stderr, "==[ CONFIGURATION ]================\n");
+    fprintf(stderr, "Verbose mode ...................... yes\n");
+    fprintf(stderr, "Reference number of bases ......... %"PRIu64"\n", 
+    refNBases);
+    fprintf(stderr, "Target number of bases ............ %"PRIu64"\n", 
+    conNBases);
+    fprintf(stderr, "\n");
     }
+
+  fprintf(stderr, "==[ PROCESSING ]====================\n");
+  fprintf(stderr, "  Printing plot ...\n");
 
   SetRatio(MAX(refNBases, conNBases) / DEFAULT_SCALE);
   Paint = CreatePainter(GetPoint(refNBases), GetPoint(conNBases), (double) 
@@ -206,10 +211,10 @@ uint32_t start, uint64_t minimum){
     }
   rewind(POS);
 
-  fprintf(stderr, "      Found %"PRIu64" regular regions. \n", regular);
-  fprintf(stderr, "      Found %"PRIu64" inverted regions.\n", inverse);
+  fprintf(stderr, "  Found %"PRIu64" regular regions. \n", regular);
+  fprintf(stderr, "  Found %"PRIu64" inverted regions.\n", inverse);
   if(P->verbose)
-    fprintf(stderr, "      Ignored %"PRIu64" regions.\n", ignored);
+    fprintf(stderr, "  Ignored %"PRIu64" regions.\n", ignored);
 
   Chromosome(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy);
   Chromosome(PLOT, Paint->width, Paint->tarSize, Paint->cx + Paint->space +
@@ -217,7 +222,7 @@ uint32_t start, uint64_t minimum){
   PrintFinal(PLOT);
   fclose(POS);
 
-  fprintf(stderr, "      Done!\n");
+  fprintf(stderr, "  Done!                       \n");
   }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -250,7 +255,6 @@ int32_t main(int argc, char *argv[]){
   P->image      = ArgsFilesImg           (p, argc, "-x");
 
   fprintf(stderr, "\n");
-  fprintf(stderr, "==[ PROCESSING ]====================\n");
   PrintPlot(argv[argc-1], width, space, mult, start, minimum);
   fprintf(stderr, "\n");
 
