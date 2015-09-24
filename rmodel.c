@@ -279,13 +279,13 @@ uint8_t *buf, FILE *Writter){
     for(id = 0 ; id < C->mRM ; ++id){
       if(C->RM[id].write == 2){ // IT WAS SMALLER
         if(C->RM[id].rev == 0){ // REGULAR
-          if(C->RM[largerRM].init > C->RM[id].init || 
+          if(C->RM[largerRM].init > C->RM[id].init && 
              C->RM[largerRM].pos  < C->RM[id].pos){
             PrintBlock(C, Head, position, absolute, id, buf, Writter);
             }
           }
         else{ // REVERSE
-          if(C->RM[largerRMIR].init < C->RM[id].init || 
+          if(C->RM[largerRMIR].init < C->RM[id].init && 
              C->RM[largerRMIR].pos  > C->RM[id].pos){
             PrintBlock(C, Head, position, absolute, id, buf, Writter);
             }
