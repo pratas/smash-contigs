@@ -326,12 +326,12 @@ int32_t main(int argc, char *argv[]){
 
   P = (Parameters *) Malloc(1 * sizeof(Parameters));
   if((P->help = ArgsState(DEF_HELP, p, argc, "-h")) == 1 || argc < 2){
-    PrintMenuContigs();
+    PrintMenuReduce();
     return EXIT_SUCCESS;
     }
 
   if(ArgsState(DEF_VERSION, p, argc, "-V")){
-    PrintVersionContigs();
+    PrintVersion();
     return EXIT_SUCCESS;
     }
 

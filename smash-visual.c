@@ -241,7 +241,7 @@ int32_t main(int argc, char *argv[]){
     }
 
   if(ArgsState(DEF_VERSION, p, argc, "-V")){
-    PrintVersionVisual();
+    PrintVersion();
     return EXIT_SUCCESS;
     }
 
@@ -253,7 +253,7 @@ int32_t main(int argc, char *argv[]){
   mult          = ArgsNum   (DEF_MULT,    p, argc, "-m", MIN_MULT, MAX_MULT);
   start         = ArgsNum   (DEF_BEGI,    p, argc, "-b", MIN_BEGI, MAX_BEGI);
   minimum       = ArgsNum   (DEF_MINP,    p, argc, "-c", MIN_MINP, MAX_MINP);
-  P->image      = ArgsFilesImg           (p, argc, "-x");
+  P->image      = ArgsFilesImg           (p, argc, "-o");
 
   fprintf(stderr, "\n");
   PrintPlot(argv[argc-1], width, space, mult, start, minimum);

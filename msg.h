@@ -3,10 +3,10 @@
 
 #include "defs.h"
 
-void PrintMenuContigs         (void);
-void PrintMenuVisual          (void);
-void PrintVersionContigs      (void);
-void PrintVersionVisual       (void);
+void PrintMenuMap      (void);
+void PrintMenuReduce   (void);
+void PrintMenuVisual   (void);
+void PrintVersion      (void);
 
 #endif
 

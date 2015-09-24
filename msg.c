@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void PrintMenuContigs(void){
+void PrintMenuMap(void){
   fprintf(stderr,
-  "Usage: smash-contigs [OPTION]... [FILE] [FILE]                           \n"
+  "Usage: smash-map     [OPTION]... [FILE] [FILE]                           \n"
   "Similarity contigs mapping according to a reference sequence.            \n"
   "A server version, parallelizable, fast, but using high RAM memory.       \n"
   "                                                                         \n"
@@ -29,10 +29,30 @@ void PrintMenuContigs(void){
   "Report bugs to <{pratas,ap,pjf}@ua.pt>.                                \n");
   }
 
+void PrintMenuReduce(void){
+  fprintf(stderr,
+  "Usage: smash-reduce [OPTION]... [FILE]                                   \n"
+  "Reduction and clustering of contig maps according to smash-map output.   \n"
+  "                                                                         \n"
+  "Non-mandatory arguments:                                                 \n"
+  "                                                                         \n"
+  "  -h                         give this help,                             \n"
+  "  -V                         display version number,                     \n"
+  "  -v                         verbose mode (more information),            \n"
+  "  -e <editions>              maximum gaps allowed between maps,          \n"
+  "  -o <FILE>                  output filename with reduced maps,          \n"
+  "                                                                         \n"
+  "Mandatory arguments:                                                     \n"
+  "                                                                         \n"
+  "  <FILE>                     contigs filename with positions (.pos),    \n"
+  "                                                                         \n"
+  "Report bugs to <{pratas,ap,pjf}@ua.pt>.                                \n");
+  }
+
 void PrintMenuVisual(void){
   fprintf(stderr,
   "Usage: smash-visual [OPTION]... [FILE]                                   \n"
-  "Visualisation of contigs map according to smash-contigs output.          \n"
+  "Visualisation of contigs map according to smash-(map/reduce) output.     \n"
   "                                                                         \n"
   "Non-mandatory arguments:                                                 \n"
   "                                                                         \n"
@@ -45,39 +65,30 @@ void PrintMenuVisual(void){
   "  -m <mult>                  color id multiplication factor,             \n"
   "  -b <begin>                 color id beggining,                         \n"
   "  -c <minimum>               minimum block size to consider,             \n"
-  "  -x <FILE>                  output image filename with map,             \n"
+  "  -o <FILE>                  output image filename with map,             \n"
   "                                                                         \n"
   "Mandatory arguments:                                                     \n"
   "                                                                         \n"
-  "  <FILE>                     contigs filename  with positions (.pos),    \n"
+  "  <FILE>                     contigs filename with positions (.pos),    \n"
   "                                                                         \n"
   "Report bugs to <{pratas,ap,pjf}@ua.pt>.                                \n");
   }
 
-void PrintVersionContigs(void){
+void PrintVersion(void){
   fprintf(stderr,
   "                                                                         \n"
   "                         =====================                           \n"
-  "                         | smash-contigs %u.%u |                         \n"
+  "                         | SMASH-CONTIGS %u.%u |                         \n"
   "                         =====================                           \n"
   "                                                                         \n"
-  "smash-contigs: similarity contigs mapping according to a ref sequence.   \n"
-  "Copyright (C) 2015-2016 University of Aveiro. This is a Free software.   \n"
-  "You may redistribute copies of it under the terms of the GNU - General   \n"
-  "Public License v2 <http://www.gnu.org/licenses/gpl.html>. There is NOT   \n"
-  "ANY WARRANTY, to the extent permitted by law. Developed and Written by   \n"
-  "Diogo Pratas, Armando J. Pinho and Paulo J. S. G. Ferreira.\n\n", VERSION,
-  RELEASE);
-  }
-
-void PrintVersionVisual(void){
-  fprintf(stderr,
+  "            SMASH-CONTIGS: similarity contigs mapping, reducing          \n"
+  "            and visualisation according to a reference sequence          \n"
   "                                                                         \n"
-  "                         =====================                           \n"
-  "                         | smash-visual  %u.%u |                         \n"
-  "                         =====================                           \n"
+  "                  It includes the following programs:                    \n"
+  "                            * smash-map                                  \n" 
+  "                            * smash-reduce                               \n" 
+  "                            * smash-visual                               \n" 
   "                                                                         \n"
-  "smash-visual:  visualising contigs according to smash-contigs program.   \n"
   "Copyright (C) 2015-2016 University of Aveiro. This is a Free software.   \n"
   "You may redistribute copies of it under the terms of the GNU - General   \n"
   "Public License v2 <http://www.gnu.org/licenses/gpl.html>. There is NOT   \n"
