@@ -1,6 +1,6 @@
 # SMASH-CONTIGS #
 
-<p align="center"><img src="/logo.png" 
+<p align="center"><img src="imgs/logo.png" 
 alt="smash-contigs" width="200" height="200" border="0" /></p>
 
 Smash-contigs is a fast tool to handle the detection of similarity between pairs of DNA sequences.
