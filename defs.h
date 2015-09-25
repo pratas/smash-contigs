@@ -90,7 +90,7 @@ typedef int8_t   I8;
 #define NSYM                   4
 #define GUARD                  64
 #define MAX_FILENAME           4096
-#define MAX_CONTIG_NAME        100
+#define MAX_CONTIG_NAME        30
 #define DEFAULT_SCALE          150
 #define MAX_POS_CACHE          100000
 
