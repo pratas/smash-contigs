@@ -46,6 +46,19 @@ uint32_t start, uint64_t minimum){
     refNBases);
     fprintf(stderr, "Target number of bases ............. %"PRIu64"\n", 
     conNBases);
+    fprintf(stderr, "Link type .......................... %u\n", P->link); 
+    fprintf(stderr, "Chromosomes design characteristics:\n");
+    fprintf(stderr, "  [+] Width ........................ %u\n", width); 
+    fprintf(stderr, "  [+] Space ........................ %u\n", space); 
+    fprintf(stderr, "  [+] Multiplication factor ........ %u\n", mult); 
+    fprintf(stderr, "  [+] Begin ........................ %u\n", start); 
+    fprintf(stderr, "  [+] Minimum ...................... %"PRIi64"\n", 
+    minimum); 
+    fprintf(stderr, "  [+] Show regular ................. %s\n", P->inversion ?
+    "yes" : "no"); 
+    fprintf(stderr, "  [+] Show inversions .............. %s\n", P->regular ?
+    "yes" : "no"); 
+    fprintf(stderr, "Output map filename ................ %s\n", P->image); 
     fprintf(stderr, "\n");
     }
 
