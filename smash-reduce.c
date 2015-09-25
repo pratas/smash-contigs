@@ -13,14 +13,10 @@
 #include <sys/uio.h>
 #include <sys/mman.h>
 #include "mem.h"
-#include "seq.h"
-#include "pos.h"
 #include "time.h"
 #include "defs.h"
 #include "param.h"
 #include "msg.h"
-#include "parser.h"
-#include "buffer.h"
 #include "common.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -46,8 +42,7 @@ void ReduceProjections(char *fn){
   fprintf(OUT, "#SCF\t%"PRIi64"\t%"PRIi64"\n", conNBases, refNBases);
 
   // READ BODY
-  int64_t posCache[MAX_POS_CACHE][4];
-  uint8_t posUsage[MAX_POS_CACHE];
+  int64_t  posCache[MAX_POS_CACHE][4], posCacheIr[MAX_POS_CACHE][4];
   int64_t idx = 0, idxIr = 0;
   while(1){
     char tmp1[MAX_STR] = {'\0'}, tmp2[MAX_STR] = {'\0'};
@@ -66,10 +61,10 @@ void ReduceProjections(char *fn){
         idx = 0;
       }
     else{ // INVERTED
-      posCache[idxIr][0] = cx;
-      posCache[idxIr][1] = cy;
-      posCache[idxIr][2] = rx;
-      posCache[idxIr][3] = ry;
+      posCacheIr[idxIr][0] = cx;
+      posCacheIr[idxIr][1] = cy;
+      posCacheIr[idxIr][2] = rx;
+      posCacheIr[idxIr][3] = ry;
 
       if(++idxIr == MAX_POS_CACHE)
         idxIr = 0;
