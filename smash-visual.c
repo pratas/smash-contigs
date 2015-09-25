@@ -54,9 +54,9 @@ uint32_t start, uint64_t minimum){
     fprintf(stderr, "  [+] Begin ........................ %u\n", start); 
     fprintf(stderr, "  [+] Minimum ...................... %"PRIi64"\n", 
     minimum); 
-    fprintf(stderr, "  [+] Show regular ................. %s\n", P->inversion ?
+    fprintf(stderr, "  [+] Show regular ................. %s\n", P->regular?
     "yes" : "no"); 
-    fprintf(stderr, "  [+] Show inversions .............. %s\n", P->regular ?
+    fprintf(stderr, "  [+] Show inversions .............. %s\n", P->inversion?
     "yes" : "no"); 
     fprintf(stderr, "Output map filename ................ %s\n", P->image); 
     fprintf(stderr, "\n");
