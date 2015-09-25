@@ -40,11 +40,11 @@ uint32_t start, uint64_t minimum){
     }
 
   if(P->verbose){
-    fprintf(stderr, "==[ CONFIGURATION ]================\n");
-    fprintf(stderr, "Verbose mode ...................... yes\n");
-    fprintf(stderr, "Reference number of bases ......... %"PRIu64"\n", 
+    fprintf(stderr, "==[ CONFIGURATION ]=================\n");
+    fprintf(stderr, "Verbose mode ....................... yes\n");
+    fprintf(stderr, "Reference number of bases .......... %"PRIu64"\n", 
     refNBases);
-    fprintf(stderr, "Target number of bases ............ %"PRIu64"\n", 
+    fprintf(stderr, "Target number of bases ............. %"PRIu64"\n", 
     conNBases);
     fprintf(stderr, "\n");
     }
