@@ -87,6 +87,7 @@ typedef int8_t   I8;
 #define DEF_LINK               5
 #define MIN_LINK               0
 #define MAX_LINK               5
+#define DEF_DELE               1
 #define NSYM                   4
 #define GUARD                  64
 #define MAX_FILENAME           4096

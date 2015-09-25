@@ -21,7 +21,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - - - R E D U C E - - - - - - - - - - - - - - - -
-void ReduceProjections(char *fn){
+void ReduceProjections(char *fn, uint8_t delete){
   FILE *IN = NULL, *OUT = NULL;
   char name[MAX_FILENAME], watermark[MAX_FILENAME];
   sprintf(name, "%s.red", fn);
@@ -76,7 +76,8 @@ void ReduceProjections(char *fn){
     }
   fprintf(stderr, "\rDone!                   \n");
 
-  // unlink(fn);
+  if(!delete)
+    unlink(fn);
   fclose(IN);
   fclose(OUT);
   }
@@ -88,6 +89,7 @@ void ReduceProjections(char *fn){
 int32_t main(int argc, char *argv[]){
   char **p = *&argv;
 
+  uint8_t delete;
   P = (Parameters *) Malloc(1 * sizeof(Parameters));
   if((P->help = ArgsState(DEF_HELP, p, argc, "-h")) == 1 || argc < 2){
     PrintMenuReduce();
@@ -102,6 +104,7 @@ int32_t main(int argc, char *argv[]){
   P->verbose    = ArgsState (DEF_VERBOSE, p, argc, "-v" );
   P->force      = ArgsState (DEF_FORCE,   p, argc, "-F" );
   P->inversion  = ArgsState (DEF_INVE,    p, argc, "-i" );
+  delete        = ArgsState (DEF_DELE,    p, argc, "-d" );
   P->minimum    = ArgsNum   (DEF_MINI,    p, argc, "-m", MIN_MINI, MAX_MINI);
   P->threshold  = ArgsNum   (DEF_TSHO,    p, argc, "-t", MIN_TSHO, MAX_TSHO);
   P->nThreads   = ArgsNum   (DEF_THRE,    p, argc, "-n", MIN_THRE, MAX_THRE);
@@ -119,6 +122,8 @@ int32_t main(int argc, char *argv[]){
     ? "no" : "yes");
     fprintf(stderr, "Force mode ......................... %s\n", P->force == 0 ?
     "no" : "yes");
+    fprintf(stderr, "Delete input file .................. %s\n", delete == 1 ? 
+    "no" : "yes");
     fprintf(stderr, "Using inversions ................... %s\n", P->inversion ==
      0 ? "no" : "yes");
     fprintf(stderr, "Minimum block size ................. %u\n", P->minimum);
@@ -129,7 +134,7 @@ int32_t main(int argc, char *argv[]){
 
   fprintf(stderr, "==[ PROCESSING ]====================\n");
   TIME *Time = CreateClock(clock());
-  ReduceProjections(argv[argc-1]);
+  ReduceProjections(argv[argc-1], delete);
   StopTimeNDRM(Time, clock());
   fprintf(stderr, "\n");
 

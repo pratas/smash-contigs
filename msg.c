@@ -38,6 +38,7 @@ void PrintMenuReduce(void){
   "  -h                         give this help,                             \n"
   "  -V                         display version number,                     \n"
   "  -v                         verbose mode (more information),            \n"
+  "  -d                         delete input map file,                      \n"
   "  -e <editions>              maximum gaps allowed between maps,          \n"
   "  -o <FILE>                  output filename with reduced maps,          \n"
   "                                                                         \n"
