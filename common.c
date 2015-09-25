@@ -355,14 +355,26 @@ char *ArgsString(char *def, char *arg[], uint32_t n, char *str)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-char *ArgsFiles(char *arg[], uint32_t argc, char *str){
+char *ArgsFilesMap(char *arg[], uint32_t argc, char *str){
   int32_t n = argc;
 
   for( ; --n ; )
     if(!strcmp(str, arg[n]))
       return CloneString(arg[n+1]);
   
-  return concatenate("match", ".pos");
+  return concatenate("match", ".map");
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+char *ArgsFilesReduce(char *arg[], uint32_t argc, char *str){
+  int32_t n = argc;
+
+  for( ; --n ; )
+    if(!strcmp(str, arg[n]))
+      return CloneString(arg[n+1]);
+
+  return concatenate("match", ".red");
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

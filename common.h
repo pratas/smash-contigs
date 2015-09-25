@@ -31,7 +31,8 @@ uint32_t    ArgsNum          (uint32_t , char *[], uint32_t, char *, uint32_t,
 double      ArgsDouble       (double, char *[], uint32_t, char *);
 uint8_t     ArgsState        (uint8_t  , char *[], uint32_t, char *);
 char        *ArgsString      (char    *, char *[], uint32_t, char *);
-char        *ArgsFiles       (char *[], uint32_t, char *);
+char        *ArgsFilesMap    (char *[], uint32_t, char *);
+char        *ArgsFilesReduce (char *[], uint32_t, char *);
 char        *ArgsFilesImg    (char *[], uint32_t, char *);
 void        TestReadFile     (char *);
 uint8_t     CmpCheckSum      (uint32_t, uint32_t);
