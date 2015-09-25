@@ -16,7 +16,6 @@ void PrintMenuMap(void){
   "  -k <k-mer>                 k-mer size [1;20],                          \n"
   "  -m <minimum>               minimum similar block size,                 \n"
   "  -r <repeats>               maximum repeats number,                     \n"
-  "  -t <threshold>             maximum gaps allowed between copies,        \n"
   "  -i                         do NOT map inversions,                      \n"
   "  -n <nThreads>              number of threads,                          \n"
   "  -o <FILE>                  output text filename with positions,        \n"

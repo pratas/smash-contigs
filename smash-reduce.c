@@ -170,14 +170,12 @@ int32_t main(int argc, char *argv[]){
   TIME *Time = CreateClock(clock());
   ReduceAction();
   ThreadConcatenation();
-
   StopTimeNDRM(Time, clock());
   fprintf(stderr, "\n");
 
   fprintf(stderr, "==[ STATISTICS ]====================\n");
   StopCalcAll(Time, clock());
   fprintf(stderr, "\n");
-
   RemoveClock(Time);
 
   return EXIT_SUCCESS;
