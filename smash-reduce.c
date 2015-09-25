@@ -62,7 +62,6 @@ void ReduceProjections(Threads T){
 
       }
 
-    //------------------------------------------------------------------------
 */ 
 
     fprintf(OUT, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
@@ -112,10 +111,10 @@ void ThreadConcatenation(void){
   uint8_t *buf = (uint8_t *) Malloc(BUFFER_SIZE * sizeof(uint8_t));
 
   fprintf(stderr, "  [+] Joinning thread files ...\n");
-
+  // HEADER WITH SIZES TO DRAW CHROMOSOMES IN SMASH-VISUAL
   OUT = Fopen(P->positions, "w");
   fprintf(OUT, "#SCF\t%"PRIi64"\t%"PRIi64"\n", P->Con.nBases, P->Ref.nBases);
-
+  // CONCATENATION CHAR BY CHAR -> TODO: USE BLOCK
   for(n = 0 ; n < P->nThreads ; ++n){
     char tmp[MAX_FILENAME];
     sprintf(tmp, "%s.t%u.cat", P->positions, n+1);
@@ -126,7 +125,6 @@ void ThreadConcatenation(void){
     unlink(tmp);
     }
   fclose(OUT);
-
   fprintf(stderr, "      Done!                \n");
   }
 

@@ -35,7 +35,7 @@ uint32_t start, uint64_t minimum){
   if(fscanf(POS, "%s\t%"PRIi64"\t%"PRIi64"\n", watermark, &conNBases,
   &refNBases) != 3 || watermark[0] != '#' || watermark[1] != 'S' ||
   watermark[2] != 'C' || watermark[3] != 'F'){
-    fprintf(stderr, "  [x] Error: unknown positions file format!\n");
+    fprintf(stderr, "[x] Error: unknown positions file format!\n");
     exit(1);
     }
 
@@ -50,7 +50,7 @@ uint32_t start, uint64_t minimum){
     }
 
   fprintf(stderr, "==[ PROCESSING ]====================\n");
-  fprintf(stderr, "  Printing plot ...\n");
+  fprintf(stderr, "Printing plot ...\n");
 
   SetRatio(MAX(refNBases, conNBases) / DEFAULT_SCALE);
   Paint = CreatePainter(GetPoint(refNBases), GetPoint(conNBases), (double) 
@@ -217,11 +217,11 @@ uint32_t start, uint64_t minimum){
   rewind(POS);
 
   if(P->regular)
-    fprintf(stderr, "  Found %"PRIu64" regular regions. \n", regular);
+    fprintf(stderr, "Found %"PRIu64" regular regions. \n", regular);
   if(P->inversion)
-    fprintf(stderr, "  Found %"PRIu64" inverted regions.\n", inverse);
+    fprintf(stderr, "Found %"PRIu64" inverted regions.\n", inverse);
   if(P->verbose)
-    fprintf(stderr, "  Ignored %"PRIu64" regions.\n", ignored);
+    fprintf(stderr, "Ignored %"PRIu64" regions.\n", ignored);
 
   Chromosome(PLOT, Paint->width, Paint->refSize, Paint->cx, Paint->cy);
   Chromosome(PLOT, Paint->width, Paint->tarSize, Paint->cx + Paint->space +
@@ -229,7 +229,7 @@ uint32_t start, uint64_t minimum){
   PrintFinal(PLOT);
   fclose(POS);
 
-  fprintf(stderr, "  Done!                       \n");
+  fprintf(stderr, "Done!                       \n");
   }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -264,8 +264,15 @@ int32_t main(int argc, char *argv[]){
   P->image      = ArgsFilesImg           (p, argc, "-o");
 
   fprintf(stderr, "\n");
+  TIME *Time = CreateClock(clock());
   PrintPlot(argv[argc-1], width, space, mult, start, minimum);
+  StopTimeNDRM(Time, clock());
   fprintf(stderr, "\n");
+
+  fprintf(stderr, "==[ STATISTICS ]====================\n");
+  StopCalcAll(Time, clock());
+  fprintf(stderr, "\n");
+  RemoveClock(Time);
 
   return EXIT_SUCCESS;
   }
