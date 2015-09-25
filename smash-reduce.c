@@ -36,12 +36,6 @@ void ReduceProjections(char *fn){
 
   fprintf(stderr, "Reducing projections ... \n");
 
-/*
-  int64_t posCache[MAX_POS_CACHE][4];
-  uint8_t PosUsage[MAX_POS_CACHE];
-  int64_t idx = 0;
-*/
-
   // READ HEADER
   if(fscanf(IN, "%s\t%"PRIi64"\t%"PRIi64"\n", watermark, &conNBases,
   &refNBases) != 3 || watermark[0] != '#' || watermark[1] != 'S' ||
@@ -52,27 +46,34 @@ void ReduceProjections(char *fn){
   fprintf(OUT, "#SCF\t%"PRIi64"\t%"PRIi64"\n", conNBases, refNBases);
 
   // READ BODY
+  int64_t posCache[MAX_POS_CACHE][4];
+  uint8_t posUsage[MAX_POS_CACHE];
+  int64_t idx = 0, idxIr = 0;
   while(1){
     char tmp1[MAX_STR] = {'\0'}, tmp2[MAX_STR] = {'\0'};
     if(fscanf(IN, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
                   "%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\n", 
                   tmp1, &ci, &cf, &cx, &cy, tmp2, &ri, &rf, &rx, &ry) != 10)
-      break;
-/*
+      break; // FOUND UNEXPECTED LINE OR END OF FILE
+
     if(cf > ci){
-      posCache[idx][0] = ci;
-      posCache[idx][1] = cf;
-      posCache[idx][2] = ri;
-      posCache[idx][3] = rf;
+      posCache[idx][0] = cx;
+      posCache[idx][1] = cy;
+      posCache[idx][2] = rx;
+      posCache[idx][3] = ry;
 
       if(++idx == MAX_POS_CACHE)
         idx = 0;
       }
     else{ // INVERTED
+      posCache[idxIr][0] = cx;
+      posCache[idxIr][1] = cy;
+      posCache[idxIr][2] = rx;
+      posCache[idxIr][3] = ry;
 
+      if(++idxIr == MAX_POS_CACHE)
+        idxIr = 0;
       }
-
-*/ 
 
     fprintf(OUT, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
                  "%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\n", 
@@ -80,7 +81,7 @@ void ReduceProjections(char *fn){
     }
   fprintf(stderr, "\rDone!                   \n");
 
-  //unlink(fn);
+  // unlink(fn);
   fclose(IN);
   fclose(OUT);
   }
@@ -117,7 +118,19 @@ int32_t main(int argc, char *argv[]){
     }
 
   fprintf(stderr, "\n");
-  if(P->verbose) PrintArgs(P);
+  if(P->verbose){
+    fprintf(stderr, "==[ CONFIGURATION ]=================\n");
+    fprintf(stderr, "Verbose mode ....................... %s\n", P->verbose == 0
+    ? "no" : "yes");
+    fprintf(stderr, "Force mode ......................... %s\n", P->force == 0 ?
+    "no" : "yes");
+    fprintf(stderr, "Using inversions ................... %s\n", P->inversion ==
+     0 ? "no" : "yes");
+    fprintf(stderr, "Minimum block size ................. %u\n", P->minimum);
+    //fprintf(stderr, "Number of threads .................. %u\n", P->nThreads);
+    fprintf(stderr, "Output reduced filename ............ %s\n", P->positions);
+    fprintf(stderr, "\n");
+    }
 
   fprintf(stderr, "==[ PROCESSING ]====================\n");
   TIME *Time = CreateClock(clock());
