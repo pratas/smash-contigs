@@ -13,6 +13,7 @@
 #include <sys/uio.h>
 #include <sys/mman.h>
 #include "mem.h"
+#include "lines.h"
 #include "time.h"
 #include "defs.h"
 #include "param.h"
@@ -42,29 +43,48 @@ void ReduceProjections(char *fn, uint8_t delete){
   fprintf(OUT, "#SCF\t%"PRIi64"\t%"PRIi64"\n", conNBases, refNBases);
 
   // READ BODY
-  int64_t  posCache[MAX_POS_CACHE][4], posCacheIr[MAX_POS_CACHE][4];
-  int64_t idx = 0, idxIr = 0;
+  LCACHE *LCache = CreateLCache(100);
+  int64_t idx = 0, idxIr = 0, lines = 0;
+
   while(1){
     char tmp1[MAX_STR] = {'\0'}, tmp2[MAX_STR] = {'\0'};
     if(fscanf(IN, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
                   "%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\n", 
-                  tmp1, &ci, &cf, &cx, &cy, tmp2, &ri, &rf, &rx, &ry) != 10)
+                  tmp1, 
+                  &LCache->Lines[LCache->idx].contigs_relative_init_pos, 
+                  &LCache->Lines[LCache->idx].contigs_relative_end_pos, 
+                  &LCache->Lines[LCache->idx].contigs_absolute_init_pos, 
+                  &LCache->Lines[LCache->idx].contigs_absolute_end_pos, 
+
+                  tmp2,
+                  &LCache->Lines[LCache->idx].reference_relative_init_pos,
+                  &LCache->Lines[LCache->idx].reference_relative_end_pos, 
+                  &LCache->Lines[LCache->idx].reference_absolute_init_pos, 
+                  &LCache->Lines[LCache->idx].reference_absolute_end_pos) 
+                  != 10)
       break; // FOUND UNEXPECTED LINE OR END OF FILE
 
     if(cf > ci){
-      posCache[idx][0] = cx;
-      posCache[idx][1] = cy;
-      posCache[idx][2] = rx;
-      posCache[idx][3] = ry;
+
+      if(lines != 0){ // IT IS NOT THE FIRST REGULAR PATTERN
+//      if(posCache[idx][1] - posCache[idx-1][0] <= P->threshold){
+
+
+
+          }
+        else{
+
+
+          }
 
       if(++idx == MAX_POS_CACHE)
         idx = 0;
       }
     else{ // INVERTED
-      posCacheIr[idxIr][0] = cx;
-      posCacheIr[idxIr][1] = cy;
-      posCacheIr[idxIr][2] = rx;
-      posCacheIr[idxIr][3] = ry;
+//      posCacheIr[idxIr][0] = cx;
+//      posCacheIr[idxIr][1] = cy;
+//      posCacheIr[idxIr][2] = rx;
+//      posCacheIr[idxIr][3] = ry;
 
       if(++idxIr == MAX_POS_CACHE)
         idxIr = 0;
@@ -73,9 +93,11 @@ void ReduceProjections(char *fn, uint8_t delete){
     fprintf(OUT, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
                  "%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\n", 
                  tmp1, ci, cf, cx, cy, tmp2, ri, rf, rx, ry);
+    ++lines;
     }
   fprintf(stderr, "\rDone!                   \n");
 
+  RemoveLCache(LCache);
   if(!delete)
     unlink(fn);
   fclose(IN);

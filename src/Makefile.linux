@@ -1,13 +1,13 @@
 BIN    = .
 CC     = gcc
-CPLP   = -fstrict-aliasing -ffast-math -msse2 -g
+CPLP   = -fstrict-aliasing -ffast-math -msse2
 #-----------------------------------------------------------------------------
 CFLAGS = -O3 -Wall $(CPLP)
 #-----------------------------------------------------------------------------
 LIBS   = -lm -lpthread
 DEPS   = defs.h param.h
 PROGS  = $(BIN)/smash-map $(BIN)/smash-reduce $(BIN)/smash-visual
-OBJS   = mem.o common.o hash.o rmodel.o msg.o parser.o pos.o paint.o time.o seq.o buffer.o 
+OBJS   = mem.o common.o hash.o rmodel.o msg.o lines.o parser.o pos.o paint.o time.o seq.o buffer.o 
 all:
 	$(MAKE) progs
 progs: $(PROGS)
@@ -27,6 +27,8 @@ rmodel.o: rmodel.c rmodel.h $(DEPS)
 	$(CC) -c $(CFLAGS) rmodel.c
 msg.o: msg.c msg.h $(DEPS)
 	$(CC) -c $(CFLAGS) msg.c
+lines.o: lines.c lines.h $(DEPS)
+	$(CC) -c $(CFLAGS) lines.c
 parser.o: parser.c parser.h $(DEPS)
 	$(CC) -c $(CFLAGS) parser.c
 paint.o: paint.c paint.h $(DEPS)
