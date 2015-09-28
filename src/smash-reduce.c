@@ -26,7 +26,7 @@ void ReduceProjections(char *fn, uint8_t delete){
   FILE *IN = NULL, *OUT = NULL;
   char name[MAX_FILENAME], watermark[MAX_FILENAME];
   sprintf(name, "%s.red", fn);
-  int64_t refNBases, conNBases, ri, rf, ci, cf, cx, cy, rx, ry;
+  int64_t refNBases, conNBases; // ri, rf, ci, cf, cx, cy, rx, ry;
 
   IN  = Fopen(fn,   "r");
   OUT = Fopen(name, "w");
@@ -44,55 +44,52 @@ void ReduceProjections(char *fn, uint8_t delete){
 
   // READ BODY
   LCACHE *LCache = CreateLCache(100);
-  int64_t idx = 0, idxIr = 0, lines = 0;
+  int64_t idxIr = 0, lines = 0;
 
   while(1){
-    char tmp1[MAX_STR] = {'\0'}, tmp2[MAX_STR] = {'\0'};
-    if(fscanf(IN, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
-                  "%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\n", 
-                  tmp1, 
-                  &LCache->Lines[LCache->idx].contigs_relative_init_pos, 
-                  &LCache->Lines[LCache->idx].contigs_relative_end_pos, 
-                  &LCache->Lines[LCache->idx].contigs_absolute_init_pos, 
-                  &LCache->Lines[LCache->idx].contigs_absolute_end_pos, 
+    ResetChar2Bar0(LCache->Lines[LCache->idx].contigs_name);
+    ResetChar2Bar0(LCache->Lines[LCache->idx].reference_name);
 
-                  tmp2,
-                  &LCache->Lines[LCache->idx].reference_relative_init_pos,
-                  &LCache->Lines[LCache->idx].reference_relative_end_pos, 
-                  &LCache->Lines[LCache->idx].reference_absolute_init_pos, 
-                  &LCache->Lines[LCache->idx].reference_absolute_end_pos) 
-                  != 10)
+    if(fscanf(IN, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t"
+                  "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\n", 
+              // TODO: the struct access must improved since is the same idx;
+              LCache->Lines[LCache->idx].contigs_name,
+             &LCache->Lines[LCache->idx].contigs_relative_init_pos, 
+             &LCache->Lines[LCache->idx].contigs_relative_end_pos, 
+             &LCache->Lines[LCache->idx].contigs_absolute_init_pos, 
+             &LCache->Lines[LCache->idx].contigs_absolute_end_pos, 
+              LCache->Lines[LCache->idx].reference_name,
+             &LCache->Lines[LCache->idx].reference_relative_init_pos,
+             &LCache->Lines[LCache->idx].reference_relative_end_pos, 
+             &LCache->Lines[LCache->idx].reference_absolute_init_pos, 
+             &LCache->Lines[LCache->idx].reference_absolute_end_pos) != 10)
       break; // FOUND UNEXPECTED LINE OR END OF FILE
 
-    if(cf > ci){
+    if(LCache->Lines[LCache->idx].contigs_absolute_end_pos > 
+       LCache->Lines[LCache->idx].contigs_absolute_init_pos){
 
       if(lines != 0){ // IT IS NOT THE FIRST REGULAR PATTERN
 //      if(posCache[idx][1] - posCache[idx-1][0] <= P->threshold){
 
 
-
           }
         else{
 
-
           }
 
-      if(++idx == MAX_POS_CACHE)
-        idx = 0;
+      PrintLine(LCache, OUT, LCache->idx);
+
+      UpdateLCacheIdx(LCache);
       }
     else{ // INVERTED
-//      posCacheIr[idxIr][0] = cx;
-//      posCacheIr[idxIr][1] = cy;
-//      posCacheIr[idxIr][2] = rx;
-//      posCacheIr[idxIr][3] = ry;
 
       if(++idxIr == MAX_POS_CACHE)
         idxIr = 0;
       }
 
-    fprintf(OUT, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
-                 "%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\n", 
-                 tmp1, ci, cf, cx, cy, tmp2, ri, rf, rx, ry);
+//    fprintf(OUT, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
+//                 "%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\n", 
+//                 tmp1, ci, cf, cx, cy, tmp2, ri, rf, rx, ry);
     ++lines;
     }
   fprintf(stderr, "\rDone!                   \n");

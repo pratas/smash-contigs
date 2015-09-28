@@ -24,15 +24,17 @@ LINE;
 typedef struct{
   LINE     *Lines;
   uint64_t idx;
-  uint64_t nLines;
+  uint64_t max;
   }
 LCACHE;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-LCACHE        *CreateLCache   (size_t);
-void          PrintLine       (LCACHE *, FILE *, uint32_t);
-void          RemoveLCache    (LCACHE *);
+LCACHE        *CreateLCache    (size_t);
+void          PrintLine        (LCACHE *, FILE *, uint32_t);
+void          ResetChar2Bar0   (char *);
+void          UpdateLCacheIdx  (LCACHE *);
+void          RemoveLCache     (LCACHE *);
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
