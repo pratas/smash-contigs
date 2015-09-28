@@ -5,7 +5,6 @@
 #include <float.h>
 #include <ctype.h>
 #include <time.h>
-#include <pthread.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -17,8 +16,8 @@
 #include "defs.h"
 #include "param.h"
 #include "msg.h"
-#include "paint.h"
 #include "common.h"
+#include "paint.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // - - - - - - - - - - - - - - - - - - P L O T - - - - - - - - - - - - - - - -
