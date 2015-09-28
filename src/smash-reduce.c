@@ -44,7 +44,7 @@ void ReduceProjections(char *fn, uint8_t delete){
 
   // READ BODY
   LCACHE *LCache = CreateLCache(100);
-  int64_t idxIr = 0, lines = 0;
+  uint64_t lines = 0;
 
   while(1){
     ResetChar2Bar0(LCache->Lines[LCache->idx].contigs_name);
@@ -68,23 +68,28 @@ void ReduceProjections(char *fn, uint8_t delete){
     if(LCache->Lines[LCache->idx].contigs_absolute_end_pos > 
        LCache->Lines[LCache->idx].contigs_absolute_init_pos){
 
-      if(lines != 0){ // IT IS NOT THE FIRST REGULAR PATTERN
-//      if(posCache[idx][1] - posCache[idx-1][0] <= P->threshold){
+      if(lines == 0){ // IT IS NOT THE FIRST REGULAR PATTERN
+        UpdateLCacheIdx(LCache);
+        ++lines;
+        continue;
+        }
+        
+      if(LCache->Lines[LCache->idx]  .contigs_absolute_end_pos - 
+         LCache->Lines[LCache->idx-1].contigs_absolute_init_pos 
+        <= P->threshold){
+         
+          
+        }
+      else{
 
-
-          }
-        else{
-
-          }
+        }
 
       PrintLine(LCache, OUT, LCache->idx);
 
-      UpdateLCacheIdx(LCache);
+      UpdateLCacheIdxInit(LCache);
       }
     else{ // INVERTED
 
-      if(++idxIr == MAX_POS_CACHE)
-        idxIr = 0;
       }
 
 //    fprintf(OUT, "%s\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%"PRIi64"\t%s\t"
