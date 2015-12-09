@@ -12,10 +12,13 @@ This is a Linux server version. Current implementation is limited to a reference
 <pre>
 wget https://github.com/pratas/smash-contigs/archive/master.zip
 unzip master.zip
-cd smash-contigs-master
+cd smash-contigs-master/src/
+cmake .
 make
-cp smash-contigs ..
-cd ..
+cp smash-map ../../
+cp smash-reduce ../../
+cp smash-visual ../../
+cd ../../
 </pre>
 
 ## USAGE ##
