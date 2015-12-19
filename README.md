@@ -10,9 +10,8 @@ This is a Linux server version. Current implementation is limited to a reference
 ## INSTALLATION ##
 
 <pre>
-wget https://github.com/pratas/smash-contigs/archive/master.zip
-unzip master.zip
-cd smash-contigs-master/src/
+git clone https://github.com/pratas/smash-contigs.git
+cd smash-contigs/src/
 cmake .
 make
 cp smash-map ../../
