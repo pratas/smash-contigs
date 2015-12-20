@@ -248,7 +248,7 @@ void Chromosome(FILE *F, double w, double h, double x, double y)
             "height=\"%.2lf\" "
             "x=\"%.2lf\" "
             "y=\"%.2lf\" "
-            "ry=\"12.5\" "
+            "ry=\"1\" "
           "/>\n", borderColor, w, h, x, y);
   }
 
