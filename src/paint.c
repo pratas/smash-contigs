@@ -220,7 +220,7 @@ void Chromosome(FILE *F, double w, double h, double x, double y)
   {
   char    borderColor[] = "#000000";
   double  wk = w / 2 + 0.5;
-
+/*
   fprintf(F, "<path "
          "d=\"m %.2lf,"
          "%.2lf 0,"
@@ -238,6 +238,7 @@ void Chromosome(FILE *F, double w, double h, double x, double y)
          "id=\"rect3787\" style=\"fill:#fff;fill-opacity:1;fill-rule:"
          "nonzero;stroke:none\" />", x+0.5+w, y+0.5+h, 
          wk, wk, wk, wk, wk, wk, wk, wk, wk, wk, wk);
+*/
 
   fprintf(F, "<rect style=\"fill:none;stroke:%s;stroke-width:2;"
             "stroke-linecap:butt;stroke-linejoin:miter;"
